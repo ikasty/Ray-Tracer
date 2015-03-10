@@ -4,7 +4,12 @@
 #include "msl_math.h"
 #include <math.h>
 
-//삼각형 로테이트 시키기
+/* 
+코드 이름에 속지 마세요. 
+전반적으로 각도 변화에 따라 삼격형의 좌표를 바꿔주는 것에 대한 정보가 들어가 있습니다.
+*/
+
+// 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠?
 // 이게 그겁니다. 으아아앙!
 float transformation[3][3];
@@ -33,9 +38,6 @@ void set_rotate(int num_frame){
 	transformation[1][2]=-r_sin;
 	transformation[2][1]=r_sin;
 	transformation[2][2]=r_cos;
-
-	// 전역 변수에 값을 넣어 줍니다. 
-	//one_minus_cos = 1.0-r_cos;
 }
 
 /* 
@@ -59,114 +61,36 @@ void get_rotated_vector(float theta, float *original_vector, float *rotated_vect
 	}
 	return;
 }
-/*
-triangle getTriangle(int id_org)
-{
-	int id, eo;
-	triangle f_tri;
-	triangle orig_tri;        
-	float degree,radian;
-	
-	int i;
-	float move[3];    //각각의 좌표들의 움직인 정도 저장을 위한 배열
-
-	id = id_org>>1;
-	eo = id_org%2;
-	degree=3.6;
-	radian=degree*id*PI/180; //각도 표현을 라디안 표현법으로 고치기
-
-	orig_tri.vert0[0]=10.0;
-	orig_tri.vert0[1]=110.0;
-	orig_tri.vert0[2]=10.0;
-	orig_tri.vert1[0]=100.0;
-	orig_tri.vert1[1]=200.0;
-	orig_tri.vert1[2]=10.0;
-	orig_tri.vert2[0]=200.0;
-	orig_tri.vert2[1]=110.0;
-	orig_tri.vert2[2]=10.0;
-
-
-	move[0]=orig_tri.vert1[0];
-	move[1]=orig_tri.vert0[1];
-	move[2]=orig_tri.vert0[2];
-	
-
-	
-	if(eo==0){
-		f_tri.vert0[0]=get_rotated_vector(radian,id,orig_tri.vert0,move).x;
-		f_tri.vert0[1]=get_rotated_vector(radian,id,orig_tri.vert0,move).y;
-		f_tri.vert0[2]=get_rotated_vector(radian,id,orig_tri.vert0,move).z;
-		f_tri.vert1[0]=get_rotated_vector(radian,id,orig_tri.vert1,move).x;
-		f_tri.vert1[1]=get_rotated_vector(radian,id,orig_tri.vert1,move).y;
-		f_tri.vert1[2]=get_rotated_vector(radian,id,orig_tri.vert1,move).z;
-		f_tri.vert2[0]=get_rotated_vector(radian,id,orig_tri.vert2,move).x;
-		f_tri.vert2[1]=get_rotated_vector(radian,id,orig_tri.vert2,move).y;
-		f_tri.vert2[2]=get_rotated_vector(radian,id,orig_tri.vert2,move).z;
-	}else{
-		f_tri.vert0[0]=get_rotated_vector(radian,id,orig_tri.vert2,move).x;
-		f_tri.vert0[1]=get_rotated_vector(radian,id,orig_tri.vert2,move).y;
-		f_tri.vert0[2]=get_rotated_vector(radian,id,orig_tri.vert2,move).z;
-		f_tri.vert1[0]=get_rotated_vector(radian,id,orig_tri.vert1,move).x;
-		f_tri.vert1[1]=get_rotated_vector(radian,id,orig_tri.vert1,move).y;
-		f_tri.vert1[2]=get_rotated_vector(radian,id,orig_tri.vert1,move).z;
-		f_tri.vert2[0]=get_rotated_vector(radian,id,orig_tri.vert0,move).x;
-		f_tri.vert2[1]=get_rotated_vector(radian,id,orig_tri.vert0,move).y;
-		f_tri.vert2[2]=get_rotated_vector(radian,id,orig_tri.vert0,move).z;
-	}
-
-	return f_tri;
-}
-*/
 
 /* 
 getTriangle: 회전을 수행한 후 삼각형의 좌표를 반환하는 함수입니다.
-- v: 
-- t: 삼각형의 꼭지점 id가 들어있는 행렬입니다.
-- id_org
+- v: 꼭지점들의 좌표가 들어있는 2차원 행렬입니다.
+- t: 삼각형들의 꼭지점 id가 들어있는 2차원 행렬입니다.
+- id_org: 삼각형의 id입니다.
 - num_frame: 의미없는 변수입니다.
-
-* result_t
+* result_t: 주어진 삼각형을 회전시킨 후의 위치 정보가 들어가 있습니다.
 */
 triangle getTriangle(Vertex v[5000], Triangle t[5000], int id_org, int num_frame)
 {    
     int id;
 	float degree,radian;
-	float move[3][3];    //각각의 좌표들의 움직인 정도 저장을 위한 배열
-    triangle get_t,result_t;
+    triangle result_t;
 
 	// 원래는 각도를 넘겨주어 transformation을 수행해야하지만
 	// set_rotattion함수가 모든 것을 다 하므로 아래 각도 값은 의미가 없습니다.
 	degree = 12.0;
-	radian=degree*num_frame*PI/180; 
+	radian = degree*num_frame*PI/180; 
 
 	id = id_org;
-	
-	/*
-	get_t.vert0[0]=v[t[id].v1-1].x;
-	get_t.vert0[1]=v[t[id].v1-1].y;
-	get_t.vert0[2]=v[t[id].v1-1].z;
-	get_t.vert1[0]=v[t[id].v2-1].x;
-	get_t.vert1[1]=v[t[id].v2-1].y;
-	get_t.vert1[2]=v[t[id].v2-1].z;
-	get_t.vert2[0]=v[t[id].v3-1].x;
-	get_t.vert2[1]=v[t[id].v3-1].y;
-	get_t.vert2[2]=v[t[id].v3-1].z;
-	*/
 
-	//get_rotated_vector(radian,get_t.vert0, result_t.vert0);
-	get_rotated_vector(radian, (float*) &v[t[id].v1-1].x, result_t.vert0);
-	//result_t.vert0[1]=get_rotated_vector(radian,get_t.vert0).y;
-	//result_t.vert0[2]=get_rotated_vector(radian,get_t.vert0).z;
-
-	get_rotated_vector(radian, (float*) &v[t[id].v2-1].x, result_t.vert1);
-	//get_rotated_vector(radian,get_t.vert1, result_t.vert1);
-	//result_t.vert1[1]=get_rotated_vector(radian,get_t.vert1).y;
-	//result_t.vert1[2]=get_rotated_vector(radian,get_t.vert1).z;
-
-	get_rotated_vector(radian, (float*) &v[t[id].v3-1].x, result_t.vert2);
-	//get_rotated_vector(radian,get_t.vert2, result_t.vert2);
-	//result_t.vert2[1]=get_rotated_vector(radian,get_t.vert2).y;
-	//result_t.vert2[2]=get_rotated_vector(radian,get_t.vert2).z;
+	// 아래에서 호출되는 get_rotated_vector 함수의 두번째 인자로
+	// id가 id_org인 삼각형(t[id])의 첫번째 Vertex(id값이 t[id].v1-1)의 주소를 넘겨줍니다.
+	// 받는 함수 쪽에서는 Vertex 구조체를 float 배열로 생각하게 됩니다. 
+	// 참고로 첫번째 인자는 함수내에서 안쓰이고, 세번째 인자에 실행 결과가 들어갑니다.
+	get_rotated_vector(radian, (float*) &v[t[id].v1-1], result_t.vert0);
+	// 이하 생략
+	get_rotated_vector(radian, (float*) &v[t[id].v2-1], result_t.vert1);
+	get_rotated_vector(radian, (float*) &v[t[id].v3-1], result_t.vert2);
 	
 	return result_t;
 }

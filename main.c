@@ -78,7 +78,7 @@ int main()
 	{
 		// 로테이션 작업에 필요한 기본 정보를 집어넣습니다.
 		set_rotate(num_of_frame);
-		// bmp buffer 배열을 초기화해 줍니다.
+		// bmp buffer 배열인 screen_1_dim을 초기화해 줍니다.
 		memset(screen_1_dim, 0, sizeof(screen_1_dim));
 	
 		for(index_y=0;index_y<input_cam.resy;index_y++)
@@ -109,7 +109,7 @@ int main()
 					*/
 				}
 			}
-			// 진행 상황을 콘솔 화면에 출력해 줍니다. 
+			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다. 
 			// \r을 쓰면 첫행으로 돌아가 덮어쓰게됩니다.
 			printf("frame %03d: %5.2f %%\r", framenumber, index_y*100.0f/input_cam.resy);
 		}
@@ -118,7 +118,7 @@ int main()
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(filename,"out_%03d.bmp",framenumber);
 		
-		// 실제 bmp 파일을 만들어 줍니다. screen_1_dim 행렬에 색상정보가 모두 들어가 있습니다.
+		// 실제 bmp 파일을 만들어 줍니다. screen_1_dim 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(x_screen, y_screen, screen_1_dim, filename);
 
 		// 새로 생긴 파일 이름을 화면에 출력해 줍니다.
