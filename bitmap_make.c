@@ -5,6 +5,7 @@
 #include <math.h>
 
 #define SWAP16(x) (((((x) & 0xFF) << 8 | (((x) >> 8) & 0xff))))
+
 void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 {
 	BITMAPFILEHEADER FileHeader;
@@ -41,7 +42,5 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
     fwrite(&ImageHeader, sizeof(unsigned char), sizeof(BITMAPINFOHEADER), fp);
 	fwrite(FB, sizeof(unsigned int), res_x * res_y, fp);
 
-
 	fclose(fp);
-
 }

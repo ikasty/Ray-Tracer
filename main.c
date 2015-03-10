@@ -14,15 +14,14 @@ Vertex v[5000];
 void set_rotate(int num_frame);
 
 int main()
-{	
-	
+{		
 	msl_ray f_ray;
 	hit ist_hit;
 	camera input_cam;
 
-	
-
 	//int screen[y_screen][x_screen];
+
+	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 	int screen_1_dim[x_screen*y_screen];
 	float light[3];
 	unsigned int color;
@@ -52,35 +51,35 @@ int main()
 	input_cam.resx=x_screen;
 	input_cam.resy=y_screen;
 
-	
-   
-	
-	
+
+	// 오브젝트 파일을 쭉 읽어 봅니다.
 	if (fp != NULL)
 	{
 		while (fgets(line, 99, fp))
+		{
+			// 꼭지점에 대한 정보를 읽어서 좌표를 저장합니다.
+			if (line[0] == 'v')
 			{
-				if (line[0] == 'v')
-				{
-					sscanf(line, "%*c %f %f %f", &v[vertexCount].x, &v[vertexCount].y, &v[vertexCount].z);                  
-					vertexCount++;
-				} 
-				else if (line[0] == 'f')
-				{
-					sscanf(line, "%*c %d %d %d",  &t[triangleCount].v1, &t[triangleCount].v2, &t[triangleCount].v3);
-					triangleCount++;
-				}   
+				sscanf(line, "%*c %f %f %f", &v[vertexCount].x, &v[vertexCount].y, &v[vertexCount].z);                  
+				vertexCount++;
+			}
+			// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
+			// 면은 기본적으로 모두 삼각형입니다.
+			// 꼭지점의 ID는 위에서부터 1입니다.
+			else if (line[0] == 'f')
+			{
+				sscanf(line, "%*c %d %d %d",  &t[triangleCount].v1, &t[triangleCount].v2, &t[triangleCount].v3);
+				triangleCount++;
+			}   
 		}   
 	}
 	
-	 
-	for(framenumber=0;framenumber<30;framenumber++)
+	for(framenumber=0; framenumber<30; framenumber++)
 	{
-
-		
-	
+		// 로테이션 작업에 필요한 기본 정보를 집어넣습니다.
 		set_rotate(num_of_frame);
-		printf("\r\n");
+		// bmp buffer 배열을 초기화해 줍니다.
+		memset(screen_1_dim, 0, sizeof(screen_1_dim));
 	
 		for(index_y=0;index_y<input_cam.resy;index_y++)
 		{
@@ -92,14 +91,14 @@ int main()
 
 				for(triangle_id=0;triangle_id<triangleCount*2;triangle_id++)
 				{
-					
 					ist_hit=intersect_triangle(f_ray,getTriangle(v,t,triangle_id,num_of_frame));
 					
 					if(ist_hit.t>0 && min_t>ist_hit.t)
 					{
-					min_t=ist_hit.t;
-					color= Shading(f_ray,getTriangle(v,t,triangle_id,num_of_frame),ist_hit);	
-					screen_1_dim[x_screen*index_y+index_x]=	color;
+						min_t=ist_hit.t;
+						color= Shading(f_ray,getTriangle(v,t,triangle_id,num_of_frame),ist_hit);
+						// bmp파일을 작성에 필요한 색상정보를 입력합니다.
+						screen_1_dim[x_screen*index_y+index_x]=	color;
 					}
 					/*
 					if(shadow_test(f_ray,light,getTriangle("cube.obj",triangle_id))==1)
@@ -108,25 +107,23 @@ int main()
 						screen_1_dim[x_screen*index_y+index_x]=	color;
 					}
 					*/
-					
 				}
-				
-
-				
-				
-
 			}
-			printf("frame %03d: %5.2f %%\r",framenumber, index_y*100.0f/input_cam.resy);
+			// 진행 상황을 콘솔 화면에 출력해 줍니다. 
+			// \r을 쓰면 첫행으로 돌아가 덮어쓰게됩니다.
+			printf("frame %03d: %5.2f %%\r", framenumber, index_y*100.0f/input_cam.resy);
 		}
-
-		printf("\n");
+		printf("frame %03d: %5.2f %%\n", framenumber, index_y*100.0f/input_cam.resy);
 	
+		// filename 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(filename,"out_%03d.bmp",framenumber);
 		
+		// 실제 bmp 파일을 만들어 줍니다. screen_1_dim 행렬에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(x_screen, y_screen, screen_1_dim, filename);
-		printf("out_%03d.bmp",framenumber);
+
+		// 새로 생긴 파일 이름을 화면에 출력해 줍니다.
+		printf("out_%03d.bmp\n",framenumber);
 		num_of_frame++;
 	}	
-	
 	return 0;
 }

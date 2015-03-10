@@ -7,12 +7,8 @@
 #include "type.h"
 
 
-
-
 hit intersect_triangle(msl_ray ray, triangle triangle)
 {
-	
-
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;
 	static float t,u,v;
@@ -68,7 +64,6 @@ hit intersect_triangle(msl_ray ray, triangle triangle)
 	ist_hit.v =v;
 	
 	return ist_hit;
-	
 }
 
 
