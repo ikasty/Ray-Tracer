@@ -3,7 +3,7 @@
 #include "type.h"
 
 
-msl_ray gen_ray(camera msl_cam,int current_x,int current_y)
+msl_ray gen_ray(camera msl_cam, float current_x, float current_y)
 {
 	msl_ray make_ray;
 	int get_dir;
