@@ -2,6 +2,7 @@
 #include <string.h>
 #include "type.h"
 #include "main.h"
+#include "file_read.h"
 
 #define x_screen 320
 #define y_screen 240
@@ -32,14 +33,16 @@ int main()
 	char filename[100];
 	int vertexCount = 0;
     int triangleCount = 0;
-    char line[100];
 	int num_of_frame = 0;
+
+	// 데이터 저장용 구조체
+	struct Data data;
+
 	FILE *fp;
 	
-	// file open
+	// 파일 열기
 	fopen_s(&fp, "cube.obj", "r");
 	
-
 	//광원
 	light[0] = 100.0;
 	light[1] = 300.0;
@@ -54,28 +57,15 @@ int main()
 	input_cam.resx = x_screen;
 	input_cam.resy = y_screen;
 
+	// 파일에서 데이터를 불러옵니다
+	memset(&data, 0, sizeof(data));
+	if ( file_read(fp, &data) < 0 ) return -1;
 
-	// 오브젝트 파일을 쭉 읽어 봅니다.
-	if (fp != NULL)
-	{
-		while ( fgets(line, 99, fp) )
-		{
-			// 꼭지점에 대한 정보를 읽어서 좌표를 저장합니다.
-			if (line[0] == 'v')
-			{
-				sscanf_s(line, "%*c %f %f %f", &v[vertexCount].x, &v[vertexCount].y, &v[vertexCount].z);                  
-				vertexCount++;
-			}
-			// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
-			// 면은 기본적으로 모두 삼각형입니다.
-			// 꼭지점의 ID는 위에서부터 1입니다.
-			else if (line[0] == 'f')
-			{
-				sscanf_s(line, "%*c %d %d %d",  &t[triangleCount].v1, &t[triangleCount].v2, &t[triangleCount].v3);
-				triangleCount++;
-			}   
-		}   
-	}
+	// Data 구조체를 그냥 사용하는게 좋겠지만, 호환성을 위해 변경함
+	memcpy_s(v, sizeof(v), data.vert, sizeof(Vertex) * data.vert_count);
+	memcpy_s(t, sizeof(t), data.face, sizeof(Triangle) * data.face_count);
+	vertexCount = data.vert_count;
+	triangleCount = data.face_count;
 	
 	for (framenumber = 0; framenumber < 30; framenumber++)
 	{
@@ -90,7 +80,7 @@ int main()
 			{
 				float min_t = 1000000;
 			
-				f_ray = gen_ray(input_cam, index_x + input_cam.orig[0], index_y + input_cam.orig[1]);
+				f_ray = gen_ray(input_cam, (float)index_x + input_cam.orig[0], (float)index_y + input_cam.orig[1]);
 
 				for (triangle_id = 0; triangle_id < triangleCount * 2; triangle_id++)
 				{

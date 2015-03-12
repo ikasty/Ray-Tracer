@@ -1,3 +1,6 @@
+#ifndef TYPE_H
+#define TYPE_H
+
 typedef struct
 {
 	float x,y,z;
@@ -32,7 +35,6 @@ typedef struct
 	int resx,resy;
 }camera;
 
-
 typedef struct  {
        
        int v1;
@@ -48,3 +50,14 @@ typedef struct  {
       float z;
             
 }Vertex;
+
+// 전체 데이터를 저장하기 위한 구조체
+struct Data {
+	Vertex *vert;
+	int vert_count;
+
+	Triangle *face;
+	int face_count;
+};
+
+#endif
