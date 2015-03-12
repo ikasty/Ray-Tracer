@@ -34,7 +34,10 @@ int main()
     int triangleCount = 0;
     char line[100];
 	int num_of_frame=0;
-   	FILE *fp = fopen("cube.obj","r");
+	FILE *fp;
+	
+	// file open
+	fopen_s(&fp, "cube.obj", "r");
 	
 
 	//광원
@@ -60,7 +63,7 @@ int main()
 			// 꼭지점에 대한 정보를 읽어서 좌표를 저장합니다.
 			if (line[0] == 'v')
 			{
-				sscanf(line, "%*c %f %f %f", &v[vertexCount].x, &v[vertexCount].y, &v[vertexCount].z);                  
+				sscanf_s(line, "%*c %f %f %f", &v[vertexCount].x, &v[vertexCount].y, &v[vertexCount].z);                  
 				vertexCount++;
 			}
 			// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
@@ -68,7 +71,7 @@ int main()
 			// 꼭지점의 ID는 위에서부터 1입니다.
 			else if (line[0] == 'f')
 			{
-				sscanf(line, "%*c %d %d %d",  &t[triangleCount].v1, &t[triangleCount].v2, &t[triangleCount].v3);
+				sscanf_s(line, "%*c %d %d %d",  &t[triangleCount].v1, &t[triangleCount].v2, &t[triangleCount].v3);
 				triangleCount++;
 			}   
 		}   
@@ -116,7 +119,7 @@ int main()
 		printf("frame %03d: %5.2f %%\n", framenumber, index_y*100.0f/input_cam.resy);
 	
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(filename,"out_%03d.bmp",framenumber);
+		sprintf_s(filename,100,"out_%03d.bmp",framenumber);
 		
 		// 실제 bmp 파일을 만들어 줍니다. screen_1_dim 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(x_screen, y_screen, screen_1_dim, filename);
