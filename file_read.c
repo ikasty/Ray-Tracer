@@ -17,23 +17,58 @@ static void resize_if_full(void **array, int curr, int *capacity, int size)
 	}
 }
 
+static void face_read(char *buf, int *v, int *vt, int *vn)
+{
+	char *c = buf;
+	int boolean = 1;
+	int data[3], index = 0;
+	int value = 0;
+
+	while (*c) {
+		switch (*c)
+		{
+		case '-':
+			boolean = -1;
+			break;
+		case '/':
+			data[index++] = value * boolean;
+			boolean = 1;
+			value = 0;
+			break;
+		default:
+			// error check
+			if ((*c) < '0' || (*c) > '9') return ;
+
+			value *= 10;
+			value += (*c) - '0';
+		}
+		c++;
+	} // while
+
+	*v = data[0];
+	*vt = data[1];
+	*vn = data[2];
+}
+
 /**
  * obj 파일을 읽는 함수입니다.
  * 파일 문법은 http://paulbourke.net/dataformats/obj/ 를 참고하세요.
  */
 int file_read(FILE* fp, struct Data *data)
 {
-	char buf[100];
-	int buf_start = 0;
+	char buf_orig[100];
 
 	if (fp == NULL)
 		return -1;
 
-	while (fgets(buf, 99, fp))
+	while (fgets(buf_orig, 99, fp))
 	{
+		char *buf = buf_orig;
+		int read_size = 0;
 		char op[10];
 		
-		sscanf_s(buf, "%s%n", op, sizeof(op), &buf_start);
+		sscanf_s(buf, "%s%n", op, sizeof(op), &read_size);
+		buf += read_size;
 		
 		// 주석 처리
 		if (op[0] == '#') continue;
@@ -48,7 +83,7 @@ int file_read(FILE* fp, struct Data *data)
 			// 필요하다면 배열 크기를 늘림
 			resize_if_full( (void**)&data->vert, (*vert_count), &vert_capacity, sizeof(data->vert[0]) );
 
-			sscanf_s(buf + buf_start, "%f %f %f %f", &x, &y, &z, &w);
+			sscanf_s(buf, "%f %f %f %f", &x, &y, &z, &w);
 			// 우리는 w값을 사용하지 않음
 			data->vert[*vert_count].x = x;
 			data->vert[*vert_count].y = y;
@@ -62,36 +97,48 @@ int file_read(FILE* fp, struct Data *data)
 		// 꼭지점의 ID는 위에서부터 1입니다.
 		else if (strcmp(op, "f") == 0)
 		{
-			int read_size;
-
 			int *face_count = &data->face_count;
 			static int face_capacity = 0;
-			char value[100];
-			int v;// , vt, vn;
+			char face_buf[100];
+			int v, vt, vn;
 
 			int result[3];
-			int i = 0;
+			int cnt = 0;
 
 			// 필요하다면 배열 크기를 늘림
 			resize_if_full((void**)&data->face, (*face_count), &face_capacity, sizeof(data->face[0]));
 
-			// 원래는 %d/%d/%d 포맷이지만, 일단 %d만 있다고 가정하고 한다.
-			// 또한 삼각형이 아닐 수도 있지만, 무조건 삼각형이라고 가정하고 한다.
-			while ( sscanf_s(buf + buf_start, "%s%n", value, sizeof(value), &read_size) > 0 )
+			// 가능한 포맷은 %d, %d/%d, %d/%d/%d, %d//%d 임
+			// 각각 v, v/vt, v/vt/vn, v//vn을 의미함
+			while ( sscanf_s(buf, "%s%n", face_buf, sizeof(face_buf), &read_size) > 0 )
 			{
-				if (i > 2) break; // TODO: 이 문장 없앨 것!
+				buf += read_size;
 
-				buf_start += read_size;
-				sscanf_s(value, "%d", &v);
-				result[i++] = v;
-			}
+				// face_buf에서 각각의 값을 읽어옴
+				face_read(face_buf, &v, &vt, &vn);
+				// 하지만 현재는 v값만 사용함
+				result[cnt] = v;
 
-			data->face[*face_count].v1 = result[0];
-			data->face[*face_count].v2 = result[1];
-			data->face[*face_count].v3 = result[2];
-			(*face_count)++;
+				// relative accessing 지원
+				if (result[cnt] < 0) result[cnt] += data->vert_count;
 
-		}
+				if (cnt < 2)
+				{
+					cnt++;
+				}
+				else
+				{
+					// 삼각형 데이터 넣기
+					data->face[*face_count].v1 = result[0];
+					data->face[*face_count].v2 = result[1];
+					data->face[*face_count].v3 = result[2];
+					(*face_count)++;
+					
+					// 다각형을 삼각형으로 쪼개기 위해 넣음
+					result[1] = result[2];
+				}
+			} // while
+		} // op "f"
 	}
 
 	return 0;
