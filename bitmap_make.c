@@ -1,8 +1,11 @@
-//#include "bitmap_make.h"
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <Windows.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
+#include "cross-compile.h"
 
 #define SWAP16(x) (((((x) & 0xFF) << 8 | (((x) >> 8) & 0xff))))
 
@@ -13,7 +16,7 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 
 	FILE *fp;
 
-	fopen_s(&fp, file_name,"wb");
+	fp = fopen(file_name,"wb");
 	
 //* FileHeader ****************************************************//
 	FileHeader.bfType = 0x424D;

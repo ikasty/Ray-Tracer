@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <string.h>
 #include "type.h"
@@ -38,10 +40,7 @@ int main()
 	// 데이터 저장용 구조체
 	struct Data data;
 
-	FILE *fp;
-	
-	// 파일 열기
-	fopen_s(&fp, "cube.obj", "r");
+	FILE *fp = fopen("cube.obj", "r");;
 	
 	//광원
 	light[0] = 100.0;
@@ -62,8 +61,8 @@ int main()
 	if ( file_read(fp, &data) < 0 ) return -1;
 
 	// Data 구조체를 그냥 사용하는게 좋겠지만, 호환성을 위해 변경함
-	memcpy_s(v, sizeof(v), data.vert, sizeof(Vertex) * data.vert_count);
-	memcpy_s(t, sizeof(t), data.face, sizeof(Triangle) * data.face_count);
+	memcpy(v, data.vert, sizeof(Vertex) * data.vert_count);
+	memcpy(t, data.face, sizeof(Triangle) * data.face_count);
 	vertexCount = data.vert_count;
 	triangleCount = data.face_count;
 	
@@ -109,7 +108,7 @@ int main()
 		printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
 	
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf_s(filename, 100, "out_%03d.bmp", framenumber);
+		sprintf(filename, "out_%03d.bmp", framenumber);
 		
 		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(x_screen, y_screen, screen_buffer, filename);
