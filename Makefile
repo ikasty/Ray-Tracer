@@ -4,35 +4,40 @@ SRCS := $(shell ls | grep c$$)
 DEPEND_FILE = depend_file
 
 ifeq ($(MAKECMDGOALS), release)
-OBJS_DIR=gcc_release
+DEFINE = 	
+OBJS_DIR = gcc_release
 else
-OBJS_DIR=gcc_debug
+DEFINE = -DDEBUG
+OBJS_DIR = gcc_debug
 endif
 
 OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
 
 .SUFFIXES: .c .o
-.PHONY: all release debug clean
+.PHONY: all release debug clean test
 
 all:
 	@echo "=========================="
-	@echo "$(SRCS:%.c=%)"
 	@echo "usage: make release"
 	@echo "       make debug"
 	@echo "       make clean"
+	@echo "       make test"
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
-	gcc -c $< -o $@
+	$(CC) $(DEFINE) -c $< -o $@
 
 release: chkdir depend $(OBJS)
-	gcc $(OBJS) -o $(OBJS_DIR)/$(TARGET)
+	$(CC) $(DEFINE) $(OBJS) -o $(TARGET)
 
 debug: chkdir depend $(OBJS)
-	gcc $(OBJS) -o $(OBJS_DIR)/$(TARGET)
+	$(CC) $(DEFINE) $(OBJS) -o $(TARGET)
 
 clean:
-	@rm -rf $(DEPEND_FILE) debug release
+	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET)
+
+test:
+	$(TARGET)
 
 
 chkdir:
@@ -41,7 +46,7 @@ chkdir:
 depend: chkdir
 	@rm -f $(DEPEND_FILE)
 	@for FILE in $(SRCS:%.c=%); do \
-		gcc -MM -MT $(OBJS_DIR)/$$FILE.o $$FILE.c >> $(DEPEND_FILE); \
+		$(CC) -MM -MT $(OBJS_DIR)/$$FILE.o $$FILE.c >> $(DEPEND_FILE); \
 	done
 
 -include $(DEPEND_FILE)

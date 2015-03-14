@@ -8,6 +8,7 @@
 #define CROSS_COMPILE_H
 
 #include <errno.h>
+#include <string.h>
 #include <stdint.h>
 
 ////////////////////////////
