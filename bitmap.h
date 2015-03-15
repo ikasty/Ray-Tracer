@@ -2,36 +2,45 @@
 #define BITMAP_H
 
 typedef unsigned short      WORD;
-typedef unsigned long       DWORD;
+#ifdef _WIN32
+typedef unsigned long		DWORD;
 typedef long				LONG;
+#else
+#include <sys/types.h>
+typedef uint32_t			DWORD;
+typedef uint32_t			LONG;
+#endif
 
 #ifdef _WIN32
 #pragma pack(push,2)
 #else
-#pragma pack(2)
+# if !(defined(lint) || defined(RC_INVOKED))
+# pragma pack(push,2)
+# endif
 #endif
 
+#if (__GNUC__ == 4) && (__GNUC_MINOR__ >= 7) && defined(__MINGW32__)
+#pragma ms_struct off
+#endif
+
+#ifdef _WIN32
 struct tagBITMAPFILEHEADER {
+#else
+struct __attribute__ ((aligned (2), packed, ms_struct)) tagBITMAPFILEHEADER {
+#endif
 	WORD    bfType;
 	DWORD   bfSize;
 	WORD    bfReserved1;
 	WORD    bfReserved2;
 	DWORD   bfOffBits;
-#ifdef _WIN32
 };
-#else
-} __attribute__((packed));
-#endif
-
 typedef struct tagBITMAPFILEHEADER BITMAPFILEHEADER;
 
 #ifdef _WIN32
-#pragma pack(pop)
+struct tagBITMAPINFOHEADER{
 #else
-#pragma pack()
+struct __attribute__((aligned(1), packed, ms_struct)) tagBITMAPINFOHEADER{
 #endif
-
-typedef struct tagBITMAPINFOHEADER{
 	DWORD      biSize;
 	LONG       biWidth;
 	LONG       biHeight;
@@ -43,7 +52,16 @@ typedef struct tagBITMAPINFOHEADER{
 	LONG       biYPelsPerMeter;
 	DWORD      biClrUsed;
 	DWORD      biClrImportant;
-} BITMAPINFOHEADER;
+};
+typedef struct tagBITMAPINFOHEADER BITMAPINFOHEADER;
+
+#ifdef _WIN32
+#pragma pack(pop)
+#else
+# if !(defined(lint) || defined(RC_INVOKED))
+# pragma pack(pop)
+# endif
+#endif
 
 /* constants for the biCompression field */
 #define BI_RGB        0L
