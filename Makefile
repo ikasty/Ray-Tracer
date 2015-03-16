@@ -2,6 +2,7 @@ CC = gcc
 TARGET = RayTracing.exe
 SRCS := $(shell ls | grep c$$)
 DEPEND_FILE = depend_file
+CCLIB = -lm
 
 ifeq ($(MAKECMDGOALS), release)
 DEFINE = 	
@@ -25,13 +26,13 @@ all:
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
-	$(CC) $(DEFINE) -c $< -o $@
+	$(CC) $(DEFINE) -c $< -o $@ $(CCLIB)
 
 release: chkdir depend $(OBJS)
-	$(CC) $(DEFINE) $(OBJS) -o $(TARGET)
+	$(CC) $(DEFINE) $(OBJS) -o $(TARGET) $(CCLIB)
 
 debug: chkdir depend $(OBJS)
-	$(CC) $(DEFINE) $(OBJS) -o $(TARGET)
+	$(CC) $(DEFINE) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
 	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET)
