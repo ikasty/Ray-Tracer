@@ -71,10 +71,10 @@ int file_read(FILE* fp, struct Data *data)
 		char *buf = buf_orig;
 		int read_size = 0;
 		char op[10];
-		
-		sscanf(buf, "%s%n", op, sizeof(op), &read_size);
+
+		sscanf(buf, "%s%n", op, &read_size);
 		buf += read_size;
-		
+
 		// 주석 처리
 		if (op[0] == '#') continue;
 
