@@ -8,6 +8,7 @@
 #define CROSS_COMPILE_H
 
 #include <errno.h>
+#include <string.h>
 #include <stdint.h>
 
 ////////////////////////////
@@ -19,18 +20,7 @@
 #ifdef _WIN32
 #	define inline __inline
 #else
-	typedef uint8_t errno_t;
-#	define fopen_s(fs, filename, mode) (*(fs) = fopen(filename, mode))
-	inline static errno_t strcpy_s(char *dest, size_t size, const char *source)
-	{
-		if (!dest) return EINVAL;
-		dest[0] = '\0';
-		if (!source) return EINVAL;
-		if (countof(dest) <= size) return ERANGE;
-		strncpy(dest, source, size);
-		dest[size] = '\0';
-		return 0;
-	}
+
 #endif
 
 ////////////////////////////

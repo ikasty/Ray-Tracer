@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -67,7 +69,7 @@ int file_read(FILE* fp, struct Data *data)
 		int read_size = 0;
 		char op[10];
 		
-		sscanf_s(buf, "%s%n", op, sizeof(op), &read_size);
+		sscanf(buf, "%s%n", op, sizeof(op), &read_size);
 		buf += read_size;
 		
 		// 주석 처리
@@ -83,7 +85,7 @@ int file_read(FILE* fp, struct Data *data)
 			// 필요하다면 배열 크기를 늘림
 			resize_if_full( (void**)&data->vert, (*vert_count), &vert_capacity, sizeof(data->vert[0]) );
 
-			sscanf_s(buf, "%f %f %f %f", &x, &y, &z, &w);
+			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
 			// 우리는 w값을 사용하지 않음
 			data->vert[*vert_count].x = x;
 			data->vert[*vert_count].y = y;

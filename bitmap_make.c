@@ -1,8 +1,12 @@
-//#include "bitmap_make.h"
-#include <Windows.h>
+#define _CRT_SECURE_NO_WARNINGS
+
+//#include <Windows.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+
+#include "bitmap.h"
+#include "cross-compile.h"
 
 #define SWAP16(x) (((((x) & 0xFF) << 8 | (((x) >> 8) & 0xff))))
 
@@ -13,7 +17,7 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 
 	FILE *fp;
 
-	fopen_s(&fp, file_name,"wb");
+	fp = fopen(file_name,"wb");
 	
 //* FileHeader ****************************************************//
 	FileHeader.bfType = 0x424D;
@@ -41,6 +45,10 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 	fwrite(&FileHeader, sizeof(unsigned char), sizeof(BITMAPFILEHEADER), fp);
     fwrite(&ImageHeader, sizeof(unsigned char), sizeof(BITMAPINFOHEADER), fp);
 	fwrite(FB, sizeof(unsigned int), res_x * res_y, fp);
-
+	DEBUG_ONLY(
+		printf("sizeof BITMAPFILEHEADER is %d\n", sizeof(BITMAPFILEHEADER));
+		printf("sizeof BITMAPINFOHEADER is %d\n", sizeof(BITMAPINFOHEADER));
+		printf("sizeof WORD, DWORD, LONG is %d, %d, %d\n", sizeof(WORD), sizeof(DWORD), sizeof(LONG));
+	);
 	fclose(fp);
 }
