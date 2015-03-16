@@ -24,30 +24,30 @@ int main()
 
 	//int screen[y_screen][x_screen];
 
-	// bmpÆÄÀÏÀ» À§ÇÑ »ö»óÁ¤º¸°¡ µé¾î°¡´Â ¹è¿­ÀÔ´Ï´Ù.
+	// bmpíŒŒì¼ì„ ìœ„í•œ ìƒ‰ìƒì •ë³´ê°€ ë“¤ì–´ê°€ëŠ” ë°°ì—´ì…ë‹ˆë‹¤.
 	int screen_buffer[x_screen * y_screen];
 	float light[3];
 	unsigned int color;
 	int triangle_id;
 	int maxNumOfTri = 100;
-	int index_x, index_y;          //½ºÅ©¸°ÀÇ ÇÈ¼¿º°·Î Åë°úÇÏ´Â ·¹ÀÌ °Ë»öÇÏ±â À§ÇÑ º¯¼ö
+	int index_x, index_y;          //ìŠ¤í¬ë¦°ì˜ í”½ì…€ë³„ë¡œ í†µê³¼í•˜ëŠ” ë ˆì´ ê²€ìƒ‰í•˜ê¸° ìœ„í•œ ë³€ìˆ˜
 	int framenumber;
 	char filename[100];
 	int vertexCount = 0;
     int triangleCount = 0;
 	int num_of_frame = 0;
 
-	// µ¥ÀÌÅÍ ÀúÀå¿ë ±¸Á¶Ã¼
+	// ë°ì´í„° ì €ì¥ìš© êµ¬ì¡°ì²´
 	struct Data data;
 
 	FILE *fp = fopen("cube.obj", "r");;
 	
-	//±¤¿ø
+	//ê´‘ì›
 	light[0] = 100.0;
 	light[1] = 300.0;
 	light[2] = 10.0;
 	
-	//ÃßÀûÇÒ ·¹ÀÌÀÇ ½ÃÀÛÁ¡
+	//ì¶”ì í•  ë ˆì´ì˜ ì‹œì‘ì 
 	input_cam.orig[0] = -100.0;
 	input_cam.orig[1] = -50.0;
 	input_cam.orig[2] = -1000.0;
@@ -56,11 +56,11 @@ int main()
 	input_cam.resx = x_screen;
 	input_cam.resy = y_screen;
 
-	// ÆÄÀÏ¿¡¼­ µ¥ÀÌÅÍ¸¦ ºÒ·¯¿É´Ï´Ù
+	// íŒŒì¼ì—ì„œ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜µë‹ˆë‹¤
 	memset(&data, 0, sizeof(data));
 	if ( file_read(fp, &data) < 0 ) return -1;
 
-	// Data ±¸Á¶Ã¼¸¦ ±×³É »ç¿ëÇÏ´Â°Ô ÁÁ°ÚÁö¸¸, È£È¯¼ºÀ» À§ÇØ º¯°æÇÔ
+	// Data êµ¬ì¡°ì²´ë¥¼ ê·¸ëƒ¥ ì‚¬ìš©í•˜ëŠ”ê²Œ ì¢‹ê² ì§€ë§Œ, í˜¸í™˜ì„±ì„ ìœ„í•´ ë³€ê²½í•¨
 	memcpy(v, data.vert, sizeof(Vertex) * data.vert_count);
 	memcpy(t, data.face, sizeof(Triangle) * data.face_count);
 	vertexCount = data.vert_count;
@@ -68,9 +68,9 @@ int main()
 	
 	for (framenumber = 0; framenumber < 30; framenumber++)
 	{
-		// ·ÎÅ×ÀÌ¼Ç ÀÛ¾÷¿¡ ÇÊ¿äÇÑ ±âº» Á¤º¸¸¦ Áı¾î³Ö½À´Ï´Ù.
+		// ë¡œí…Œì´ì…˜ ì‘ì—…ì— í•„ìš”í•œ ê¸°ë³¸ ì •ë³´ë¥¼ ì§‘ì–´ë„£ìŠµë‹ˆë‹¤.
 		set_rotate(num_of_frame);
-		// bmp buffer ¹è¿­ÀÎ screen_bufferÀ» ÃÊ±âÈ­ÇØ Áİ´Ï´Ù.
+		// bmp buffer ë°°ì—´ì¸ screen_bufferì„ ì´ˆê¸°í™”í•´ ì¤ë‹ˆë‹¤.
 		memset(screen_buffer, 0, sizeof(screen_buffer));
 	
 		for (index_y = 0; index_y < input_cam.resy; index_y++)
@@ -89,7 +89,7 @@ int main()
 					{
 						min_t=ist_hit.t;
 						color = Shading(f_ray, getTriangle(v, t, triangle_id, num_of_frame), ist_hit);
-						// bmpÆÄÀÏÀ» ÀÛ¼º¿¡ ÇÊ¿äÇÑ »ö»óÁ¤º¸¸¦ ÀÔ·ÂÇÕ´Ï´Ù.
+						// bmpíŒŒì¼ì„ ì‘ì„±ì— í•„ìš”í•œ ìƒ‰ìƒì •ë³´ë¥¼ ì…ë ¥í•©ë‹ˆë‹¤.
 						screen_buffer[x_screen * index_y + index_x] = color;
 					}
 					/*
@@ -101,19 +101,19 @@ int main()
 					*/
 				}
 			}
-			// ÄÜ¼Ö È­¸é¿¡ ÁøÇà»óÈ²À» ÆÛ¼¾Æ® Çü½ÄÀ¸·Î Ãâ·ÂÇØ Áİ´Ï´Ù. 
-			// \rÀ» ¾²¸é Ã¹ÇàÀ¸·Î µ¹¾Æ°¡ µ¤¾î¾²°ÔµË´Ï´Ù.
+			// ì½˜ì†” í™”ë©´ì— ì§„í–‰ìƒí™©ì„ í¼ì„¼íŠ¸ í˜•ì‹ìœ¼ë¡œ ì¶œë ¥í•´ ì¤ë‹ˆë‹¤. 
+			// \rì„ ì“°ë©´ ì²«í–‰ìœ¼ë¡œ ëŒì•„ê°€ ë®ì–´ì“°ê²Œë©ë‹ˆë‹¤.
 			printf("frame %03d: %5.2f %%\r", framenumber, index_y * 100.0f / input_cam.resy);
 		}
 		printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
 	
-		// filename º¯¼ö¿¡ ÆÄÀÏ ÀÌ¸§À» Áı¾î³Ö¾î Áİ´Ï´Ù.
+		// filename ë³€ìˆ˜ì— íŒŒì¼ ì´ë¦„ì„ ì§‘ì–´ë„£ì–´ ì¤ë‹ˆë‹¤.
 		sprintf(filename, "out_%03d.bmp", framenumber);
 		
-		// ½ÇÁ¦ bmp ÆÄÀÏÀ» ¸¸µé¾î Áİ´Ï´Ù. screen_buffer ¹è¿­¿¡ »ö»óÁ¤º¸°¡ ¸ğµÎ µé¾î°¡ ÀÖ½À´Ï´Ù.
+		// ì‹¤ì œ bmp íŒŒì¼ì„ ë§Œë“¤ì–´ ì¤ë‹ˆë‹¤. screen_buffer ë°°ì—´ì— ìƒ‰ìƒì •ë³´ê°€ ëª¨ë‘ ë“¤ì–´ê°€ ìˆìŠµë‹ˆë‹¤.
 		OutputFrameBuffer(x_screen, y_screen, screen_buffer, filename);
 
-		// »õ·Î »ı±ä ÆÄÀÏ ÀÌ¸§À» È­¸é¿¡ Ãâ·ÂÇØ Áİ´Ï´Ù.
+		// ìƒˆë¡œ ìƒê¸´ íŒŒì¼ ì´ë¦„ì„ í™”ë©´ì— ì¶œë ¥í•´ ì¤ë‹ˆë‹¤.
 		printf("out_%03d.bmp\n", framenumber);
 		num_of_frame++;
 	}

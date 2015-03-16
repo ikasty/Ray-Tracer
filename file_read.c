@@ -61,7 +61,10 @@ int file_read(FILE* fp, struct Data *data)
 	char buf_orig[100];
 
 	if (fp == NULL)
+	{
+		printf("CRITICAL: NO OBJ FILE!");
 		return -1;
+	}
 
 	while (fgets(buf_orig, 99, fp))
 	{
