@@ -6,7 +6,15 @@ typedef unsigned short      WORD;
 typedef unsigned long		DWORD;
 typedef long				LONG;
 #else
+#if defined __UINT32_MAX__ || UINT32_MAX
+#include <inttypes.h>
 #include <sys/types.h>
+#else
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned long uint32_t;
+typedef unsigned long long uint64_t;
+#endif
 typedef uint32_t			DWORD;
 typedef uint32_t			LONG;
 #endif
