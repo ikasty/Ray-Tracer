@@ -1,23 +1,25 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include "type.h"
+#include "settings.h"
 
-
-msl_ray gen_ray(camera msl_cam, float current_x, float current_y)
+msl_ray gen_ray(camera cam, float current_x, float current_y)
 {
 	msl_ray make_ray;
-	int get_dir;
+	int dir;
 	float index[3];
-	
-	index[0]=current_x;
-	index[1]=current_y;
-	index[2]=msl_cam.distance;
-		
-	for(get_dir=0;get_dir<3;get_dir++)
+
+	index[0] = current_x + cam.orig[0];
+	index[1] = current_y + cam.orig[1];
+	index[2] = cam.distance;
+
+	for(dir = 0; dir < 3; dir++)
 	{
-		make_ray.orig[get_dir] = msl_cam.orig[get_dir];
-		make_ray.dir[get_dir] =index[get_dir] - make_ray.orig[get_dir];
+		make_ray.orig[dir] = cam.orig[dir];
+		make_ray.dir[dir] = index[dir] - make_ray.orig[dir];
 	}
+
+	make_ray.max_t = MAX_RENDER_DISTANCE;
 
 	return make_ray;
 }

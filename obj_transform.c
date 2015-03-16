@@ -1,8 +1,9 @@
 ﻿#include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "type.h"
 #include "msl_math.h"
-#include <math.h>
+#include "settings.h"
 
 /* 
 코드 이름에 속지 마세요. 
@@ -10,34 +11,35 @@
 */
 
 // 삼각형 로테이트 시키기
-// 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠?
-// 이게 그겁니다. 으아아앙!
-float transformation[3][3];
+// 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!
+static float transformation[3][3];
 
 /* 
 set_rotate: 받은 frame 번호를 바탕으로 로테이션에 필요한 기본 정보를 채우는 함수입니다.
 - num_frame: 몇번째 frame인지를 나타내는 값입니다.
 */
 void set_rotate(int num_frame){
-	float degree,radian;
+	float degree, radian;
 	float r_cos, r_sin;
 
 	// frame이 30개이므로 한 frame당 12도씩 돌아가게 만들어져 있습니다.
-	degree = 12.0;
+	degree = 360.0 / FRAME_COUNT;
+
 	// 각도 표현을 라디안 표현법으로 고치기
-	radian=degree*num_frame*(float)PI/180; 
+	radian = degree * num_frame * (float)PI / 180; 
 	
-	r_cos=(float)cos(radian);
-	r_sin=(float)sin(radian);
+	r_cos = (float)cos(radian);
+	r_sin = (float)sin(radian);
 	
 	// transformation 배열의 모든 값을 0으로 초기화 합니다.
 	memset(transformation, 0 ,sizeof(transformation));
+
 	// transformation 수행에 필요한 행렬에 값을 집어넣습니다.
-	transformation[0][0]=1;
-	transformation[1][1]=r_cos;
-	transformation[1][2]=-r_sin;
-	transformation[2][1]=r_sin;
-	transformation[2][2]=r_cos;
+	transformation[0][0] = 1;
+	transformation[1][1] = r_cos;
+	transformation[1][2] = -r_sin;
+	transformation[2][1] = r_sin;
+	transformation[2][2] = r_cos;
 }
 
 /* 
@@ -67,7 +69,6 @@ getTriangle: 회전을 수행한 후 삼각형의 좌표를 반환하는 함수�
 - v: 꼭지점들의 좌표가 들어있는 2차원 행렬입니다.
 - t: 삼각형들의 꼭지점 id가 들어있는 2차원 행렬입니다.
 - id_org: 삼각형의 id입니다.
-- num_frame: 의미없는 변수입니다.
 * result_t: 주어진 삼각형을 회전시킨 후의 위치 정보가 들어가 있습니다.
 */
 triangle getTriangle(Vertex v[5000], Triangle t[5000], int id_org, int num_frame)

@@ -6,7 +6,7 @@
 
 unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 {
-	unsigned int Out_color;
+	unsigned int Out_color = 0;
 	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],Line_B[3],multi_A[3],multi_B[3];
 	int get_ist_point;
 	int result_of_color;
@@ -16,10 +16,6 @@ unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 	tuv[1] =__hit.u;
 	tuv[2] =__hit.v;
 
-
-#ifdef UV_SHADING
-	Out_color =0xff000000 | ((int)(255*ou))<<8 |(int)(255*ov) ;//ARGB
-#else
 	if(tuv[1]>0 || tuv[2]> 0 || tuv[1]+tuv[2] <=1 )
 	{
 	
@@ -46,11 +42,10 @@ unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 		cos_AB = 1.0;
 	}
 	cos_AB=abs(acos(cos_AB)*180/PI);
-	result_of_color = (int) 255 * (cos_AB / 90);
-	Out_color =0xff000000 | ((int)(result_of_color*tuv[2]))<<8 | ((int)(result_of_color*tuv[1])) ;//ARGB
+	result_of_color = (int) 255 * (1 - cos_AB / 90);
+	//Out_color = 0xff000000 | ((int)(result_of_color*tuv[0])) << 16 |((int)(result_of_color*tuv[2])) << 8 | ((int)(result_of_color*tuv[1]));//ARGB
+	Out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	
 	}
-	
-#endif
 	return Out_color;
 }

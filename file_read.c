@@ -124,11 +124,12 @@ int file_read(FILE* fp, struct Data *data)
 
 				// face_buf에서 각각의 값을 읽어옴
 				face_read(face_buf, &v, &vt, &vn);
+				
+				// relative accessing 지원
+				if (v < 0) v += data->vert_count + 1;
+
 				// 하지만 현재는 v값만 사용함
 				result[cnt] = v;
-
-				// relative accessing 지원
-				if (result[cnt] < 0) result[cnt] += data->vert_count;
 
 				if (cnt < 2)
 				{
