@@ -1,11 +1,6 @@
-﻿
-
-
-//void OutputFrameBuffer(Shader* SHD, char* file_name);
-
-
-
-
+﻿#ifndef BITMAP_MAKE_H
+#define BITMAP_MAKE_H
+void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name);
 
 typedef struct  
 {
@@ -41,3 +36,5 @@ typedef struct{
     DWORD  biClrImportant;
 
 } _BITMAPINFOHEADER;
+
+#endif

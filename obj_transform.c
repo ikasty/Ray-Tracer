@@ -2,17 +2,14 @@
 #include <string.h>
 #include <math.h>
 #include "type.h"
+#include "obj_transform.h"
 #include "msl_math.h"
 #include "settings.h"
-
-/* 
-코드 이름에 속지 마세요. 
-전반적으로 각도 변화에 따라 삼격형의 좌표를 바꿔주는 것에 대한 정보가 들어가 있습니다.
-*/
 
 // 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!
 static float transformation[3][3];
+static void get_rotated_vector(float *original_vector, float *rotated_vector);
 
 /* 
 set_rotate: 받은 frame 번호를 바탕으로 로테이션에 필요한 기본 정보를 채우는 함수입니다.
@@ -27,10 +24,10 @@ void set_rotate(int num_frame){
 
 	// 각도 표현을 라디안 표현법으로 고치기
 	radian = degree * num_frame * (float)PI / 180; 
-	
+
 	r_cos = (float)cos(radian);
 	r_sin = (float)sin(radian);
-	
+
 	// transformation 배열의 모든 값을 0으로 초기화 합니다.
 	memset(transformation, 0 ,sizeof(transformation));
 
@@ -44,11 +41,10 @@ void set_rotate(int num_frame){
 
 /* 
 get_rotated_vector: vector를 회전시키는 함수입니다. 
-- theta: 원래 각도가 들어갔어야 될것 같지만 이제는 아무 상관 없엉
 - original_vector: 회전을 시키고 싶은 vector입니다.
 - rotated_vector: 회전 결과가 들어갈 vector입니다.
 */
-void get_rotated_vector(float theta, float *original_vector, float *rotated_vector)
+static void get_rotated_vector(float *original_vector, float *rotated_vector)
 {
 	int i,j;
 
@@ -71,27 +67,17 @@ getTriangle: 회전을 수행한 후 삼각형의 좌표를 반환하는 함수�
 - id_org: 삼각형의 id입니다.
 * result_t: 주어진 삼각형을 회전시킨 후의 위치 정보가 들어가 있습니다.
 */
-triangle getTriangle(Vertex v[5000], Triangle t[5000], int id_org, int num_frame)
-{    
-    int id;
-	float degree,radian;
+triangle getTriangle(Vertex v[], Triangle t[], int id)
+{
     triangle result_t;
 
-	// 원래는 각도를 넘겨주어 transformation을 수행해야하지만
-	// set_rotattion함수가 모든 것을 다 하므로 아래 각도 값은 의미가 없습니다.
-	degree = 12.0;
-	radian = degree*num_frame*(float)PI/180; 
-
-	id = id_org;
-
-	// 아래에서 호출되는 get_rotated_vector 함수의 두번째 인자로
-	// id가 id_org인 삼각형(t[id])의 첫번째 Vertex(id값이 t[id].v1-1)의 주소를 넘겨줍니다.
+	// 아래에서 호출되는 get_rotated_vector 함수의 첫 번째 인자로
+	// 삼각형(t[id])의 첫번째 Vertex의 주소를 넘겨줍니다.
 	// 받는 함수 쪽에서는 Vertex 구조체를 float 배열로 생각하게 됩니다. 
-	// 참고로 첫번째 인자는 함수내에서 안쓰이고, 세번째 인자에 실행 결과가 들어갑니다.
-	get_rotated_vector(radian, (float*) &v[t[id].v1-1], result_t.vert0);
-	// 이하 생략
-	get_rotated_vector(radian, (float*) &v[t[id].v2-1], result_t.vert1);
-	get_rotated_vector(radian, (float*) &v[t[id].v3-1], result_t.vert2);
-	
+	// 세번째 인자에 실행 결과가 들어갑니다.
+	get_rotated_vector((float*) &v[ t[id].v1 - 1 ], result_t.vert0);
+	get_rotated_vector((float*) &v[ t[id].v2 - 1 ], result_t.vert1);
+	get_rotated_vector((float*) &v[ t[id].v3 - 1 ], result_t.vert2);
+
 	return result_t;
 }

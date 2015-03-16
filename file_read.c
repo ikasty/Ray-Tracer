@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "file_read.h"
+#include "type.h"
 
 static void resize_if_full(void **array, int curr, int *capacity, int size)
 {
@@ -124,7 +124,7 @@ int file_read(FILE* fp, struct Data *data)
 
 				// face_buf에서 각각의 값을 읽어옴
 				face_read(face_buf, &v, &vt, &vn);
-				
+
 				// relative accessing 지원
 				if (v < 0) v += data->vert_count + 1;
 

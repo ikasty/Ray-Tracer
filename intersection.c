@@ -12,7 +12,7 @@ hit intersect_triangle(msl_ray ray, triangle triangle)
 	static float t, u, v;
 	hit ist_hit;
 	memset(&ist_hit, 0, sizeof(ist_hit));
-	
+
 	// 점 vert0을 공유하고 있는 삼각형의 두 vector를 구한다
 	SUB(edge1, triangle.vert1, triangle.vert0);
 	SUB(edge2, triangle.vert2, triangle.vert0);
