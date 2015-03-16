@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+ï»¿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,8 +53,8 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
 }
 
 /**
- * obj ÆÄÀÏÀ» ÀĞ´Â ÇÔ¼öÀÔ´Ï´Ù.
- * ÆÄÀÏ ¹®¹ıÀº http://paulbourke.net/dataformats/obj/ ¸¦ Âü°íÇÏ¼¼¿ä.
+ * obj íŒŒì¼ì„ ì½ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+ * íŒŒì¼ ë¬¸ë²•ì€ http://paulbourke.net/dataformats/obj/ ë¥¼ ì°¸ê³ í•˜ì„¸ìš”.
  */
 int file_read(FILE* fp, struct Data *data)
 {
@@ -71,25 +71,25 @@ int file_read(FILE* fp, struct Data *data)
 		char *buf = buf_orig;
 		int read_size = 0;
 		char op[10];
-		
-		sscanf(buf, "%s%n", op, sizeof(op), &read_size);
+
+		sscanf(buf, "%s%n", op, &read_size);
 		buf += read_size;
-		
-		// ÁÖ¼® Ã³¸®
+
+		// ì£¼ì„ ì²˜ë¦¬
 		if (op[0] == '#') continue;
 
-		// ²ÀÁöÁ¡¿¡ ´ëÇÑ Á¤º¸¸¦ ÀĞ¾î¼­ ÁÂÇ¥¸¦ ÀúÀåÇÕ´Ï´Ù.
+		// ê¼­ì§€ì ì— ëŒ€í•œ ì •ë³´ë¥¼ ì½ì–´ì„œ ì¢Œí‘œë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
 		if (strcmp(op, "v") == 0)
 		{
 			int *vert_count = &data->vert_count;
 			static int vert_capacity = 0;
 			float x, y, z, w = 1.0;
 
-			// ÇÊ¿äÇÏ´Ù¸é ¹è¿­ Å©±â¸¦ ´Ã¸²
+			// í•„ìš”í•˜ë‹¤ë©´ ë°°ì—´ í¬ê¸°ë¥¼ ëŠ˜ë¦¼
 			resize_if_full( (void**)&data->vert, (*vert_count), &vert_capacity, sizeof(data->vert[0]) );
 
 			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
-			// ¿ì¸®´Â w°ªÀ» »ç¿ëÇÏÁö ¾ÊÀ½
+			// ìš°ë¦¬ëŠ” wê°’ì„ ì‚¬ìš©í•˜ì§€ ì•ŠìŒ
 			data->vert[*vert_count].x = x;
 			data->vert[*vert_count].y = y;
 			data->vert[*vert_count].z = z;
@@ -98,8 +98,8 @@ int file_read(FILE* fp, struct Data *data)
 			continue;
 		}
 
-		// ¸é¿¡ ´ëÇÑ Á¤º¸¸¦ ÀĞ¾î¼­ ¸éÀ» ±¸¼ºÇÏ´Â ²ÀÁöÁ¡ÀÇ ID¸¦ ÀúÀåÇÕ´Ï´Ù.
-		// ²ÀÁöÁ¡ÀÇ ID´Â À§¿¡¼­ºÎÅÍ 1ÀÔ´Ï´Ù.
+		// ë©´ì— ëŒ€í•œ ì •ë³´ë¥¼ ì½ì–´ì„œ ë©´ì„ êµ¬ì„±í•˜ëŠ” ê¼­ì§€ì ì˜ IDë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
+		// ê¼­ì§€ì ì˜ IDëŠ” ìœ„ì—ì„œë¶€í„° 1ì…ë‹ˆë‹¤.
 		else if (strcmp(op, "f") == 0)
 		{
 			int *face_count = &data->face_count;
@@ -110,21 +110,21 @@ int file_read(FILE* fp, struct Data *data)
 			int result[3];
 			int cnt = 0;
 
-			// ÇÊ¿äÇÏ´Ù¸é ¹è¿­ Å©±â¸¦ ´Ã¸²
+			// í•„ìš”í•˜ë‹¤ë©´ ë°°ì—´ í¬ê¸°ë¥¼ ëŠ˜ë¦¼
 			resize_if_full((void**)&data->face, (*face_count), &face_capacity, sizeof(data->face[0]));
 
-			// °¡´ÉÇÑ Æ÷¸ËÀº %d, %d/%d, %d/%d/%d, %d//%d ÀÓ
-			// °¢°¢ v, v/vt, v/vt/vn, v//vnÀ» ÀÇ¹ÌÇÔ
+			// ê°€ëŠ¥í•œ í¬ë§·ì€ %d, %d/%d, %d/%d/%d, %d//%d ì„
+			// ê°ê° v, v/vt, v/vt/vn, v//vnì„ ì˜ë¯¸í•¨
 			while ( sscanf(buf, "%s%n", face_buf, &read_size) > 0 )
 			{
 				buf += read_size;
 
-				// face_buf¿¡¼­ °¢°¢ÀÇ °ªÀ» ÀĞ¾î¿È
+				// face_bufì—ì„œ ê°ê°ì˜ ê°’ì„ ì½ì–´ì˜´
 				face_read(face_buf, &v, &vt, &vn);
-				// ÇÏÁö¸¸ ÇöÀç´Â v°ª¸¸ »ç¿ëÇÔ
+				// í•˜ì§€ë§Œ í˜„ì¬ëŠ” vê°’ë§Œ ì‚¬ìš©í•¨
 				result[cnt] = v;
 
-				// relative accessing Áö¿ø
+				// relative accessing ì§€ì›
 				if (result[cnt] < 0) result[cnt] += data->vert_count;
 
 				if (cnt < 2)
@@ -133,13 +133,13 @@ int file_read(FILE* fp, struct Data *data)
 				}
 				else
 				{
-					// »ï°¢Çü µ¥ÀÌÅÍ ³Ö±â
+					// ì‚¼ê°í˜• ë°ì´í„° ë„£ê¸°
 					data->face[*face_count].v1 = result[0];
 					data->face[*face_count].v2 = result[1];
 					data->face[*face_count].v3 = result[2];
 					(*face_count)++;
 					
-					// ´Ù°¢ÇüÀ» »ï°¢ÇüÀ¸·Î ÂÉ°³±â À§ÇØ ³ÖÀ½
+					// ë‹¤ê°í˜•ì„ ì‚¼ê°í˜•ìœ¼ë¡œ ìª¼ê°œê¸° ìœ„í•´ ë„£ìŒ
 					result[1] = result[2];
 				}
 			} // while

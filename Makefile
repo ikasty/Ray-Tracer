@@ -35,7 +35,7 @@ debug: chkdir depend $(OBJS)
 	$(CC) $(DEFINE) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
-	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET)
+	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET) *.bmp
 
 test:
 	$(TARGET)

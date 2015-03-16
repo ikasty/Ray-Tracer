@@ -1,38 +1,38 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <string.h>
 #include "type.h"
 #include "msl_math.h"
 #include <math.h>
 
 /* 
-ÄÚµå ÀÌ¸§¿¡ ¼ÓÁö ¸¶¼¼¿ä. 
-Àü¹İÀûÀ¸·Î °¢µµ º¯È­¿¡ µû¶ó »ï°İÇüÀÇ ÁÂÇ¥¸¦ ¹Ù²ãÁÖ´Â °Í¿¡ ´ëÇÑ Á¤º¸°¡ µé¾î°¡ ÀÖ½À´Ï´Ù.
+ì½”ë“œ ì´ë¦„ì— ì†ì§€ ë§ˆì„¸ìš”. 
+ì „ë°˜ì ìœ¼ë¡œ ê°ë„ ë³€í™”ì— ë”°ë¼ ì‚¼ê²©í˜•ì˜ ì¢Œí‘œë¥¼ ë°”ê¿”ì£¼ëŠ” ê²ƒì— ëŒ€í•œ ì •ë³´ê°€ ë“¤ì–´ê°€ ìˆìŠµë‹ˆë‹¤.
 */
 
-// »ï°¢Çü ·ÎÅ×ÀÌÆ® ½ÃÅ°±â
-// ´Ôµé ¼±´ë½Ã°£¿¡ È¸Àü transformationÇÒ¶§ ¾²´Â Çà·Ä ¹è¿üÁÒ?
-// ÀÌ°Ô ±×°Ì´Ï´Ù. À¸¾Æ¾Æ¾Ó!
+// ì‚¼ê°í˜• ë¡œí…Œì´íŠ¸ ì‹œí‚¤ê¸°
+// ë‹˜ë“¤ ì„ ëŒ€ì‹œê°„ì— íšŒì „ transformationí• ë•Œ ì“°ëŠ” í–‰ë ¬ ë°°ì› ì£ ?
+// ì´ê²Œ ê·¸ê²ë‹ˆë‹¤. ìœ¼ì•„ì•„ì•™!
 float transformation[3][3];
 
 /* 
-set_rotate: ¹ŞÀº frame ¹øÈ£¸¦ ¹ÙÅÁÀ¸·Î ·ÎÅ×ÀÌ¼Ç¿¡ ÇÊ¿äÇÑ ±âº» Á¤º¸¸¦ Ã¤¿ì´Â ÇÔ¼öÀÔ´Ï´Ù.
-- num_frame: ¸î¹øÂ° frameÀÎÁö¸¦ ³ªÅ¸³»´Â °ªÀÔ´Ï´Ù.
+set_rotate: ë°›ì€ frame ë²ˆí˜¸ë¥¼ ë°”íƒ•ìœ¼ë¡œ ë¡œí…Œì´ì…˜ì— í•„ìš”í•œ ê¸°ë³¸ ì •ë³´ë¥¼ ì±„ìš°ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+- num_frame: ëª‡ë²ˆì§¸ frameì¸ì§€ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ê°’ì…ë‹ˆë‹¤.
 */
 void set_rotate(int num_frame){
 	float degree,radian;
 	float r_cos, r_sin;
 
-	// frameÀÌ 30°³ÀÌ¹Ç·Î ÇÑ frame´ç 12µµ¾¿ µ¹¾Æ°¡°Ô ¸¸µé¾îÁ® ÀÖ½À´Ï´Ù.
+	// frameì´ 30ê°œì´ë¯€ë¡œ í•œ frameë‹¹ 12ë„ì”© ëŒì•„ê°€ê²Œ ë§Œë“¤ì–´ì ¸ ìˆìŠµë‹ˆë‹¤.
 	degree = 12.0;
-	// °¢µµ Ç¥ÇöÀ» ¶óµğ¾È Ç¥Çö¹ıÀ¸·Î °íÄ¡±â
-	radian=degree*num_frame*PI/180; 
+	// ê°ë„ í‘œí˜„ì„ ë¼ë””ì•ˆ í‘œí˜„ë²•ìœ¼ë¡œ ê³ ì¹˜ê¸°
+	radian=degree*num_frame*(float)PI/180; 
 	
-	r_cos=cos(radian);
-	r_sin=sin(radian);
+	r_cos=(float)cos(radian);
+	r_sin=(float)sin(radian);
 	
-	// transformation ¹è¿­ÀÇ ¸ğµç °ªÀ» 0À¸·Î ÃÊ±âÈ­ ÇÕ´Ï´Ù.
+	// transformation ë°°ì—´ì˜ ëª¨ë“  ê°’ì„ 0ìœ¼ë¡œ ì´ˆê¸°í™” í•©ë‹ˆë‹¤.
 	memset(transformation, 0 ,sizeof(transformation));
-	// transformation ¼öÇà¿¡ ÇÊ¿äÇÑ Çà·Ä¿¡ °ªÀ» Áı¾î³Ö½À´Ï´Ù.
+	// transformation ìˆ˜í–‰ì— í•„ìš”í•œ í–‰ë ¬ì— ê°’ì„ ì§‘ì–´ë„£ìŠµë‹ˆë‹¤.
 	transformation[0][0]=1;
 	transformation[1][1]=r_cos;
 	transformation[1][2]=-r_sin;
@@ -41,16 +41,16 @@ void set_rotate(int num_frame){
 }
 
 /* 
-get_rotated_vector: vector¸¦ È¸Àü½ÃÅ°´Â ÇÔ¼öÀÔ´Ï´Ù. 
-- theta: ¿ø·¡ °¢µµ°¡ µé¾î°¬¾î¾ß µÉ°Í °°Áö¸¸ ÀÌÁ¦´Â ¾Æ¹« »ó°ü ¾ø¾û
-- original_vector: È¸ÀüÀ» ½ÃÅ°°í ½ÍÀº vectorÀÔ´Ï´Ù.
-- rotated_vector: È¸Àü °á°ú°¡ µé¾î°¥ vectorÀÔ´Ï´Ù.
+get_rotated_vector: vectorë¥¼ íšŒì „ì‹œí‚¤ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤. 
+- theta: ì›ë˜ ê°ë„ê°€ ë“¤ì–´ê°”ì–´ì•¼ ë ê²ƒ ê°™ì§€ë§Œ ì´ì œëŠ” ì•„ë¬´ ìƒê´€ ì—†ì—‰
+- original_vector: íšŒì „ì„ ì‹œí‚¤ê³  ì‹¶ì€ vectorì…ë‹ˆë‹¤.
+- rotated_vector: íšŒì „ ê²°ê³¼ê°€ ë“¤ì–´ê°ˆ vectorì…ë‹ˆë‹¤.
 */
 void get_rotated_vector(float theta, float *original_vector, float *rotated_vector)
 {
 	int i,j;
 
-	// transformationÀ» ¼öÇàÇÏ¿© ¿ø·¡ ÁÂÇ¥¿¡¼­ È¸Àü ÈÄ ÁÂÇ¥°ªÀ» Ã£½À´Ï´Ù.
+	// transformationì„ ìˆ˜í–‰í•˜ì—¬ ì›ë˜ ì¢Œí‘œì—ì„œ íšŒì „ í›„ ì¢Œí‘œê°’ì„ ì°¾ìŠµë‹ˆë‹¤.
 	for(i=0; i<3; i++)
 	{
 		rotated_vector[i] = 0;
@@ -63,12 +63,12 @@ void get_rotated_vector(float theta, float *original_vector, float *rotated_vect
 }
 
 /* 
-getTriangle: È¸ÀüÀ» ¼öÇàÇÑ ÈÄ »ï°¢ÇüÀÇ ÁÂÇ¥¸¦ ¹İÈ¯ÇÏ´Â ÇÔ¼öÀÔ´Ï´Ù.
-- v: ²ÀÁöÁ¡µéÀÇ ÁÂÇ¥°¡ µé¾îÀÖ´Â 2Â÷¿ø Çà·ÄÀÔ´Ï´Ù.
-- t: »ï°¢ÇüµéÀÇ ²ÀÁöÁ¡ id°¡ µé¾îÀÖ´Â 2Â÷¿ø Çà·ÄÀÔ´Ï´Ù.
-- id_org: »ï°¢ÇüÀÇ idÀÔ´Ï´Ù.
-- num_frame: ÀÇ¹Ì¾ø´Â º¯¼öÀÔ´Ï´Ù.
-* result_t: ÁÖ¾îÁø »ï°¢ÇüÀ» È¸Àü½ÃÅ² ÈÄÀÇ À§Ä¡ Á¤º¸°¡ µé¾î°¡ ÀÖ½À´Ï´Ù.
+getTriangle: íšŒì „ì„ ìˆ˜í–‰í•œ í›„ ì‚¼ê°í˜•ì˜ ì¢Œí‘œë¥¼ ë°˜í™˜í•˜ëŠ” í•¨ìˆ˜ì…ë‹ˆë‹¤.
+- v: ê¼­ì§€ì ë“¤ì˜ ì¢Œí‘œê°€ ë“¤ì–´ìˆëŠ” 2ì°¨ì› í–‰ë ¬ì…ë‹ˆë‹¤.
+- t: ì‚¼ê°í˜•ë“¤ì˜ ê¼­ì§€ì  idê°€ ë“¤ì–´ìˆëŠ” 2ì°¨ì› í–‰ë ¬ì…ë‹ˆë‹¤.
+- id_org: ì‚¼ê°í˜•ì˜ idì…ë‹ˆë‹¤.
+- num_frame: ì˜ë¯¸ì—†ëŠ” ë³€ìˆ˜ì…ë‹ˆë‹¤.
+* result_t: ì£¼ì–´ì§„ ì‚¼ê°í˜•ì„ íšŒì „ì‹œí‚¨ í›„ì˜ ìœ„ì¹˜ ì •ë³´ê°€ ë“¤ì–´ê°€ ìˆìŠµë‹ˆë‹¤.
 */
 triangle getTriangle(Vertex v[5000], Triangle t[5000], int id_org, int num_frame)
 {    
@@ -76,19 +76,19 @@ triangle getTriangle(Vertex v[5000], Triangle t[5000], int id_org, int num_frame
 	float degree,radian;
     triangle result_t;
 
-	// ¿ø·¡´Â °¢µµ¸¦ ³Ñ°ÜÁÖ¾î transformationÀ» ¼öÇàÇØ¾ßÇÏÁö¸¸
-	// set_rotattionÇÔ¼ö°¡ ¸ğµç °ÍÀ» ´Ù ÇÏ¹Ç·Î ¾Æ·¡ °¢µµ °ªÀº ÀÇ¹Ì°¡ ¾ø½À´Ï´Ù.
+	// ì›ë˜ëŠ” ê°ë„ë¥¼ ë„˜ê²¨ì£¼ì–´ transformationì„ ìˆ˜í–‰í•´ì•¼í•˜ì§€ë§Œ
+	// set_rotattioní•¨ìˆ˜ê°€ ëª¨ë“  ê²ƒì„ ë‹¤ í•˜ë¯€ë¡œ ì•„ë˜ ê°ë„ ê°’ì€ ì˜ë¯¸ê°€ ì—†ìŠµë‹ˆë‹¤.
 	degree = 12.0;
-	radian = degree*num_frame*PI/180; 
+	radian = degree*num_frame*(float)PI/180; 
 
 	id = id_org;
 
-	// ¾Æ·¡¿¡¼­ È£ÃâµÇ´Â get_rotated_vector ÇÔ¼öÀÇ µÎ¹øÂ° ÀÎÀÚ·Î
-	// id°¡ id_orgÀÎ »ï°¢Çü(t[id])ÀÇ Ã¹¹øÂ° Vertex(id°ªÀÌ t[id].v1-1)ÀÇ ÁÖ¼Ò¸¦ ³Ñ°ÜÁİ´Ï´Ù.
-	// ¹Ş´Â ÇÔ¼ö ÂÊ¿¡¼­´Â Vertex ±¸Á¶Ã¼¸¦ float ¹è¿­·Î »ı°¢ÇÏ°Ô µË´Ï´Ù. 
-	// Âü°í·Î Ã¹¹øÂ° ÀÎÀÚ´Â ÇÔ¼ö³»¿¡¼­ ¾È¾²ÀÌ°í, ¼¼¹øÂ° ÀÎÀÚ¿¡ ½ÇÇà °á°ú°¡ µé¾î°©´Ï´Ù.
+	// ì•„ë˜ì—ì„œ í˜¸ì¶œë˜ëŠ” get_rotated_vector í•¨ìˆ˜ì˜ ë‘ë²ˆì§¸ ì¸ìë¡œ
+	// idê°€ id_orgì¸ ì‚¼ê°í˜•(t[id])ì˜ ì²«ë²ˆì§¸ Vertex(idê°’ì´ t[id].v1-1)ì˜ ì£¼ì†Œë¥¼ ë„˜ê²¨ì¤ë‹ˆë‹¤.
+	// ë°›ëŠ” í•¨ìˆ˜ ìª½ì—ì„œëŠ” Vertex êµ¬ì¡°ì²´ë¥¼ float ë°°ì—´ë¡œ ìƒê°í•˜ê²Œ ë©ë‹ˆë‹¤. 
+	// ì°¸ê³ ë¡œ ì²«ë²ˆì§¸ ì¸ìëŠ” í•¨ìˆ˜ë‚´ì—ì„œ ì•ˆì“°ì´ê³ , ì„¸ë²ˆì§¸ ì¸ìì— ì‹¤í–‰ ê²°ê³¼ê°€ ë“¤ì–´ê°‘ë‹ˆë‹¤.
 	get_rotated_vector(radian, (float*) &v[t[id].v1-1], result_t.vert0);
-	// ÀÌÇÏ »ı·«
+	// ì´í•˜ ìƒëµ
 	get_rotated_vector(radian, (float*) &v[t[id].v2-1], result_t.vert1);
 	get_rotated_vector(radian, (float*) &v[t[id].v3-1], result_t.vert2);
 	

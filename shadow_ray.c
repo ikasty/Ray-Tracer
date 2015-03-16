@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <string.h>
 #include "type.h"
 #include <math.h>
@@ -9,10 +9,10 @@ int shadow_test(msl_ray ray, float l_source[3],triangle triangle)
 	msl_ray shadow_ray;
 	hit hit_result;
 	
-	int exist_shadow;
+//	int exist_shadow;
 	float shadow_XYZ[3];
 	float shadow_t;
-	float intersect_t;
+//	float intersect_t;
 	int repetition;
 
 	

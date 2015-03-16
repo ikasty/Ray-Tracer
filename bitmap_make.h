@@ -1,4 +1,4 @@
-
+ï»¿
 
 
 //void OutputFrameBuffer(Shader* SHD, char* file_name);
@@ -9,8 +9,8 @@
 
 typedef struct  
 {
-	unsigned int *FrameBuffer; //ÇÁ·¹ÀÓ¹öÆÛ
-	int resx, resy; //ÇØ»óµµ
+	unsigned int *FrameBuffer; //í”„ë ˆì„ë²„í¼
+	int resx, resy; //í•´ìƒë„
 }Shader;
 
 typedef unsigned char  BYTE;

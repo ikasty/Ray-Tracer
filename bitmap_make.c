@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 //#include <Windows.h>
 #include <stdlib.h>
@@ -49,6 +49,7 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 		printf("sizeof BITMAPFILEHEADER is %d\n", sizeof(BITMAPFILEHEADER));
 		printf("sizeof BITMAPINFOHEADER is %d\n", sizeof(BITMAPINFOHEADER));
 		printf("sizeof WORD, DWORD, LONG is %d, %d, %d\n", sizeof(WORD), sizeof(DWORD), sizeof(LONG));
+		printf("sizeof unsigned int is %d\n", sizeof(unsigned int));
 	);
 	fclose(fp);
 }

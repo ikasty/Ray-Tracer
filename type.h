@@ -1,4 +1,4 @@
-#ifndef TYPE_H
+ï»¿#ifndef TYPE_H
 #define TYPE_H
 
 typedef struct
@@ -51,7 +51,7 @@ typedef struct  {
             
 }Vertex;
 
-// ÀüÃ¼ µ¥ÀÌÅÍ¸¦ ÀúÀåÇÏ±â À§ÇÑ ±¸Á¶Ã¼
+// ì „ì²´ ë°ì´í„°ë¥¼ ì €ì¥í•˜ê¸° ìœ„í•œ êµ¬ì¡°ì²´
 struct Data {
 	Vertex *vert;
 	int vert_count;

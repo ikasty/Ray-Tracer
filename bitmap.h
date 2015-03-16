@@ -1,4 +1,4 @@
-#ifndef BITMAP_H
+﻿#ifndef BITMAP_H
 #define BITMAP_H
 
 typedef unsigned short      WORD;

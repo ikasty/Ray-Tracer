@@ -1,4 +1,4 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include "msl_math.h"
@@ -20,7 +20,7 @@ hit intersect_triangle(msl_ray ray, triangle triangle)
 
 	det = DOT(edge1,pvec);
 
-	//ÄÃ¸µÀ» ÇÑ´Ù°í °¡Á¤ÇÒ °æ¿ì
+	//ì»¬ë§ì„ í•œë‹¤ê³  ê°€ì •í•  ê²½ìš°
 	if(det<EPSILON)
 	{
 		ist_hit.t=0;

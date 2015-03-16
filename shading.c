@@ -1,4 +1,4 @@
- #include <stdio.h>
+ï»¿ #include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include "msl_math.h"
@@ -27,7 +27,7 @@ unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 	{
 		ist_point[get_ist_point]=s_ray.orig[get_ist_point]+(tuv[0]*s_ray.dir[get_ist_point]);
 	}
-	//·¹ÀÌ¿Í Æò¸é°ú ±³Â÷Á¡¿¡¼­ ¼öÁ÷À¸·Î ¸¸³ª´Â ¼ö¼±»çÀÌÀÇ °¢¥è¿¡ ´ëÇÑ ÄÚ»çÀÎ¥è°ª
+	//ë ˆì´ì™€ í‰ë©´ê³¼ êµì°¨ì ì—ì„œ ìˆ˜ì§ìœ¼ë¡œ ë§Œë‚˜ëŠ” ìˆ˜ì„ ì‚¬ì´ì˜ ê°Î¸ì— ëŒ€í•œ ì½”ì‚¬ì¸Î¸ê°’
 	SUB(Ray,ist_point,s_ray.orig);
 	SUB(edge1,s_tri.vert1,ist_point);
 	SUB(edge2,s_tri.vert2,ist_point);
@@ -36,17 +36,17 @@ unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 	dot_AB=DOT(Ray,Line_B);
 	multi_itself(multi_A,Ray);
 	multi_itself(multi_B,Line_B);
-	abs_A=sqrt(abs_line(multi_A));
-	abs_B=sqrt(abs_line(multi_B));
+	abs_A=(float)sqrt(abs_line(multi_A));
+	abs_B=(float)sqrt(abs_line(multi_B));
 	multi_AB=abs_A * abs_B;
-	inv_multi_AB = pow(multi_AB,-1);
+	inv_multi_AB = (float)pow(multi_AB,-1);
 	cos_AB=dot_AB * inv_multi_AB;
 	if(cos_AB>1)
 	{
 		cos_AB = 1.0;
 	}
 	cos_AB=abs(acos(cos_AB)*180/PI);
-	result_of_color =255*(cos_AB/90);
+	result_of_color =255*(int)(cos_AB/90);
 	Out_color =0xff000000 | ((int)(result_of_color*tuv[2]))<<8 | ((int)(result_of_color*tuv[1])) ;//ARGB
 	
 	}

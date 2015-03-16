@@ -1,4 +1,4 @@
-/*******************************
+﻿/*******************************
  * header for cross compile
  * Daeyoun Kang
  * last modyfied at 2015-03-02

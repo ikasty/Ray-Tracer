@@ -1,4 +1,4 @@
-#ifndef FILE_READ_H
+﻿#ifndef FILE_READ_H
 #define FILE_READ_H
 
 #include <stdio.h>
