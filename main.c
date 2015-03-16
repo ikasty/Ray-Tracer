@@ -5,6 +5,7 @@
 #include "type.h"
 #include "main.h"
 #include "file_read.h"
+#include "debug-msg.h"
 
 #define x_screen 320
 #define y_screen 240
@@ -78,16 +79,17 @@ int main()
 			for (index_x = 0; index_x < input_cam.resx; index_x++)
 			{
 				float min_t = 1000000;
-			
+
 				f_ray = gen_ray(input_cam, (float)index_x + input_cam.orig[0], (float)index_y + input_cam.orig[1]);
 
-				for (triangle_id = 0; triangle_id < triangleCount * 2; triangle_id++)
+				// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
+				for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
 				{
-					ist_hit = intersect_triangle( f_ray, getTriangle(v, t, triangle_id, num_of_frame) );
-					
+					ist_hit = intersect_triangle(f_ray, getTriangle(v, t, triangle_id, num_of_frame));
+
 					if (ist_hit.t > 0 && min_t > ist_hit.t)
 					{
-						min_t=ist_hit.t;
+						min_t = ist_hit.t;
 						color = Shading(f_ray, getTriangle(v, t, triangle_id, num_of_frame), ist_hit);
 						// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 						screen_buffer[x_screen * index_y + index_x] = color;
@@ -95,17 +97,25 @@ int main()
 					/*
 					if(shadow_test(f_ray,light,getTriangle("cube.obj",triangle_id))==1)
 					{
-						color=0xffff0000;
-						screen_buffer[x_screen*index_y+index_x]= color;
+					color=0xffff0000;
+					screen_buffer[x_screen*index_y+index_x]= color;
 					}
 					*/
 				}
 			}
 			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다. 
 			// \r을 쓰면 첫행으로 돌아가 덮어쓰게됩니다.
-			printf("frame %03d: %5.2f %%\r", framenumber, index_y * 100.0f / input_cam.resy);
+			//printf("frame %03d: %5.2f %%\r", framenumber, index_y * 100.0f / input_cam.resy);
+			{
+				float percent = ((float)(index_y + 1) / input_cam.resy + framenumber) / 30.0 * 100.0;
+				int i;
+				printf("frame %02d/30: %06.3f %% [", framenumber, percent);
+				for (i = 0; i < percent / 5; i++) printf("=");
+				for (i = percent / 5; i < 20; i++) printf(" ");
+				printf("]\r");
+			}
 		}
-		printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
+		//printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
 	
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(filename, "out_%03d.bmp", framenumber);
@@ -113,8 +123,6 @@ int main()
 		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(x_screen, y_screen, screen_buffer, filename);
 
-		// 새로 생긴 파일 이름을 화면에 출력해 줍니다.
-		printf("out_%03d.bmp\n", framenumber);
 		num_of_frame++;
 	}
 	return 0;

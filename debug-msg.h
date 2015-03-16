@@ -4,12 +4,13 @@
  * last modyfied at 2015-03-02
  ******************************/
 
-#ifndef CROSS_COMPILE_H
-#define CROSS_COMPILE_H
+#ifndef DEBUG_MSG_H
+#define DEBUG_MSG_H
 
 #include <errno.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 ////////////////////////////
 // safer count macro

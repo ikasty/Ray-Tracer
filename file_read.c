@@ -33,6 +33,8 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
 			boolean = -1;
 			break;
 		case '/':
+		case ' ':
+		case '\t':
 			data[index++] = value * boolean;
 			boolean = 1;
 			value = 0;
@@ -46,6 +48,7 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
 		}
 		c++;
 	} // while
+	data[index++] = value * boolean;
 
 	*v = data[0];
 	*vt = data[1];

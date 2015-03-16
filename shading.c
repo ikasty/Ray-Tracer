@@ -1,4 +1,4 @@
-﻿ #include <stdio.h>
+﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include "msl_math.h"
@@ -46,7 +46,7 @@ unsigned int Shading(msl_ray s_ray, triangle s_tri, hit __hit)
 		cos_AB = 1.0;
 	}
 	cos_AB=abs(acos(cos_AB)*180/PI);
-	result_of_color =255*(int)(cos_AB/90);
+	result_of_color = (int) 255 * (cos_AB / 90);
 	Out_color =0xff000000 | ((int)(result_of_color*tuv[2]))<<8 | ((int)(result_of_color*tuv[1])) ;//ARGB
 	
 	}
