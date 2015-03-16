@@ -112,7 +112,7 @@ int file_read(FILE* fp, struct Data *data)
 
 			// 가능한 포맷은 %d, %d/%d, %d/%d/%d, %d//%d 임
 			// 각각 v, v/vt, v/vt/vn, v//vn을 의미함
-			while ( sscanf_s(buf, "%s%n", face_buf, sizeof(face_buf), &read_size) > 0 )
+			while ( sscanf(buf, "%s%n", face_buf, &read_size) > 0 )
 			{
 				buf += read_size;
 
