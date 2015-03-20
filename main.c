@@ -82,7 +82,7 @@ int main()
 
 					if (ist_hit.t > 0 && min_t > ist_hit.t)
 					{
-						unsigned int color;
+						DWORD color;
 
 						min_t = ist_hit.t;
 						color = Shading(f_ray, getTriangle(v, t, triangle_id), ist_hit);
