@@ -1,7 +1,9 @@
-﻿#include <stdio.h>
+﻿/*
+#include <stdio.h>
 #include <string.h>
 #include "type.h"
 #include <math.h>
+
 hit intersect_triangle(msl_ray ray, triangle triangle);
 
 int shadow_test(msl_ray ray, float l_source[3],triangle triangle)
@@ -42,4 +44,4 @@ int shadow_test(msl_ray ray, float l_source[3],triangle triangle)
 	}
 }
 
-	
+*/

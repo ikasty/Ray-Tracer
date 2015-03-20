@@ -5,12 +5,10 @@
 #include "main.h"
 
 #include "bitmap_make.h"
+#include "intersection.h"
 #include "obj_transform.h"
 #include "debug-msg.h"
 #include "settings.h"
-
-Vertex v[5000];
-Triangle t[5000];
 
 int main()
 {		
@@ -18,8 +16,6 @@ int main()
 	float			light[3];
 	int				index_x, index_y;								// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표
 	int				framenumber;									// 현재 이미지 frame 번호
-	int				vertexCount = 0;
-    int				triangleCount = 0;
 	char			filename[100];									// 이미지 파일 이름 버퍼
 
 	// 데이터 저장용 구조체
@@ -47,12 +43,6 @@ int main()
 	input_cam.resx = X_SCREEN_SIZE;
 	input_cam.resy = Y_SCREEN_SIZE;
 
-	// Data 구조체를 그냥 사용하는게 좋겠지만, 호환성을 위해 변경함
-	memcpy(v, data.vert, sizeof(Vertex) * data.vert_count);
-	memcpy(t, data.face, sizeof(Triangle) * data.face_count);
-	vertexCount = data.vert_count;
-	triangleCount = data.face_count;
-
 	for (framenumber = 0; framenumber < FRAME_COUNT; framenumber++)
 	{
 		// 현재 frame에서 보여줄 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
@@ -64,46 +54,28 @@ int main()
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < input_cam.resy; index_y++)
 		{
+			int i;
+			float percent;
+
 			for (index_x = 0; index_x < input_cam.resx; index_x++)
 			{
-				msl_ray f_ray;
-				hit ist_hit;
-				int triangle_id;
-				float min_t = 1000000;
-
-				// 현재 좌표에서의 광선 구조체를 구함
-				f_ray = gen_ray(input_cam, (float)index_x, (float)index_y);
-
-				// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
-				// TODO: 교차 검사 수행을 줄일 알고리즘을 도입할 것
-				for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
-				{
-					ist_hit = intersect_triangle(f_ray, getTriangle(v, t, triangle_id));
-
-					if (ist_hit.t > 0 && min_t > ist_hit.t)
-					{
-						unsigned int color;
-
-						min_t = ist_hit.t;
-						color = Shading(f_ray, getTriangle(v, t, triangle_id), ist_hit);
-						// bmp파일을 작성에 필요한 색상정보를 입력합니다.
-						screen_buffer[X_SCREEN_SIZE * index_y + index_x] = color;
-					}
-				}
-			} // index_x
+				msl_ray f_ray = gen_ray(input_cam, (float)index_x, (float)index_y);
+				hit ist_hit = intersect_search(&data, &f_ray, index_x, index_y);
+			
+				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
+				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
+					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
+			}
 
 			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다.
-			{
-				int i;
-				float percent = ((float)index_y / input_cam.resy + framenumber) / FRAME_COUNT * 100.0f;
+			percent = ((float)index_y / input_cam.resy + framenumber) / FRAME_COUNT * 100.0f;
 
-				printf("frame %02d/%2d: [", framenumber, FRAME_COUNT);
+			printf("frame %02d/%2d: [", framenumber, FRAME_COUNT);
 
-				for (i = 0; i < (percent / 5); i++) printf("=");
-				for (i = (int)(percent / 5); i < 20; i++) printf(" ");
+			for (i = 0; i < (percent / 5); i++) printf("=");
+			for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
-				printf("] %05.2f%%\r", percent);
-			}
+			printf("] %05.2f%%\r", percent);
 
 		} // index_y
 		//printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
