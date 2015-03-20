@@ -41,8 +41,8 @@ void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name)
 	FileHeader.bfType = SWAP16(FileHeader.bfType);
 
 	//BMP output
-	fwrite(&FileHeader, sizeof(unsigned char), sizeof(BITMAPFILEHEADER), fp);
-    fwrite(&ImageHeader, sizeof(unsigned char), sizeof(BITMAPINFOHEADER), fp);
-	fwrite(FB, sizeof(unsigned int), res_x * res_y, fp);
+	fwrite(&FileHeader, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
+        fwrite(&ImageHeader, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
+	fwrite(FB, sizeof(DWORD), res_x * res_y, fp);
 	fclose(fp);
 }
