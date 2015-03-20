@@ -47,7 +47,7 @@ typedef struct
 {
 	float t,u,v;
 	
-}hit;
+}Hit;
 
 typedef struct
 {

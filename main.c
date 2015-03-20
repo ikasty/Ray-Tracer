@@ -67,7 +67,7 @@ int main()
 			for (index_x = 0; index_x < input_cam.resx; index_x++)
 			{
 				Ray f_ray;
-				hit ist_hit;
+				Hit ist_hit;
 				int triangle_id;
 				float min_t = 1000000;
 

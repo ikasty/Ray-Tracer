@@ -5,12 +5,12 @@
 #include "type.h"
 
 
-hit intersect_triangle(Ray ray, TriangleVertex triangle)
+Hit intersect_triangle(Ray ray, TriangleVertex triangle)
 {
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;
 	static float t, u, v;
-	hit ist_hit;
+	Hit ist_hit;
 	memset(&ist_hit, 0, sizeof(ist_hit));
 
 	// 점 vert0을 공유하고 있는 삼각형의 두 vector를 구한다

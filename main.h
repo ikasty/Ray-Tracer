@@ -10,9 +10,9 @@ int file_read(FILE* fp, struct Data *data);
 Ray gen_ray(Camera msl_cam, float current_x, float current_y);
 
 // intersection.c
-hit intersect_triangle(Ray ray, TriangleVertex triangle);
+Hit intersect_triangle(Ray ray, TriangleVertex triangle);
 
 // shading.c
-unsigned int Shading(Ray s_ray, TriangleVertex s_tri, hit __hit);
+unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit);
 
 #endif
