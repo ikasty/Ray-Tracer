@@ -46,7 +46,7 @@ typedef struct
 typedef struct
 {
 	float t,u,v;
-	
+	int triangle_id;
 }Hit;
 
 typedef struct
