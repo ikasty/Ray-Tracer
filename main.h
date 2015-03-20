@@ -7,7 +7,7 @@
 int file_read(FILE* fp, struct Data *data);
 
 // gen_ray.c
-msl_ray gen_ray(camera msl_cam, float current_x, float current_y);
+msl_ray gen_ray(Camera msl_cam, float current_x, float current_y);
 
 // intersection.c
 hit intersect_triangle(msl_ray ray, TriangleVertex triangle);

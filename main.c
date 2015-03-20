@@ -26,7 +26,7 @@ int main()
 	struct Data data;
 
 	// 카메라 구조체
-	camera input_cam;
+	Camera input_cam;
 
 	// 파일에서 데이터를 불러옵니다
 	FILE *fp = fopen("cube.obj", "r");;

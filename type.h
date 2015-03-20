@@ -42,6 +42,7 @@ typedef struct
 	
 	
 }TriangleVertex;
+
 typedef struct
 {
 	float t,u,v;
@@ -53,7 +54,7 @@ typedef struct
 	float orig[3];
 	float distance;
 	int resx,resy;
-}camera;
+}Camera;
 
 typedef struct  {
        
