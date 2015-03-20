@@ -24,7 +24,7 @@ typedef struct
 {
 	float x,y,z;
 
-} coordinate;
+} Coordinate;
 
 typedef struct  
 {
@@ -32,7 +32,7 @@ typedef struct
 	float orig[3];
 	float dir[3];
 	
-}msl_ray;
+}Ray;
 
 typedef struct
 {

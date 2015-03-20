@@ -4,7 +4,7 @@
 #include "msl_math.h"
 #include "type.h"
 
-unsigned int Shading(msl_ray s_ray, TriangleVertex s_tri, hit __hit)
+unsigned int Shading(Ray s_ray, TriangleVertex s_tri, hit __hit)
 {
 	unsigned int Out_color = 0;
 	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],Line_B[3],multi_A[3],multi_B[3];

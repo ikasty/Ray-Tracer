@@ -5,7 +5,7 @@
 #include "type.h"
 
 
-hit intersect_triangle(msl_ray ray, TriangleVertex triangle)
+hit intersect_triangle(Ray ray, TriangleVertex triangle)
 {
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;

@@ -7,12 +7,12 @@
 int file_read(FILE* fp, struct Data *data);
 
 // gen_ray.c
-msl_ray gen_ray(Camera msl_cam, float current_x, float current_y);
+Ray gen_ray(Camera msl_cam, float current_x, float current_y);
 
 // intersection.c
-hit intersect_triangle(msl_ray ray, TriangleVertex triangle);
+hit intersect_triangle(Ray ray, TriangleVertex triangle);
 
 // shading.c
-unsigned int Shading(msl_ray s_ray, TriangleVertex s_tri, hit __hit);
+unsigned int Shading(Ray s_ray, TriangleVertex s_tri, hit __hit);
 
 #endif

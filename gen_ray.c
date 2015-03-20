@@ -3,9 +3,9 @@
 #include "type.h"
 #include "settings.h"
 
-msl_ray gen_ray(Camera cam, float current_x, float current_y)
+Ray gen_ray(Camera cam, float current_x, float current_y)
 {
-	msl_ray make_ray;
+	Ray make_ray;
 	int dir;
 	float index[3];
 
