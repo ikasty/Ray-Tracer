@@ -12,8 +12,9 @@
 Vertex v[5000];
 Triangle t[5000];
 
-int main()
-{		
+int main(int argc, char *argv[])
+{	
+	FILE *fp;	
 	int				screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 	float			light[3];
 	int				index_x, index_y;								// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표
@@ -28,8 +29,15 @@ int main()
 	// 카메라 구조체
 	Camera input_cam;
 
+	if (argc == 2) { printf("%s\n", argv[1]); }
+
 	// 파일에서 데이터를 불러옵니다
-	FILE *fp = fopen("cube.obj", "r");;
+	if (argc == 2) 
+		fp = fopen(argv[1], "r");
+	else 
+		fp = fopen("cube.obj", "r");
+
+
 	memset(&data, 0, sizeof(data));
 	if (file_read(fp, &data) < 0) return -1;
 
