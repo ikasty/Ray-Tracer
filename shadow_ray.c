@@ -2,9 +2,9 @@
 #include <string.h>
 #include "type.h"
 #include <math.h>
-hit intersect_triangle(msl_ray ray, triangle triangle);
+hit intersect_triangle(msl_ray ray, TriangleVertex triangle);
 
-int shadow_test(msl_ray ray, float l_source[3],triangle triangle)
+int shadow_test(msl_ray ray, float l_source[3],TriangleVertex triangle)
 {
 	msl_ray shadow_ray;
 	hit hit_result;

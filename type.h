@@ -41,7 +41,7 @@ typedef struct
 	float vert2[3];
 	
 	
-}triangle;
+}TriangleVertex;
 typedef struct
 {
 	float t,u,v;
