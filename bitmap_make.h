@@ -1,5 +1,6 @@
 ﻿#ifndef BITMAP_MAKE_H
 #define BITMAP_MAKE_H
+#include "bitmap.h"
 void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name);
 
 typedef struct  
@@ -8,10 +9,10 @@ typedef struct
 	int resx, resy; //해상도
 }Shader;
 
-typedef unsigned char  BYTE;
-typedef unsigned short WORD;
-typedef unsigned long  DWORD;
-typedef long           LONG;  
+//typedef unsigned char  BYTE;
+//typedef unsigned short WORD;
+//typedef unsigned long  DWORD;
+//typedef long           LONG;  
 
 typedef struct{
     WORD    bfType;

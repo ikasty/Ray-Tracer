@@ -1,23 +1,6 @@
 ﻿#ifndef BITMAP_H
 #define BITMAP_H
-
-typedef unsigned short      WORD;
-#ifdef _WIN32
-typedef unsigned long		DWORD;
-typedef long				LONG;
-#else
-#if defined __UINT32_MAX__ || UINT32_MAX
-#include <inttypes.h>
-#include <sys/types.h>
-#else
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned long uint32_t;
-typedef unsigned long long uint64_t;
-#endif
-typedef uint32_t			DWORD;
-typedef uint32_t			LONG;
-#endif
+#include "type.h"
 
 #ifdef _WIN32
 #pragma pack(push,2)
