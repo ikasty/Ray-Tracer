@@ -92,6 +92,18 @@ int main()
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
 					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
+
+				DEBUG_ONLY({
+					static int debug_count = 0;
+					if (f_ray.max_t < MAX_RENDER_DISTANCE && debug_count < 20)
+					{
+						debug_count++;
+						printf("f_ray found triangle #%d(%f, %f, %f) at (%d, %d), color 0x%08x\n",
+							ist_hit.triangle_id, ist_hit.t, ist_hit.u, ist_hit.v,
+							index_x, index_y,
+							screen_buffer[X_SCREEN_SIZE * index_y + index_x]);
+					}
+				});
 			}
 
 			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다.
