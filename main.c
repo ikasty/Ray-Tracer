@@ -23,7 +23,7 @@ int main()
 	char			filename[100];									// 이미지 파일 이름 버퍼
 
 	// 데이터 저장용 구조체
-	struct Data data;
+	Data data;
 
 	// 카메라 구조체
 	Camera input_cam;

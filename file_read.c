@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "type.h"
+#include "file_read.h"
+
 
 static void resize_if_full(void **array, int curr, int *capacity, int size)
 {
@@ -59,7 +60,7 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
  * obj 파일을 읽는 함수입니다.
  * 파일 문법은 http://paulbourke.net/dataformats/obj/ 를 참고하세요.
  */
-int file_read(FILE* fp, struct Data *data)
+int file_read(FILE* fp, Data *data)
 {
 	char buf_orig[100];
 

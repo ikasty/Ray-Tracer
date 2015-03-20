@@ -73,12 +73,12 @@ typedef struct  {
 }Vertex;
 
 // 전체 데이터를 저장하기 위한 구조체
-struct Data {
+typedef struct {
 	Vertex *vert;
 	int vert_count;
 
 	Triangle *face;
 	int face_count;
-};
+}Data;
 
 #endif
