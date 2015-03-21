@@ -41,8 +41,8 @@ unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 	{
 		cos_AB = 1.0;
 	}
-	cos_AB=abs(acosf(cos_AB)*180/PI);
-	result_of_color = (int) 255 * (1 - cos_AB / 90);
+	cos_AB=(float)abs((int)((acosf(cos_AB)*180/PI)));
+	result_of_color = (int)( 255 * (1 - cos_AB / 90) );
 	//Out_color = 0xff000000 | ((int)(result_of_color*tuv[0])) << 16 |((int)(result_of_color*tuv[2])) << 8 | ((int)(result_of_color*tuv[1]));//ARGB
 	Out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	

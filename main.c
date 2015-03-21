@@ -87,7 +87,7 @@ int main()
 			} // index_x
 */
 				Ray f_ray = gen_ray(input_cam, (float)index_x, (float)index_y);
-				Hit ist_hit = intersect_search(&data, &f_ray, index_x, index_y);
+				Hit ist_hit = intersect_search(&data, &f_ray, (float)index_x, (float)index_y);
 			
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				screen_buffer[X_SCREEN_SIZE * index_y + index_x]

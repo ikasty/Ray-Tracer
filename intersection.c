@@ -53,7 +53,7 @@ Hit intersect_triangle(Ray *ray, TriangleVertex triangle)
 	if (det < EPSILON)
 		return ist_hit;
 
-	inv_det = 1.0 / det;
+	inv_det = 1.0f / det;
 
 	// ray의 원점에서 점 vert0까지의 거리를 구한다
 	SUB(tvec, ray->orig, triangle.vert0);
