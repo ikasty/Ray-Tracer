@@ -28,7 +28,7 @@
 // debug mode compatibility
 #ifdef _WIN32
 #	ifdef _DEBUG
-#	define DEBUG 10
+#	define DEBUG
 #	else
 #	undef DEBUG
 #	endif
@@ -37,16 +37,14 @@
 ////////////////////////////
 // debug print module
 #ifdef DEBUG
-#define PDEBUG(l, ...) if (DEBUG >= l) {			\
-	int __i;										\
-	printf("DEBUG] ");								\
-	for(__i = 0; __i < l - 1; __i++) printf("  ");	\
-	printf(__VA_ARGS__);							\
+#define PDEBUG(...) 	{	\
+	printf("DEBUG] ");		\
+	printf(__VA_ARGS__);	\
 }
 #define PAUSE if (DEBUG >= 3) getchar()
 #define DEBUG_ONLY(...) __VA_ARGS__
 #else
-#define PDEBUG(l, ...) (0)
+#define PDEBUG(...) (0)
 #define PAUSE (0)
 #define DEBUG_ONLY(...)
 #endif

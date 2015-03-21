@@ -9,8 +9,8 @@ Ray gen_ray(Camera cam, float current_x, float current_y)
 	int dir;
 	float index[3];
 
-	index[0] = current_x + cam.orig[0];
-	index[1] = current_y + cam.orig[1];
+	index[0] = current_x + cam.orig[0] - X_SCREEN_SIZE / 2;
+	index[1] = current_y + cam.orig[1] - Y_SCREEN_SIZE / 2;
 	index[2] = cam.distance;
 
 	for(dir = 0; dir < 3; dir++)

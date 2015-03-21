@@ -14,7 +14,7 @@ Vertex v[5000];
 Triangle t[5000];
 
 int main(int argc, char *argv[])
-{	
+{
 	FILE *fp;	
 	int				screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 	float			light[3];
@@ -29,10 +29,16 @@ int main(int argc, char *argv[])
 	Camera input_cam;
 
 	// 파일에서 데이터를 불러옵니다
-	if (argc == 2) 
+	if (argc == 2)
+	{
 		fp = fopen(argv[1], "r");
-	else 
+		PDEBUG("open %s\n", argv[1]);
+	}
+	else
+	{
 		fp = fopen("cube.obj", "r");
+		PDEBUG("open cube.org\n");
+	}
 
 
 	memset(&data, 0, sizeof(data));
@@ -66,64 +72,29 @@ int main(int argc, char *argv[])
 			int i;
 			float percent;
 
+			// 상태메시지 출력
+			printf("\r");
+			fflush(stdout);
+
 			for (index_x = 0; index_x < input_cam.resx; index_x++)
 			{
-/*
-				Ray f_ray;
-				Hit ist_hit;
-				int triangle_id;
-				float min_t = 1000000;
-
-				// 현재 좌표에서의 광선 구조체를 구함
-				f_ray = gen_ray(input_cam, (float)index_x, (float)index_y);
-
-				// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
-				// TODO: 교차 검사 수행을 줄일 알고리즘을 도입할 것
-				for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
-				{
-					ist_hit = intersect_triangle(f_ray, getTriangle(v, t, triangle_id));
-
-					if (ist_hit.t > 0 && min_t > ist_hit.t)
-					{
-						DWORD color;
-
-						min_t = ist_hit.t;
-						color = Shading(f_ray, getTriangle(v, t, triangle_id), ist_hit);
-						// bmp파일을 작성에 필요한 색상정보를 입력합니다.
-						screen_buffer[X_SCREEN_SIZE * index_y + index_x] = color;
-					}
-				}
-			} // index_x
-*/
 				Ray f_ray = gen_ray(input_cam, (float)index_x, (float)index_y);
 				Hit ist_hit = intersect_search(&data, &f_ray, (float)index_x, (float)index_y);
 			
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
 					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
-
-				DEBUG_ONLY({
-					static int debug_count = 0;
-					if (f_ray.max_t < MAX_RENDER_DISTANCE && debug_count < 20)
-					{
-						debug_count++;
-						printf("f_ray found triangle #%d(%f, %f, %f) at (%d, %d), color 0x%08x\n",
-							ist_hit.triangle_id, ist_hit.t, ist_hit.u, ist_hit.v,
-							index_x, index_y,
-							screen_buffer[X_SCREEN_SIZE * index_y + index_x]);
-					}
-				});
 			}
 
 			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다.
 			percent = ((float)index_y / input_cam.resy + framenumber) / FRAME_COUNT * 100.0f;
 
-			printf("frame %02d/%2d: [", framenumber, FRAME_COUNT);
+			printf("frame %02d/%02d: [", framenumber, FRAME_COUNT);
 
-			for (i = 0; i < (percent / 5); i++) printf("=");
+			for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 			for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
-			printf("] %05.2f%%\r", percent);
+			printf("] %05.2f%%", percent);
 
 		} // index_y
 		//printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
@@ -135,6 +106,6 @@ int main(int argc, char *argv[])
 		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, filename);
 	}
 
-	printf("frame %02d/%2d: [====================] %05.2f%%\n", FRAME_COUNT, FRAME_COUNT, 100.0f);
+	printf("\rframe %02d/%02d: [====================] %05.2f%%\n", FRAME_COUNT, FRAME_COUNT, 100.0f);
 	return 0;
 }

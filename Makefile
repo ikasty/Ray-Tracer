@@ -15,14 +15,14 @@ endif
 OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
 
 .SUFFIXES: .c .o
-.PHONY: all release debug clean test
+.PHONY: all release debug clean test oneshot
 
 all:
 	@echo "=========================="
 	@echo "usage: make release"
 	@echo "       make debug"
 	@echo "       make clean"
-	@echo "       make test"
+	@echo "       make test [filename=filename.obj]"
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
@@ -38,8 +38,7 @@ clean:
 	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET) *.bmp
 
 test:
-	$(TARGET)
-
+	$(TARGET) $(filename)
 
 chkdir:
 	@`[ -d $(OBJS_DIR) ] || mkdir $(OBJS_DIR)`
