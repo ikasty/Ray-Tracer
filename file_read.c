@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "file_read.h"
+#include "debug-msg.h"
 
 
 static void resize_if_full(void **array, int curr, int *capacity, int size)
@@ -70,6 +71,8 @@ int file_read(FILE* fp, Data *data)
 		return -1;
 	}
 
+	PDEBUG("file_read.c: file_read start\n");
+
 	while (fgets(buf_orig, 99, fp))
 	{
 		char *buf = buf_orig;
@@ -114,9 +117,6 @@ int file_read(FILE* fp, Data *data)
 			int result[3];
 			int cnt = 0;
 
-			// 필요하다면 배열 크기를 늘림
-			resize_if_full((void**)&data->face, (*face_count), &face_capacity, sizeof(data->face[0]));
-
 			// 가능한 포맷은 %d, %d/%d, %d/%d/%d, %d//%d 임
 			// 각각 v, v/vt, v/vt/vn, v//vn을 의미함
 			while ( sscanf(buf, "%s%n", face_buf, &read_size) > 0 )
@@ -138,6 +138,9 @@ int file_read(FILE* fp, Data *data)
 				}
 				else
 				{
+					// 필요하다면 배열 크기를 늘림
+					resize_if_full((void**)&data->face, (*face_count), &face_capacity, sizeof(data->face[0]));
+
 					// 삼각형 데이터 넣기
 					data->face[*face_count].v1 = result[0];
 					data->face[*face_count].v2 = result[1];
@@ -149,7 +152,13 @@ int file_read(FILE* fp, Data *data)
 				}
 			} // while
 		} // op "f"
+		else
+		{
+			//PDEBUG("unknown operation %s read!\n", op);
+		}
 	}
+
+	PDEBUG("file_read.c: file read successfully finished!\n\n");
 
 	return 0;
 }
