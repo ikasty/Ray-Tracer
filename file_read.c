@@ -143,6 +143,11 @@ int file_read(FILE* fp, Data *data)
 					data->face[*face_count].v2 = result[1];
 					data->face[*face_count].v3 = result[2];
 					(*face_count)++;
+
+					data->face[*face_count].v1 = result[0];
+					data->face[*face_count].v2 = result[2];
+					data->face[*face_count].v3 = result[1];
+					(*face_count)++;
 					
 					// 다각형을 삼각형으로 쪼개기 위해 넣음
 					result[1] = result[2];
