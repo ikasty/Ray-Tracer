@@ -2,7 +2,7 @@ CC = gcc
 TARGET = RayTracing.exe
 SRCS := $(shell ls | grep c$$)
 DEPEND_FILE = depend_file
-CCLIB = -lm
+CCLIB = -lm -msse2 -mfpmath=sse
 
 ifeq ($(MAKECMDGOALS), release)
 DEFINE = 	

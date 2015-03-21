@@ -25,8 +25,8 @@ void set_rotate(int num_frame){
 	// 각도 표현을 라디안 표현법으로 고치기
 	radian = degree * num_frame * (float)PI / 180; 
 
-	r_cos = (float)cos(radian);
-	r_sin = (float)sin(radian);
+	r_cos = (float)cosf(radian);
+	r_sin = (float)sinf(radian);
 
 	// transformation 배열의 모든 값을 0으로 초기화 합니다.
 	memset(transformation, 0 ,sizeof(transformation));

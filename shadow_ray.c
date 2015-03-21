@@ -2,8 +2,9 @@
 #include <string.h>
 #include "type.h"
 #include <math.h>
-Hit intersect_triangle(Ray ray, TriangleVertex triangle);
 
+// 임시로 주석 처리함
+/*
 int shadow_test(Ray ray, float l_source[3],TriangleVertex triangle)
 {
 	Ray shadow_ray;
@@ -41,5 +42,4 @@ int shadow_test(Ray ray, float l_source[3],TriangleVertex triangle)
 		return 1;
 	}
 }
-
-	
+*/
