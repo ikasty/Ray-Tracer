@@ -44,7 +44,7 @@ unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 		else if(cos_AB<-1) cos_AB = -1.0;
 		cos_AB=(float)(acosf(cos_AB)*180/PI);
 	
-		result_of_color = (int)(255 * ( (cos_AB-90)/(180-90)>0? (cos_AB-90)/(180-90): 0 ));
+		result_of_color = (int)(255 * ( (cos_AB-15)/(180-15)>0? (cos_AB-15)/(180-15): 0 ));
 		Out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	}
 
