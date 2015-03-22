@@ -6,8 +6,9 @@ int main(int argc, char **argv)
 	FILE *fp, *wp;
 	char buf_orig[100];
 	float times = 1;
+	float xmove, ymove;
 
-	if (argc == 3)
+	if (argc == 5)
 	{
 		char output_file[100];
 		fp = fopen(argv[1], "r");
@@ -16,10 +17,12 @@ int main(int argc, char **argv)
 		wp = fopen(output_file, "w");
 
 		sscanf(argv[2], "%f", &times);
+		sscanf(argv[3], "%f", &xmove);
+		sscanf(argv[4], "%f", &ymove);
 	}
 	else
 	{
-		printf("usage: change_obj.exe filename times\n");
+		printf("usage: change_obj.exe filename times xmove ymove\n");
 		return -1;
 	}
 
@@ -37,8 +40,8 @@ int main(int argc, char **argv)
 			float x, y, z;
 
 			sscanf(buf, "%f %f %f", &x, &y, &z);
-			x *= times;
-			y *= times;
+			x = x * times + xmove;
+			y = y * times + ymove;
 			z *= times;
 			
 			fprintf(wp, "v %f %f %f\n", x, y, z);
