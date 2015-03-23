@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "main.h"
 
 #include "bitmap_make.h"
@@ -13,6 +14,21 @@
 Vertex v[5000];
 Triangle t[5000];
 
+// 콘솔 화면에 진행상황을 출력해 줍니다.
+static void print_percent(int framenumber, float percent, double spend_time)
+{
+	int i;
+
+	printf("\rframe %02d/%02d: [", framenumber, FRAME_COUNT);
+
+	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
+	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
+
+	printf("] %05.2f%% %.3fs", percent, spend_time);
+
+	fflush(stdout);
+}
+
 int main(int argc, char *argv[])
 {
 	FILE *fp;	
@@ -21,6 +37,8 @@ int main(int argc, char *argv[])
 	int				index_x, index_y;								// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표
 	int				framenumber;									// 현재 이미지 frame 번호
 	char			filename[100];									// 이미지 파일 이름 버퍼
+	clock_t			start_clock, end_clock;							// 수행 시간 계산용 clock_t 변수
+	double			sum_clock = 0.0;								// 수행 시간 누적 변수
 
 	// 데이터 저장용 구조체
 	Data data;
@@ -58,6 +76,8 @@ int main(int argc, char *argv[])
 	input_cam.resx = X_SCREEN_SIZE;
 	input_cam.resy = Y_SCREEN_SIZE;
 
+	print_percent(0, 0.0f, 0.0f);
+
 	for (framenumber = 0; framenumber < FRAME_COUNT; framenumber++)
 	{
 		// 현재 frame에서 보여줄 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
@@ -69,12 +89,10 @@ int main(int argc, char *argv[])
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < input_cam.resy; index_y++)
 		{
-			int i;
 			float percent;
 
-			// 상태메시지 출력
-			printf("\r");
-			fflush(stdout);
+			// 시작 시간 계산
+			start_clock = clock();
 
 			for (index_x = 0; index_x < input_cam.resx; index_x++)
 			{
@@ -86,26 +104,22 @@ int main(int argc, char *argv[])
 					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
 			}
 
-			// 콘솔 화면에 진행상황을 퍼센트 형식으로 출력해 줍니다.
+			// 종료 시간 계산
+			end_clock = clock();
+			sum_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
+
 			percent = ((float)index_y / input_cam.resy + framenumber) / FRAME_COUNT * 100.0f;
-
-			printf("frame %02d/%02d: [", framenumber, FRAME_COUNT);
-
-			for (i = 0; i <= (int)(percent / 5); i++) printf("=");
-			for (i = (int)(percent / 5); i < 20; i++) printf(" ");
-
-			printf("] %05.2f%%", percent);
+			print_percent(framenumber, percent, sum_clock);
 
 		} // index_y
-		//printf("frame %03d: %5.2f %%\n", framenumber, index_y * 100.0f / input_cam.resy);
 	
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(filename, "out_%03d.bmp", framenumber);
 		
 		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, filename);
-	}
+	} // index_x
 
-	printf("\rframe %02d/%02d: [====================] %05.2f%%\n", FRAME_COUNT, FRAME_COUNT, 100.0f);
+	print_percent(FRAME_COUNT, 100.0f, sum_clock);
 	return 0;
 }
