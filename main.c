@@ -14,10 +14,19 @@
 Vertex v[5000];
 Triangle t[5000];
 
+// PDEBUG() 디버그 메시지 함수 선언
+PDEBUG_INIT();
+
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int framenumber, float percent, double spend_time)
 {
 	int i;
+
+	// 디버그 메시지가 출력되었다면 메시지를 가리지 않도록 함
+	DEBUG_ONLY({
+		if (__PDEBUG_ENABLED) printf("\n");
+		__PDEBUG_ENABLED = 0;
+	});
 
 	printf("\rframe %02d/%02d: [", framenumber, FRAME_COUNT);
 

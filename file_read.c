@@ -67,7 +67,7 @@ int file_read(FILE* fp, Data *data)
 
 	if (fp == NULL)
 	{
-		printf("CRITICAL: NO OBJ FILE!");
+		printf("CRITICAL: NO OBJ FILE!\n");
 		return -1;
 	}
 
@@ -158,7 +158,7 @@ int file_read(FILE* fp, Data *data)
 		}
 	}
 
-	PDEBUG("file_read.c: file read successfully finished!\n\n");
+	PDEBUG("file_read.c: file read successfully finished!\n");
 
 	return 0;
 }

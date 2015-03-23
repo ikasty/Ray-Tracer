@@ -5,11 +5,11 @@ DEPEND_FILE = depend_file
 CCLIB = -lm -msse2 -mfpmath=sse
 
 ifeq ($(MAKECMDGOALS), release)
-DEFINE = 	
 OBJS_DIR = gcc_release
+CCOPT = -O2
 else
-DEFINE = -DDEBUG
 OBJS_DIR = gcc_debug
+CCOPT = -O0 -Wall -DDEBUG
 endif
 
 OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
@@ -26,13 +26,13 @@ all:
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
-	$(CC) $(DEFINE) -c $< -o $@ $(CCLIB)
+	$(CC) $(CCOPT) -c $< -o $@ $(CCLIB)
 
 release: chkdir depend $(OBJS)
-	$(CC) $(DEFINE) $(OBJS) -o $(TARGET) $(CCLIB)
+	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 debug: chkdir depend $(OBJS)
-	$(CC) $(DEFINE) $(OBJS) -o $(TARGET) $(CCLIB)
+	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
 	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET) *.bmp

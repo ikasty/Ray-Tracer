@@ -1,8 +1,8 @@
-﻿/*******************************
- * header for cross compile
+﻿/*********************************
+ * header for debug msg and stuff
  * Daeyoun Kang
- * last modyfied at 2015-03-02
- ******************************/
+ * last modyfied at 2015-03-23
+ ********************************/
 
 #ifndef DEBUG_MSG_H
 #define DEBUG_MSG_H
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 ////////////////////////////
-// safer count macro
+// safer array count macro
 #define countof(x) ((sizeof(x)/sizeof(0[x]))) / ((size_t)(!(sizeof(x)%(sizeof(0[x])))))
 
 ////////////////////////////
@@ -37,16 +37,20 @@
 ////////////////////////////
 // debug print module
 #ifdef DEBUG
-#define PDEBUG(...) 	{	\
-	printf("DEBUG] ");		\
-	printf(__VA_ARGS__);	\
-}
-#define PAUSE if (DEBUG >= 3) getchar()
-#define DEBUG_ONLY(...) __VA_ARGS__
+	extern int __PDEBUG_ENABLED;
+#	define PDEBUG(...) 	{		\
+	  	__PDEBUG_ENABLED = 1;	\
+		printf("DEBUG] ");		\
+		printf(__VA_ARGS__);	\
+	}
+#	define PAUSE getchar()
+#	define DEBUG_ONLY(...) __VA_ARGS__
+#	define PDEBUG_INIT() int __PDEBUG_ENABLED = 0
 #else
-#define PDEBUG(...) (0)
-#define PAUSE (0)
-#define DEBUG_ONLY(...)
+#	define PDEBUG(...) (0)
+#	define PAUSE (0)
+#	define DEBUG_ONLY(...)
+#	define PDEBUG_INIT()
 #endif
 
 //////////////////////////
