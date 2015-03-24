@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 	       	framecount = FRAME_COUNT;
 	}
 	PDEBUG("set framecount = %d\n", framecount);
+	// 사용법 : ./RayTracing.exe -c<프레임개수> <obj파일>
 
 
 	memset(&data, 0, sizeof(data));
