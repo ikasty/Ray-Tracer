@@ -38,7 +38,7 @@ clean:
 	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET) *.bmp
 
 test:
-	$(TARGET) $(filename)
+	./$(TARGET) $(filename)
 
 chkdir:
 	@`[ -d $(OBJS_DIR) ] || mkdir $(OBJS_DIR)`

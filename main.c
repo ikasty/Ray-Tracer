@@ -34,7 +34,7 @@ static void print_percent(int framenumber, float percent, double spend_time)
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
 	printf("] %05.2f%% %.3fs", percent, spend_time);
-
+	if (percent == 100.0f) printf("\n");
 	fflush(stdout);
 }
 

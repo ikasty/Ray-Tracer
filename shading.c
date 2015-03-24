@@ -8,10 +8,12 @@
 unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 {
 	unsigned int Out_color = 0;
-	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],Line_B[3],multi_A[3],multi_B[3];
+	//float Line_B[3];
+	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],multi_A[3],multi_B[3];
 	int get_ist_point;
 	int result_of_color;
-	float dot_AB,abs_A,abs_B,multi_AB,inv_multi_AB,cos_AB;
+	//float inv_multi_AB;
+	float dot_AB,abs_A,abs_B,multi_AB,cos_AB;
 	float tuv[3], temp_ori[3];
 	tuv[0] =__hit.t;
 	tuv[1] =__hit.u;
