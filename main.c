@@ -54,8 +54,8 @@ int main(int argc, char *argv[])
 		// for문에 쓰는 변수
 	char* option;
 		// 실행 인자 주소 저장용
-	char default_file[100] = "cube.obj";
-		// 기본 obj 파일 이름
+	char obj_file[100];
+		// obj 파일 이름
 
 	// 데이터 저장용 구조체
 	Data data;
@@ -72,12 +72,14 @@ int main(int argc, char *argv[])
 		} 
 
 		if (fp != NULL) break;
+		sprintf(obj_file, "%s", option);
 		fp = fopen(option, "r");
 		PDEBUG("open %s\n", option);
 	}
 	if (fp == NULL) {
-		fp = fopen(default_file , "r");
-		PDEBUG("open %s\n", default_file);
+		sprintf(obj_file, "cube.obj");
+		fp = fopen(obj_file , "r");
+		PDEBUG("open %s\n", obj_file);
 	}
 	if (framecount < 1) {
 	       	framecount = FRAME_COUNT;
@@ -140,7 +142,7 @@ int main(int argc, char *argv[])
 		} // index_y
 	
 		// filename 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(filename, "out_%03d.bmp", framenumber);
+		sprintf(filename, "%s.%04d.bmp", obj_file, framenumber);
 		
 		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, filename);
