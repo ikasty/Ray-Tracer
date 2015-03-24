@@ -15,7 +15,7 @@ static void get_rotated_vector(float *original_vector, float *rotated_vector);
 set_rotate: 받은 frame 번호를 바탕으로 로테이션에 필요한 기본 정보를 채우는 함수입니다.
 - num_frame: 몇번째 frame인지를 나타내는 값입니다.
 */
-void set_rotate(int num_frame){
+void set_rotate(int num_frame, unsigned int framecount){
 	float degree, radian;
 	float r_cos, r_sin;
 
