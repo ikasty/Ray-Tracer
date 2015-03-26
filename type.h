@@ -49,13 +49,6 @@ typedef struct
 	int triangle_id;
 }Hit;
 
-typedef struct
-{
-	float orig[3];
-	float distance;
-	int resx,resy;
-}Camera;
-
 typedef struct  {
        
        int v1;

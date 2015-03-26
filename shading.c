@@ -1,6 +1,7 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
+
 #include "msl_math.h"
 #include "type.h"
 #include "settings.h"
@@ -19,15 +20,18 @@ unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 	tuv[1] =__hit.u;
 	tuv[2] =__hit.v;
 
+	// 광원 설정값을 사용함
+	USE_LIGHT(light);
+
 	if(tuv[1]>0 && tuv[2]> 0 && tuv[1]+tuv[2] <=1 ){
 	
 		for(get_ist_point=0; get_ist_point<3; get_ist_point++){
 			ist_point[get_ist_point]=s_ray.orig[get_ist_point]+(tuv[0]*s_ray.dir[get_ist_point]);
 		}
 		//광원 정보를 temp_ori에 적용
-		temp_ori[0] = LIGHT_POS_X;
-		temp_ori[1] = LIGHT_POS_Y;
-		temp_ori[2] = LIGHT_POS_Z;
+		temp_ori[0] = light[0];
+		temp_ori[1] = light[1];
+		temp_ori[2] = light[2];
 		SUB(Ray,ist_point,temp_ori);
 	
 		SUB(edge1,s_tri.vert1,ist_point);
