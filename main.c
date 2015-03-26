@@ -30,7 +30,9 @@ static void print_percent(int framenumber, float percent, double spend_time)
 		__PDEBUG_ENABLED = 0;
 	});
 
-	printf("\rframe %02d/%02d: [", framenumber, FRAME_COUNT);
+	USE_SCREEN(screen);
+
+	printf("\rframe %02d/%02d: [", framenumber, screen->frame_count);
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
 	// 명령줄 옵션 처리
 	// 사용법 : ./RayTracing.exe -c<프레임개수> <obj파일>
 	for(i = 1; i < argc; i++) {
-		*option = argv[i];
+		option = argv[i];
 		if(strncmp(option, "-c", 2) == 0) {
 			screen->frame_count = atoi(option + 2);
 			PDEBUG("set frame count = %d\n", screen->frame_count);
