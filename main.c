@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 	double		sum_clock = 0.0;								// 수행 시간 누적 변수
 
 	int			i;												// for문에 쓰는 변수
+	char* option;
+		
 
 	// 데이터 저장용 구조체
 	Data data;
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
 	// 명령줄 옵션 처리
 	// 사용법 : ./RayTracing.exe -c<프레임개수> <obj파일>
 	for(i = 1; i < argc; i++) {
-		char *option = argv[i];
+		*option = argv[i];
 		if(strncmp(option, "-c", 2) == 0) {
 			screen->frame_count = atoi(option + 2);
 			PDEBUG("set frame count = %d\n", screen->frame_count);
