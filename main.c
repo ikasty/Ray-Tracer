@@ -8,8 +8,8 @@
 #include "bitmap_make.h"
 #include "intersection.h"
 #include "obj_transform.h"
-#include "debug-msg.h"
 #include "settings.h"
+#include "include/debug-msg.h"
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();

@@ -2,9 +2,9 @@
 #include <string.h>
 #include <math.h>
 
-#include "msl_math.h"
-#include "type.h"
 #include "settings.h"
+#include "include/msl_math.h"
+#include "include/type.h"
 
 unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 {

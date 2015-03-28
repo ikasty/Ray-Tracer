@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "file_read.h"
-#include "debug-msg.h"
+
+#include "include/debug-msg.h"
 
 
 static void resize_if_full(void **array, int curr, int *capacity, int size)

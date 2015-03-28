@@ -1,10 +1,11 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "type.h"
 #include "obj_transform.h"
-#include "msl_math.h"
+
 #include "settings.h"
+#include "include/type.h"
+#include "include/msl_math.h"
 
 // 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!

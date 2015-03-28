@@ -1,6 +1,6 @@
 ﻿#ifndef BITMAP_MAKE_H
 #define BITMAP_MAKE_H
-#include "bitmap.h"
+#include "include/bitmap.h"
 void OutputFrameBuffer(int res_x, int res_y, int* FB, char* file_name);
 
 typedef struct  

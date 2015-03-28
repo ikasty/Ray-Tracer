@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "bitmap.h"
-#include "debug-msg.h"
+#include "include/bitmap.h"
+#include "include/debug-msg.h"
 
 #define SWAP16(x) (((((x) & 0xFF) << 8 | (((x) >> 8) & 0xff))))
 

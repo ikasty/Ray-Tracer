@@ -1,6 +1,6 @@
 ﻿#include <stdio.h>
 #include <string.h>
-#include "type.h"
+#include "include/type.h"
 #include <math.h>
 
 // 임시로 주석 처리함

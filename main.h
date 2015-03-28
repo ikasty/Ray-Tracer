@@ -2,7 +2,7 @@
 #define MAIN_H
 
 // global type definition
-#include "type.h"
+#include "include/type.h"
 
 // file_read.c
 //int file_read(FILE* fp, struct Data *data);

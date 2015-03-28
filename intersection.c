@@ -2,9 +2,10 @@
 #include <string.h>
 #include <math.h>
 #include "intersection.h"
+
 #include "obj_transform.h"
-#include "msl_math.h"
 #include "settings.h"
+#include "include/msl_math.h"
 
 Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 {
