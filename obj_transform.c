@@ -19,8 +19,10 @@ void set_rotate(int num_frame, unsigned int framecount){
 	float degree, radian;
 	float r_cos, r_sin;
 
-	// frame이 30개이므로 한 frame당 12도씩 돌아가게 만들어져 있습니다.
-	degree = 360.0 / FRAME_COUNT;
+	USE_SCREEN(screen);
+
+	// frame 개수만큼 돌아갈 각도를 계산합니다.
+	degree = 360.0 / screen->frame_count;
 
 	// 각도 표현을 라디안 표현법으로 고치기
 	radian = degree * num_frame * (float)PI / 180; 
