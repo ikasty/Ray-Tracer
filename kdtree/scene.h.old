@@ -1,0 +1,55 @@
+﻿#ifndef __SCENE_H__
+#define __SCENE_H__
+
+
+#include <stdio.h>
+#include "common/Triangle.h"
+#include "common/Types.h"
+#include "common/camera.h"
+
+
+/*vertex info.*/
+typedef struct 
+{
+    float32 faPosition[3];
+    float32 faTexCoord[2];
+    float32 faNormal[3];
+
+}VertexBuffer;
+
+
+/*light source*/
+typedef struct 
+{
+
+	KdTreeAccel kd_accelerator;
+
+    VertexBuffer *vertexBuffer;
+    TriangleIndex *primsIndex;
+
+    /* legacy
+#if WALD_TRI
+    TriAccel * pPrimsWald;
+#endif
+    */
+    TriAccel *pPrimsWald;
+	uint32 *numprimperobj;
+    Triangle *pPrims;
+    BBox *pObjBounds;
+    BBox sceneBounds;
+    Light *pLights;
+    Material *mat;
+    Camera *pCamera;
+    Texture *pTexture;    
+
+    uint32 uiNumLights;
+    uint32 uiNumTextures;
+    uint32 uiNumMaterials;
+    uint32 uiNumPrims;
+	uint32 uiNumObjects;
+    FILE* pRayDump;
+    ulong ulNumTotalDumpedRays;
+}Scene;
+
+
+#endif
