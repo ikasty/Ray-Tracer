@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 	}
 	if (fp == NULL) {
 		fp = fopen(default_obj_file, "r");
-		PDEBUG("open %s\n", option);
+		PDEBUG("open %s\n", default_obj_file);
 	}
 
 	// 파일에서 데이터를 불러옵니다
