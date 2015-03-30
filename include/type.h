@@ -28,7 +28,7 @@ typedef struct
 
 typedef struct  
 {
-	float max_t;
+	float min_t, max_t;
 	float orig[3];
 	float dir[3];
 	
