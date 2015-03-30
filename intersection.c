@@ -32,7 +32,7 @@ Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 	return min_hit;
 }
 
-Hit intersect_triangle(Ray *ray, TriangleVertex triangle)
+Hit intersect_triangle(Ray *ray, Primitive triangle)
 {
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;

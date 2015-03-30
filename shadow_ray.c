@@ -5,7 +5,7 @@
 
 // 임시로 주석 처리함
 /*
-int shadow_test(Ray ray, float l_source[3],TriangleVertex triangle)
+int shadow_test(Ray ray, float l_source[3],Primitive triangle)
 {
 	Ray shadow_ray;
 	Hit hit_result;

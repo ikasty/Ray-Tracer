@@ -32,7 +32,7 @@ typedef struct
 	float orig[3];
 	float dir[3];
 	
-}Ray;
+} Ray;
 
 typedef struct
 {
@@ -41,13 +41,13 @@ typedef struct
 	float vert2[3];
 	
 	
-}TriangleVertex;
+} Primitive;
 
 typedef struct
 {
 	float t,u,v;
 	int triangle_id;
-}Hit;
+} Hit;
 
 typedef struct  {
        
@@ -72,6 +72,8 @@ typedef struct {
 
 	Triangle *face;
 	int face_count;
+
+	void *accel_struct;
 }Data;
 
 #endif
