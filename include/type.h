@@ -39,14 +39,14 @@ typedef struct
 	float vert0[3];
 	float vert1[3];
 	float vert2[3];
-	
-	
+
 } Primitive;
 
 typedef struct
 {
 	float t,u,v;
 	int triangle_id;
+
 } Hit;
 
 typedef struct  {
@@ -55,7 +55,7 @@ typedef struct  {
        int v2;
        int v3;
        
-}Triangle;
+} Triangle;
 
 typedef struct  {
       
@@ -63,7 +63,7 @@ typedef struct  {
       float y;
       float z;
             
-}Vertex;
+} Vertex;
 
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
@@ -74,6 +74,7 @@ typedef struct {
 	int face_count;
 
 	void *accel_struct;
-}Data;
+
+} Data;
 
 #endif
