@@ -28,26 +28,26 @@ typedef struct
 
 typedef struct  
 {
-	float max_t;
+	float min_t, max_t;
 	float orig[3];
 	float dir[3];
 	
-}Ray;
+} Ray;
 
 typedef struct
 {
 	float vert0[3];
 	float vert1[3];
 	float vert2[3];
-	
-	
-}TriangleVertex;
+
+} Primitive;
 
 typedef struct
 {
 	float t,u,v;
 	int triangle_id;
-}Hit;
+
+} Hit;
 
 typedef struct  {
        
@@ -55,7 +55,7 @@ typedef struct  {
        int v2;
        int v3;
        
-}Triangle;
+} Triangle;
 
 typedef struct  {
       
@@ -63,7 +63,7 @@ typedef struct  {
       float y;
       float z;
             
-}Vertex;
+} Vertex;
 
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
@@ -72,6 +72,9 @@ typedef struct {
 
 	Triangle *face;
 	int face_count;
-}Data;
+
+	void *accel_struct;
+
+} Data;
 
 #endif

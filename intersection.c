@@ -2,9 +2,10 @@
 #include <string.h>
 #include <math.h>
 #include "intersection.h"
+
 #include "obj_transform.h"
-#include "msl_math.h"
 #include "settings.h"
+#include "include/msl_math.h"
 
 Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 {
@@ -31,7 +32,7 @@ Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 	return min_hit;
 }
 
-Hit intersect_triangle(Ray *ray, TriangleVertex triangle)
+Hit intersect_triangle(Ray *ray, Primitive triangle)
 {
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;

@@ -1,10 +1,11 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "type.h"
 #include "obj_transform.h"
-#include "msl_math.h"
+
 #include "settings.h"
+#include "include/type.h"
+#include "include/msl_math.h"
 
 // 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!
@@ -69,9 +70,9 @@ getTriangle: 회전을 수행한 후 삼각형의 좌표를 반환하는 함수�
 - id_org: 삼각형의 id입니다.
 * result_t: 주어진 삼각형을 회전시킨 후의 위치 정보가 들어가 있습니다.
 */
-TriangleVertex getTriangle(Vertex v[], Triangle t[], int id)
+Primitive getTriangle(Vertex v[], Triangle t[], int id)
 {
-    TriangleVertex result_t;
+    Primitive result_t;
 
 	// 아래에서 호출되는 get_rotated_vector 함수의 첫 번째 인자로
 	// 삼각형(t[id])의 첫번째 Vertex의 주소를 넘겨줍니다.

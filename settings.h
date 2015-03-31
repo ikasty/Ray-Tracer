@@ -1,7 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include "type.h"
+#include "include/type.h"
 
 #define MAX_RENDER_DISTANCE		1000000
 

@@ -1,0 +1,1923 @@
+﻿
+/*
+    pbrt source code Copyright(c) 1998-2012 Matt Pharr and Greg Humphreys.
+
+    This file is part of pbrt.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
+
+    - Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+
+    - Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+    IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+    TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+    PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+    SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+    LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ */
+
+
+// accelerators/kdtreeaccel.cpp*
+
+#include "tree/kdbuild.h"
+#include <windows.h>
+#include <assert.h>
+//#include "paramset.h"
+extern KdAccelNode *ext_kd_node; 
+#define swap(a,b) {float t;t=a;a=b;b=t;}
+bool *test_num_prim;
+bool *test_num_prim_per_depth[31];
+bool *make_leaf_per_depth[31];
+bool *result;
+bool *start;
+bool *middle;
+#ifdef kd_experiment
+/*조사용 변수들*/
+extern int depth_;
+int real_depth;
+unsigned int qsort_memory_read;
+unsigned int qsort_memory_write;
+unsigned int re_alloc_memory_read;
+unsigned int re_alloc_memory_write;
+unsigned int SAH_memory_read;
+unsigned int SAH_memory_write;
+unsigned int split_memory_read;
+unsigned int split_memory_write;
+unsigned int total_memory_read;
+unsigned int total_memory_write;
+unsigned int init_memory_read;
+unsigned int init_memory_write;
+
+unsigned int qsort_memory_read_size;
+unsigned int qsort_memory_write_size;
+unsigned int re_alloc_memory_read_size;
+unsigned int re_alloc_memory_write_size;
+unsigned int SAH_memory_read_size;
+unsigned int SAH_memory_write_size;
+unsigned int split_memory_read_size;
+unsigned int split_memory_write_size;
+unsigned int total_memory_read_size;
+unsigned int total_memory_write_size;
+unsigned int init_memory_read_size;
+unsigned int init_memory_write_size;
+
+unsigned int memory_alloc;
+unsigned int memory_alloc_for_stack;
+unsigned int memory_alloc_cnt;
+unsigned int uiNum_node;
+unsigned int uiNum_leafnode;
+unsigned int local_value_size;
+
+#endif
+
+int *temp_tri;
+bool *save_prim;
+/*조사용 변수들 끝*/
+FILE* pfile;
+FILE* for_test;
+BBox WorldBound(KdTreeAccel kd_accel) { return kd_accel.bounds; }
+bool CanIntersect()  { return true; }
+float SplitPos(KdAccelNode *kd_node)  { return kd_node->split; }
+unsigned int func_nPrimitives(KdAccelNode *kd_node)  { return kd_node->nPrims ; }
+unsigned int SplitAxis(KdAccelNode *kd_node)  { return kd_node->flags & 3; }
+bool IsLeaf(KdAccelNode *kd_node)  { return (kd_node->flags & 3) == 3; }
+unsigned int AboveChild(KdAccelNode *kd_node)  { return kd_node->aboveChild; }
+int numbering;
+
+
+void initInterior(KdAccelNode* kd_node,unsigned int axis, unsigned int ac, float s) {
+	kd_node->split = s;
+	kd_node->flags = axis;
+	kd_node->aboveChild = ac;
+
+	
+
+
+}
+
+
+
+
+ float Log2(float x) {
+    float invLog2 = 1.f / logf(2.f);
+    return logf(x) * invLog2;
+}
+int Floor2Int(float val) {
+    return (int)floorf(val);
+}
+
+
+int Round2Int(float val) {
+    return Floor2Int(val + 0.5f);
+}
+
+ int Log2Int(float v) {
+    return Floor2Int(Log2(v));
+}	
+
+// KdTreeAccel Local Declarations
+ BoundEdge set_BoundEdge(float tt, int pn, bool starting) {
+       BoundEdge b_edge;
+		b_edge.t = tt;
+        b_edge.primNum = pn;
+
+        b_edge.e_type = starting ? START : END;
+		return b_edge;
+    }
+
+ bool b_edge_operator(BoundEdge *x, BoundEdge *e)  {
+        if (x->t == e->t)
+            return (int)x->e_type < (int)e->e_type;
+        else return x->t < e->t;
+    }
+
+void initLeaf(KdAccelNode* kd_node,unsigned int *primNums, int np) {
+    int i;
+	kd_node->flags = 3;
+    kd_node->nPrims =np ;
+	
+    // Store primitive ids for leaf node
+    if (np == 0)
+        kd_node->onePrimitive = 0;
+    else if (np == 1){
+        kd_node->onePrimitive = primNums[0];
+	
+	}
+    else {
+        kd_node->primitives = (unsigned int*)malloc(sizeof(unsigned int)*np);
+        for ( i = 0; i < np; i++)
+		{
+			
+            kd_node->primitives[i] = primNums[i];
+			
+		}
+    }
+#ifdef kd_experiment
+	memory_alloc+=(sizeof(unsigned int)*np);
+	memory_alloc_cnt++;
+	total_memory_read+=(1+(np));
+	total_memory_write+=(2+np);
+	total_memory_read+=(sizeof(int)+(sizeof(unsigned int)*np));
+	total_memory_write+=(sizeof(unsigned int)*(2+np));
+#endif
+#ifdef kd_experiment
+	uiNum_leafnode++;
+#endif
+}
+
+BBox make_bbox(float p1[3], float p2[3]){
+	BBox ret;
+	minimum(ret.faaBounds[0],p1,p2);
+	maximum(ret.faaBounds[1],p1,p2);
+
+	return ret;
+}
+BBox Union(BBox bbox, float p2[3]) {
+    BBox ret =bbox;
+	BBox temp;
+	minimum(temp.faaBounds[0],ret.faaBounds[0],p2);
+	maximum(temp.faaBounds[1],ret.faaBounds[1],p2);
+    return temp;
+}
+BBox Union_2(BBox bbox,BBox bbox2) {
+    BBox ret =bbox;
+	BBox temp;
+	minimum(temp.faaBounds[0],ret.faaBounds[0],bbox2.faaBounds[0]);
+	maximum(temp.faaBounds[1],ret.faaBounds[1],bbox2.faaBounds[1]);
+    return temp;
+}
+
+BBox ObjectBound(Triangle mesh) {
+    // Get triangle vertices in _p1_, _p2_, and _p3_
+     float p1[3];
+	 float p2[3];
+	 float p3[3];
+	p1[0] = mesh.faA[0];
+    p1[1] = mesh.faA[1];
+	p1[2] = mesh.faA[2];
+	p2[0] = mesh.faB[0];
+    p2[1] = mesh.faB[1];
+	p2[2] = mesh.faB[2];
+	p3[0] = mesh.faC[0];
+    p3[1] = mesh.faC[1];
+	p3[2] = mesh.faC[2];
+    return Union(make_bbox(p1, p2),p3);
+
+}
+int compareedge(const void *vpPa, const void *vpPb)
+{
+ 
+ float x = (((BoundEdge*)vpPa)->t)-(((BoundEdge*)vpPb)->t);
+ if (x>0.0){
+  return 1;
+ }
+ else if(x == 0.0f){
+  if((int)(((BoundEdge*)vpPa)->e_type) < (int)(((BoundEdge*)vpPb)->e_type))
+   return 1;
+ }
+
+ return -1;
+}
+
+int nlogn_compareedge(const void *vpPa, const void *vpPb)
+{
+ 
+ float x = (((BoundEdge*)vpPa)->t)-(((BoundEdge*)vpPb)->t);
+ if (x>0.0){
+  return 1;
+ }
+ else if(x == 0.0f){
+	 if((int)(((BoundEdge*)vpPa)->axis) > (int)(((BoundEdge*)vpPb)->axis))
+		 return 1;
+	 else{
+	 if((int)(((BoundEdge*)vpPa)->e_type) < (int)(((BoundEdge*)vpPb)->e_type))
+		return 1;
+	 }
+ }
+
+ return -1;
+}
+
+// KdTreeAccel Method Definitions
+KdTreeAccel func_KdTreeAccel(int iObjBegin,int iObjEnd, 
+        int icost, int tcost,unsigned int max_nodenum, float ebonus, int maxp,
+        int md,Scene* scene) {
+		
+		
+			KdTreeAccel kd_accel=scene->kd_accelerator;
+			int get_devide;
+			unsigned int i;
+			int j,iter_axis;
+			BBox* primBounds;
+#ifdef pbrt_kdtree
+		BoundEdge *edges[3];
+#else
+		BoundEdge *edges;
+#endif
+		unsigned int *prims0 ;
+		unsigned int *prims1 ;
+		unsigned int *primNums ;
+		int numberofprim=0;
+		int num_of_make_leaf_per_depth=0;
+		  kd_accel.isectCost=icost;
+		  kd_accel.traversalCost=tcost;
+		  kd_accel.maxPrims=maxp;
+		  kd_accel.maxDepth=md;
+		  kd_accel.emptyBonus=ebonus;
+		  kd_accel.num_prim=scene->uiNumPrims;
+		  
+    //PBRT_KDTREE_STARTED_CONSTRUCTION(this, p.size());
+	
+
+ 
+    // Build kd-tree for accelerator
+    kd_accel.nextFreeNode = kd_accel.nAllocedNodes = 0;
+	
+    if (kd_accel.maxDepth <= 0){
+		kd_accel.maxDepth = Round2Int(8 + 1.3f * Log2Int((float)(kd_accel.num_prim)));
+#ifdef kd_experiment
+
+		kd_accel.maxDepth -=depth_;
+#endif
+	}
+
+    // Compute bounds for kd-tree construction
+
+	primBounds=(BBox*)malloc(sizeof(BBox)*(kd_accel.num_prim));
+	
+	primBounds[0]=kd_accel.bounds;
+
+    for (i = 1; i < kd_accel.num_prim; i++) {
+		BBox b = ObjectBound(scene->pPrims[i]);
+		
+        kd_accel.bounds = Union_2(kd_accel.bounds, b);
+		
+        primBounds[i]=b;
+		
+    }
+#ifdef pbrt_kdtree
+    // Allocate working memory for kd-tree construction
+    
+    for ( j = 0; j < 3; j++){
+        edges[j] = (BoundEdge*)malloc(sizeof(BoundEdge)*2*kd_accel.num_prim);
+		
+	}
+#endif
+#ifdef nlogn_kdtree
+	edges=(BoundEdge*)malloc(sizeof(BoundEdge)*2*kd_accel.num_prim*4);
+#endif
+
+
+      prims0 =( unsigned int*)malloc(sizeof( unsigned int)*kd_accel.num_prim);
+	 
+
+	  prims1 = ( unsigned int*)malloc(sizeof( unsigned int)*(kd_accel.maxDepth+1) *kd_accel.num_prim);
+	  
+
+    // Initialize _primNums_ for kd-tree construction
+   primNums = ( unsigned int*)malloc(sizeof( unsigned int)*(kd_accel.num_prim));
+   
+   //primNums = NULL;
+  // memset(primNums,0,sizeof( unsigned int)*kd_accel.num_prim);
+   //i=0;
+    for ( i = 0; i < kd_accel.num_prim; i++){
+        primNums[i] = i;
+		
+		//j=0;
+	}
+#ifdef kd_experiment
+	memory_alloc+=(sizeof(BBox)*kd_accel.num_prim);
+	memory_alloc+=(sizeof(BoundEdge)*2*kd_accel.num_prim*3);
+	memory_alloc+=(sizeof(unsigned int)*kd_accel.num_prim);
+	memory_alloc+=(sizeof(unsigned int)*(kd_accel.maxDepth+1) *kd_accel.num_prim);
+	memory_alloc+=(sizeof(unsigned int)*kd_accel.num_prim);
+	memory_alloc_cnt+=5;
+#endif
+
+	j=0;
+#ifdef nlogn_kdtree
+	for(iter_axis=0;iter_axis<3;iter_axis++){
+	for(i=0;i<kd_accel.num_prim;i++){//kd_accel.num_prim;i++) {
+        int pn = primNums[i];
+		BBox bbox = primBounds[pn];
+		//temp_tri[pn]=3;//both
+	if(bbox.faaBounds[0][iter_axis]==bbox.faaBounds[1][iter_axis])
+	{
+		edges[j].t =bbox.faaBounds[0][iter_axis];
+		edges[j].primNum=pn;
+		edges[j].e_type=PLANAR;
+		edges[j].axis=iter_axis;
+		j++;
+	}
+	else
+	{
+		//int double_i=2*i;
+		edges[j].t =bbox.faaBounds[0][iter_axis];
+		edges[j].primNum=pn;
+		edges[j].e_type=START;
+		edges[j].axis=iter_axis;
+		j++;
+		edges[j].t =bbox.faaBounds[1][iter_axis];
+		edges[j].primNum=pn;
+		edges[j].e_type=END;
+		edges[j].axis=iter_axis;
+		
+		j++;
+	}	
+    
+	 
+    }
+
+	}
+	
+	  qsort(edges,(j),sizeof(BoundEdge), nlogn_compareedge);
+	  for(i=0;i<j;i++)
+	  {
+		  if(edges[i].axis!=2 &&edges[i].axis!=1 &&edges[i].axis!=0){
+			  printf("error");
+			  getchar();
+		  }
+	  }
+	  temp_tri=(int*)malloc(sizeof(int)*kd_accel.num_prim);
+	  save_prim=(bool*)malloc(sizeof(bool)*kd_accel.num_prim);
+#endif
+#ifdef pbrt_kdtree
+    // Start recursive construction of kd-tree
+    /*buildTree(&kd_accel,0, kd_accel.bounds, primBounds, primNums, kd_accel.num_prim,
+              kd_accel.maxDepth, edges, prims0, prims1,0);*/
+
+	sweep_buildTree(&kd_accel,0, kd_accel.bounds, primBounds, primNums, kd_accel.num_prim,
+              kd_accel.maxDepth, edges, prims0, prims1,0);
+#endif
+#ifdef nlogn_kdtree
+	nlogn_buildTree(&kd_accel,0, kd_accel.bounds, primBounds, primNums, kd_accel.num_prim,
+              kd_accel.maxDepth, edges, prims0, prims1,j,0);
+#endif	
+#ifdef kd_experiment
+	local_value_size=((10*sizeof(int))+(15*sizeof(float))+(4*sizeof(unsigned int))+(3*sizeof(BBox))+(kd_accel.nAllocedNodes*sizeof(KdAccelNode)))*kd_accel.maxDepth;
+	memory_alloc_for_stack+=(kd_accel.maxDepth*(sizeof(KdTreeAccel)+(sizeof(unsigned int)*2)+sizeof(BBox)+(sizeof(BBox)*kd_accel.num_prim))+(sizeof(unsigned int)*kd_accel.num_prim*2)+(2*sizeof(int))+(sizeof(BoundEdge)*
+							6*kd_accel.num_prim)+(sizeof(unsigned int)*kd_accel.num_prim*(kd_accel.maxDepth+1)));
+	memory_alloc_for_stack+=local_value_size;
+    // Free working memory for kd-tree construction
+	memory_alloc+=kd_accel.nAllocedNodes*(sizeof(KdAccelNode));
+	total_memory_write+=((uiNum_node-uiNum_leafnode)*3);
+	total_memory_read+=((uiNum_node-uiNum_leafnode)*2);
+	total_memory_write_size+=((uiNum_node-uiNum_leafnode)*((2*sizeof(unsigned int))+sizeof(float)));
+	total_memory_read_size+=((uiNum_node-uiNum_leafnode)*sizeof(unsigned int));
+
+	fprintf(pfile,"최대 depth : %d 실제 최대 depth : %d \n",kd_accel.maxDepth,real_depth);
+	fprintf(pfile,"\n");
+	fprintf(pfile,"전체 노드 수 : %d  리프 노드 수 : %d \n",uiNum_node,uiNum_leafnode);
+	fprintf(pfile,"stack 메모리 최대 할당량 : %.f KB \n",memory_alloc_for_stack/(1024.0f));
+	fprintf(pfile,"heap 메모리 최대 할당량 : %.f KB \n",memory_alloc/(1024.0f));
+	fprintf(pfile,"메모리 할당 횟수: %d\n",memory_alloc_cnt);
+	fprintf(pfile,"total read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",total_memory_read,total_memory_read_size/1024.0f,total_memory_write,total_memory_write_size/1024.0f);
+
+	fprintf(pfile,"init read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",init_memory_read,init_memory_read_size/1024.0f,init_memory_write,init_memory_write_size/1024.0f);
+
+	fprintf(pfile,"split read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",split_memory_read,split_memory_read_size/1024.0f,split_memory_write,split_memory_write_size/1024.0f);
+
+	fprintf(pfile,"SAH read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",SAH_memory_read,SAH_memory_read_size/1024.0f,SAH_memory_write,SAH_memory_write_size/1024.0f);
+
+	fprintf(pfile,"re_allocaction read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",re_alloc_memory_read,re_alloc_memory_read_size/1024.0f,re_alloc_memory_write,re_alloc_memory_write_size/1024.0f);
+
+	fprintf(pfile,"qsort read count : %d(size : %.fKB), write count: %d(size : %.fKB) \n",qsort_memory_read,qsort_memory_read_size/1024.0f,qsort_memory_write,qsort_memory_write_size/1024.0f);
+
+	fprintf(pfile,"\n");
+#endif
+
+	free(primBounds);
+#ifdef pbrt_kdtree
+	free(edges[0]);
+	free(edges[1]);
+	free(edges[2]);
+#endif
+#ifdef nlogn_kdtree
+	free(edges);
+#endif
+	free(prims0);
+	free(prims1);
+	free(primNums);
+	free(temp_tri);
+	free(save_prim);
+	
+	return kd_accel;
+    //PBRT_KDTREE_FINISHED_CONSTRUCTION(this);
+}
+
+
+
+float32 kd_ComputeArea(float32 fpabox[2][3])
+{
+    float fDx, fDy, fDz;
+
+    fDx = fpabox[1][0] - fpabox[0][0];
+    fDy = fpabox[1][1] - fpabox[0][1];
+    fDz = fpabox[1][2] - fpabox[0][2];
+
+    return 2.f * (fDx * fDy + fDy * fDz + fDx * fDz);
+}
+
+int MaximumExtent(float d[3]) {
+         
+        if (d[0]> d[1] &&d[0] > d[2])
+            return 0;
+        else if (d[1] > d[2])
+            return 1;
+        else
+            return 2;
+    }
+
+//int compareedge(const void *vpPa, const void *vpPb)
+//{
+//	float x = (((BoundEdge*)vpPa)->t)-
+//			(((BoundEdge*)vpPb)->t);
+//	if (x>0.0) return 1;
+//	if(x == 0.0) return b_edge_operator((BoundEdge*)vpPa,(BoundEdge*)vpPb);
+//	return -1;
+//}
+
+void merge(BoundEdge* result,BoundEdge* event1,BoundEdge* event2,int nevent1,int nevent2)
+{
+	
+	int e1=0,e2=0,iter=0;
+	
+	while(e1<nevent1||e2<nevent2)
+	{
+		if(e1<nevent1&&e2<nevent2)
+		{
+			if(event1[e1].t<=event2[e2].t){
+				result[iter]=event1[e1];
+				iter++;
+				e1++;
+			}
+			else
+			{
+				result[iter]=event2[e2];
+				iter++;
+				e2++;
+			}
+		}
+		else if(e1>=nevent1&&e2<nevent2)
+		{
+			result[iter]=event2[e2];
+			iter++;
+			e2++;
+		}
+		else if(e1<nevent1&&e2>=nevent2)
+		{
+			result[iter]=event1[e1];
+			iter++;
+			e1++;
+		}
+	}
+
+	
+}
+//nlogn kdtree
+void nlogn_buildTree(KdTreeAccel *kd_accel,int nodeNum, BBox nodeBounds,
+         BBox *allPrimBounds, unsigned int *primNums,
+        unsigned int nPrimitives, int depth, BoundEdge *edges,
+        unsigned int *prims0, unsigned int *prims1, int num_event,int badRefines) {
+
+	int bestAxis = -1, bestOffset = -1;
+	side_type best_side;
+    float bestCost = INFINITY;
+    float oldCost = kd_accel->isectCost * ((float)(nPrimitives));
+    float totalSA = kd_ComputeArea(nodeBounds.faaBounds);
+    float invTotalSA = 1.f / totalSA;
+    float d[3];
+	int LO,RO,BL,BR;
+
+	//unsigned int axis_value_1,axis_value_2,axis_value_3;
+	float total_length,inv_total_length;
+    int retries = 0;
+	int i;
+	int nBelow[3] , nplanar[3] , nAbove[3];
+	 int n0 = 0;
+	int	 n1 = 0;
+	 float tsplit;
+	  BBox bounds0 ,bounds1;
+	  unsigned int aboveChild;
+	  float edget;
+	  BoundEdge best_edge;
+	  BoundEdge *leftonly,*rightonly,*bothleft,*bothright;
+	  BoundEdge *event_LEFT,*event_RIGHT;
+	  int iter;
+	  int test=0;
+#if 1 // 실험용
+			int test_count=0;
+#endif
+#ifdef kd_experiment
+	  if(real_depth<(kd_accel->maxDepth-depth))
+		  real_depth=(kd_accel->maxDepth-depth);
+	  uiNum_node++;
+#endif
+	  //initialize
+	  leftonly=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	  rightonly=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	  bothleft=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	  bothright=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	  event_LEFT=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	  event_RIGHT=(BoundEdge*)malloc(sizeof(BoundEdge)*num_event);
+	
+	
+	  //printf("count : %d %d \r",uiNum_node,leaf);
+    Assert(nodeNum == kd_accel.nextFreeNode);
+	best_edge.axis=-1;
+    // Get next free node from _nodes_ array
+    if (kd_accel->nextFreeNode == kd_accel->nAllocedNodes) {
+        int nAlloc = max(2 * kd_accel->nAllocedNodes, 512);
+        KdAccelNode *n = (KdAccelNode*)malloc(sizeof(KdAccelNode)*nAlloc);
+#ifdef kd_experiment
+		memory_alloc_cnt++;
+#endif
+        if (kd_accel->nAllocedNodes > 0) {
+            memcpy(n, kd_accel->nodes, kd_accel->nAllocedNodes * sizeof(KdAccelNode));
+			free(kd_accel->nodes);
+
+#ifdef kd_experiment
+			total_memory_write+=kd_accel->nAllocedNodes;
+			total_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_write+=kd_accel->nAllocedNodes;
+
+
+			total_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			total_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+#endif
+            
+        }
+        kd_accel->nodes = n; //???????????????????????
+		
+        kd_accel->nAllocedNodes = nAlloc;
+		
+    }
+	
+    kd_accel->nextFreeNode++;
+
+	
+    // Initialize leaf node if termination criteria met
+    if (nPrimitives <= kd_accel->maxPrims || depth == 0) {
+    
+
+		//leaf++;
+      initLeaf(  &kd_accel->nodes[nodeNum],primNums, nPrimitives);
+	  
+        return;
+    }
+	
+    // Initialize interior node and continue recursion
+
+    // Choose split axis position for interior node
+    v3Substract(d,nodeBounds.faaBounds[1],nodeBounds.faaBounds[0]);
+#ifdef my_idea
+	
+	
+	total_length= d[0] + d[1] + d[2];
+	inv_total_length=1.f/total_length;
+#endif
+    // Choose which axis to split along
+    
+retrySplit:
+	for(iter=0;iter<3;iter++){
+	nBelow[iter] = 0;
+	nplanar[iter] = 0;
+	nAbove[iter] = nPrimitives;
+	}
+    // Initialize edges for _axis_
+	//memset(temp_tri,0,sizeof(int)*kd_accel->num_prim);
+	
+	  numbering=0;
+    // Compute cost of all splits for _axis_ to find best
+    iter=0;
+    while ( iter < num_event ) {
+        BoundEdge temp_edge = edges[iter];
+		int p_start = 0, p_end = 0, p_planar = 0;
+		unsigned int otherAxis0,otherAxis1;
+		
+		int temp = iter;
+		while((iter<num_event)&&(temp_edge.axis==edges[iter].axis)&&(temp_edge.t==edges[iter].t)&&(edges[iter].e_type==END))
+		{
+			p_end++;
+			iter++;
+		}
+		while((iter<num_event)&&(temp_edge.axis==edges[iter].axis)&&(temp_edge.t==edges[iter].t)&&(edges[iter].e_type==PLANAR))
+		{
+			p_planar++;
+			iter++;
+		}
+		while((iter<num_event)&&(temp_edge.axis==edges[iter].axis)&&(temp_edge.t==edges[iter].t)&&(edges[iter].e_type==START))
+		{
+			p_start++;
+			iter++;
+		}
+
+         nplanar[temp_edge.axis]=p_planar;
+		 nAbove[temp_edge.axis]-=(p_planar+p_end);
+        if(temp_edge.t>nodeBounds.faaBounds[0][temp_edge.axis]&&
+			temp_edge.t<nodeBounds.faaBounds[1][temp_edge.axis])
+		{
+			float belowSA;
+			float aboveSA;
+			float pBelow ;
+			float pAbove;
+			float eb;
+			float cost_l,cost_r;
+			int n_left,n_right;
+			float divide_result;
+
+            // Compute cost for split at _i_th edge
+             otherAxis0 = (temp_edge.axis + 1) % 3;
+			otherAxis1 = (temp_edge.axis + 2) % 3;
+             belowSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (temp_edge.t - nodeBounds.faaBounds[0][temp_edge.axis]) *  //read 5
+                                 (d[otherAxis0] + d[otherAxis1]));
+             aboveSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (nodeBounds.faaBounds[1][temp_edge.axis] - temp_edge.t ) *  //read 6
+                                 (d[otherAxis0] + d[otherAxis1]));
+             pBelow = belowSA * invTotalSA;
+             pAbove = aboveSA * invTotalSA;
+			
+			 
+#ifdef my_idea
+			 divide_result=(1-(d[temp_edge.axis]* inv_total_length));
+
+			 //SAH
+			 n_left=nBelow[temp_edge.axis]+nplanar[temp_edge.axis];
+			 n_right = nAbove[temp_edge.axis];
+			 
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+             cost_l = kd_accel->traversalCost +
+                         kd_accel->isectCost * (1.f - eb) * (pBelow * n_left + pAbove * n_right)*divide_result; //read 8,9
+
+			 n_left=nBelow[temp_edge.axis];
+			 n_right = nAbove[temp_edge.axis]+nplanar[temp_edge.axis];
+			
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+			 cost_r = kd_accel->traversalCost +
+				 kd_accel->isectCost * (1.f - eb) * (pBelow * n_left+ pAbove *n_right)*divide_result; //read 8,9
+			 //SAH over
+#else
+			  //SAH
+			 n_left=nBelow[temp_edge.axis]+nplanar[temp_edge.axis];
+			 n_right = nAbove[temp_edge.axis];
+			 
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+             cost_l = kd_accel->traversalCost +
+                         kd_accel->isectCost * (1.f - eb) * (pBelow * n_left + pAbove * n_right); //read 8,9
+
+			 n_left=nBelow[temp_edge.axis];
+			 n_right = nAbove[temp_edge.axis]+nplanar[temp_edge.axis];
+			
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+			 cost_r = kd_accel->traversalCost +
+				 kd_accel->isectCost * (1.f - eb) * (pBelow * n_left+ pAbove *n_right); //read 8,9
+			 //SAH over
+#endif
+			
+			 //cost comparing
+			 if(cost_l<=cost_r){
+				if(depth == 29){
+					 fprintf(for_test,"%6d         %f         %6d \n",numbering,cost_l, temp_edge.primNum);
+					 numbering++;
+				}
+				 
+            // Update best split if this is lowest cost so far
+				 if (cost_l < bestCost)  {
+					bestCost = cost_l;
+					//bestAxis = axis;
+					bestOffset=iter;
+					best_side = LEFT;
+					best_edge = temp_edge;
+				}
+			 }
+			 else{
+				 
+				 if(depth == 29){
+					 fprintf(for_test,"%6d         %f         %6d \n",numbering,cost_r, temp_edge.primNum);
+					 numbering++;
+				 }
+				 
+            // Update best split if this is lowest cost so far
+				if (cost_r < bestCost)  {
+					bestCost = cost_r;
+					//bestAxis = temp_edge.axis;
+					bestOffset=iter;
+					best_side = RIGHT;
+					best_edge = temp_edge;
+				}
+
+			}
+		}
+		nBelow[temp_edge.axis] +=(p_start+p_planar);
+		nplanar[temp_edge.axis]=0;
+
+
+        
+    }
+#ifdef kd_experiment
+	total_memory_read+=(5+(2*nPrimitives));
+	total_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+	SAH_memory_read+=(5+(2*nPrimitives));
+	SAH_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+#endif
+    Assert(nBelow == nPrimitives && nAbove == 0); 
+	
+
+    // Create leaf if no good splits were found
+   /* if (best_edge.axis == -1 && retries < 2) {
+        retries++;
+        axis = (axis+1) % 3;
+        goto retrySplit;
+    }*/
+
+    if (bestCost > oldCost) ++badRefines;
+    if ((bestCost > 4.f * oldCost && nPrimitives < 16) ||
+        best_edge.axis == -1 || badRefines == 3) {
+        
+        initLeaf(&kd_accel->nodes[nodeNum],primNums, nPrimitives);
+		//leaf++;
+        return;
+    }
+	LO=0;
+	RO=0;
+	BL=0;
+	BR=0;
+	/* Classify primitives with respect to split*/
+	for(i=0;i<nPrimitives;i++)
+	{
+		temp_tri[primNums[i]]=3;//BOTH
+		save_prim[primNums[i]]=true;
+	}
+	
+	for(i=0;i<num_event;i++)
+	{
+		if((edges[i].e_type==END) && (edges[i].t<=best_edge.t)&&(edges[i].axis==best_edge.axis)){
+			
+			temp_tri[edges[i].primNum]=1;//leftonly
+		}
+		else if((edges[i].e_type==START) && (edges[i].t>=best_edge.t)&&(edges[i].axis==best_edge.axis)){
+			temp_tri[edges[i].primNum]=2;//rightonly
+		}
+		else if((edges[i].e_type==PLANAR)&&(edges[i].axis==best_edge.axis))
+		{
+			if((edges[i].t<best_edge.t) || (best_edge.t==edges[i].t&&best_side==LEFT))
+			{
+				temp_tri[edges[i].primNum]=1;//leftonly
+				
+			}
+			if((edges[i].t>best_edge.t) || (best_edge.t==edges[i].t&&best_side==RIGHT))
+			{
+				temp_tri[edges[i].primNum]=2;//rightonly
+			}
+		}
+		
+	}
+	{
+		int tt1=0,tt2=0;
+		int test2=0;
+	test=0;
+	for(i=0;i<num_event;i++)
+	{
+		if(temp_tri[edges[i].primNum]==1)
+		{
+			if(save_prim[edges[i].primNum]){
+			prims0[n0] = edges[i].primNum;
+			n0++;
+			save_prim[edges[i].primNum]=false;
+			}
+			leftonly[LO]=edges[i];
+			LO++;
+			tt1++;
+
+		}
+		else if(temp_tri[edges[i].primNum]==2)
+		{
+			if(save_prim[edges[i].primNum]){
+			prims1[n1] = edges[i].primNum;
+			n1++;
+			save_prim[edges[i].primNum]=false;
+			
+			}
+			rightonly[RO]=edges[i];
+			RO++;
+			tt2++;
+		}
+		else if(temp_tri[edges[i].primNum]==3)
+		{
+			if(save_prim[edges[i].primNum]){
+			prims0[n0] = edges[i].primNum;
+			n0++;
+			prims1[n1] = edges[i].primNum;
+			n1++;
+			save_prim[edges[i].primNum]=false;
+			}
+			
+			bothleft[BL]=edges[i];
+			BL++;
+			
+
+			
+			
+			
+			
+			bothright[BR]=edges[i];
+			BR++;
+			test2++;
+			
+		}
+		else
+			test++;
+		}
+	
+		
+	//qsort(bothleft,BL,sizeof(BoundEdge),compareedge);
+	//qsort(bothright,BR,sizeof(BoundEdge),compareedge);
+
+	
+	merge(event_LEFT,leftonly,bothleft,LO,BL);
+	merge(event_RIGHT,rightonly,bothright,RO,BR);
+
+	free(leftonly);
+	free(rightonly);
+	free(bothleft);
+	free(bothright);
+#ifdef kd_experiment
+	total_memory_read+=(2*nPrimitives);
+	total_memory_write+=(2*nPrimitives);
+	total_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	total_memory_write_size+=((2*nPrimitives)*sizeof(int));
+	
+	split_memory_read+=(2*nPrimitives);
+	split_memory_write+=(2*nPrimitives);
+	split_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	split_memory_write_size+=((2*nPrimitives)*sizeof(int));
+#endif
+    // Recursively initialize children nodes
+    tsplit = best_edge.t;
+	
+    //PBRT_KDTREE_CREATED_INTERIOR_NODE(bestAxis, tsplit);
+    bounds0 = nodeBounds;
+	bounds1 = nodeBounds;
+	
+	bounds0.faaBounds[1][best_edge.axis] = bounds1.faaBounds[0][best_edge.axis] = tsplit;
+
+	//printf("%d %d %d %d (%d %d %d %d)\n",LO,RO,BL,BR,tt1,tt2,test2,test);
+	
+		 
+    nlogn_buildTree(kd_accel,nodeNum+1, bounds0,
+              allPrimBounds, prims0, n0, depth-1, event_LEFT,
+              prims0, prims1 + nPrimitives,(LO+BL), badRefines);
+     
+	aboveChild = kd_accel->nextFreeNode;
+	
+    initInterior(&kd_accel->nodes[nodeNum],best_edge.axis, aboveChild, tsplit);
+
+    nlogn_buildTree(kd_accel, aboveChild, bounds1, allPrimBounds, prims1, n1,
+              depth-1, event_RIGHT, prims0, prims1 + nPrimitives, (RO+BR),badRefines);
+	}
+	
+	free(event_LEFT);
+	free(event_RIGHT);
+	
+}
+
+
+int leaf=0;
+//nlog^2n kdtree
+void sweep_buildTree(KdTreeAccel *kd_accel,int nodeNum, BBox nodeBounds,
+         BBox *allPrimBounds, unsigned int *primNums,
+        unsigned int nPrimitives, int depth, BoundEdge *edges[3],
+        unsigned int *prims0, unsigned int *prims1, int badRefines) {
+
+	int bestAxis = -1, bestOffset = -1;
+	side_type best_side;
+    float bestCost = INFINITY;
+    float oldCost = kd_accel->isectCost * ((float)(nPrimitives));
+    float totalSA = kd_ComputeArea(nodeBounds.faaBounds);
+    float invTotalSA = 1.f / totalSA;
+    float d[3];
+	unsigned int axis;
+    int retries = 0;
+	int i,j;
+	int nBelow , nplanar , nAbove;
+	 int n0 = 0;
+	int	 n1 = 0;
+	 float tsplit;
+	  BBox bounds0 ,bounds1;
+	  unsigned int aboveChild;
+	  float edget;
+	  BoundEdge best_edge;
+	  int iter;
+	  int test=0;
+#ifdef kd_experiment
+	  if(real_depth<(kd_accel->maxDepth-depth))
+		  real_depth=(kd_accel->maxDepth-depth);
+	  uiNum_node++;
+#endif
+	  //printf("count : %d %d \r",uiNum_node,leaf);
+    Assert(nodeNum == kd_accel.nextFreeNode);
+	
+    // Get next free node from _nodes_ array
+    if (kd_accel->nextFreeNode == kd_accel->nAllocedNodes) {
+        int nAlloc = max(2 * kd_accel->nAllocedNodes, 512);
+        KdAccelNode *n = (KdAccelNode*)malloc(sizeof(KdAccelNode)*nAlloc);
+#ifdef kd_experiment
+		memory_alloc_cnt++;
+#endif
+        if (kd_accel->nAllocedNodes > 0) {
+            memcpy(n, kd_accel->nodes, kd_accel->nAllocedNodes * sizeof(KdAccelNode));
+			free(kd_accel->nodes);
+
+#ifdef kd_experiment
+			total_memory_write+=kd_accel->nAllocedNodes;
+			total_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_write+=kd_accel->nAllocedNodes;
+
+
+			total_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			total_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+#endif
+            
+        }
+        kd_accel->nodes = n; //???????????????????????
+		
+        kd_accel->nAllocedNodes = nAlloc;
+		//free(n);
+    }
+	
+    kd_accel->nextFreeNode++;
+
+	
+    // Initialize leaf node if termination criteria met
+    if (nPrimitives <= kd_accel->maxPrims || depth == 0) {
+    
+
+		leaf++;
+      initLeaf(  &kd_accel->nodes[nodeNum],primNums, nPrimitives);
+	  
+        return;
+    }
+	
+    // Initialize interior node and continue recursion
+
+    // Choose split axis position for interior node
+    
+	v3Substract(d,nodeBounds.faaBounds[1],nodeBounds.faaBounds[0]);
+	axis = MaximumExtent(d);
+	
+    // Choose which axis to split along
+    
+retrySplit:
+	
+	nBelow = 0;
+	nplanar = 0;
+	nAbove = nPrimitives;
+    // Initialize edges for _axis_
+	//memset(temp_tri,0,sizeof(int)*kd_accel->num_prim);
+	j=0;
+    for(i=0;i<nPrimitives;i++) {
+        int pn = primNums[i];
+		BBox bbox = allPrimBounds[pn];
+		//temp_tri[pn]=3;//both
+	if(bbox.faaBounds[0][axis]==bbox.faaBounds[1][axis])
+	{
+		edges[axis][j].t =bbox.faaBounds[0][axis];
+		edges[axis][j].primNum=pn;
+		edges[axis][j].e_type=PLANAR;
+		j++;
+	}
+	else
+	{
+		//int double_i=2*i;
+		edges[axis][j].t =bbox.faaBounds[0][axis];
+		edges[axis][j].primNum=pn;
+		edges[axis][j].e_type=START;
+		j++;
+		edges[axis][j].t =bbox.faaBounds[1][axis];
+		edges[axis][j].primNum=pn;
+		edges[axis][j].e_type=END;
+		
+		j++;
+	}	
+    
+	 
+    }
+	
+	  qsort(edges[axis],(j),sizeof(BoundEdge), compareedge);
+
+#ifdef kd_experiment
+	total_memory_read+=(2*nPrimitives);
+	total_memory_write+=(6*nPrimitives);
+	total_memory_read_size+=((sizeof(BBox)+sizeof(unsigned int))*nPrimitives);
+	total_memory_write_size+=((sizeof(float)+sizeof(int)+sizeof(edge_type))*2*nPrimitives);
+
+	init_memory_read+=(2*nPrimitives);
+	init_memory_write+=(6*nPrimitives);
+	init_memory_read_size+=((sizeof(BBox)+sizeof(unsigned int))*nPrimitives);
+	init_memory_write_size+=((sizeof(float)+sizeof(int)+sizeof(edge_type))*2*nPrimitives);
+
+	total_memory_read+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	total_memory_write+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	qsort_memory_read+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	qsort_memory_write+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+
+	total_memory_read_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));
+	total_memory_write_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+	qsort_memory_read_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+	qsort_memory_write_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+#endif
+
+    // Compute cost of all splits for _axis_ to find best
+    iter=0;
+    while ( iter < j ) {
+        BoundEdge temp_edge = edges[axis][iter];
+		int p_start = 0, p_end = 0, p_planar = 0;
+		unsigned int otherAxis0,otherAxis1;
+		
+		int temp = iter;
+		while((iter<j)&&(temp_edge.t==edges[axis][iter].t)&&(edges[axis][iter].e_type==END))
+		{
+			p_end++;
+			iter++;
+		}
+		while((iter<j)&&(temp_edge.t==edges[axis][iter].t)&&(edges[axis][iter].e_type==PLANAR))
+		{
+			p_planar++;
+			iter++;
+		}
+		while((iter<j)&&(temp_edge.t==edges[axis][iter].t)&&(edges[axis][iter].e_type==START))
+		{
+			p_start++;
+			iter++;
+		}
+
+         nplanar=p_planar;
+		 nAbove-=(p_planar+p_end);
+        if(temp_edge.t>nodeBounds.faaBounds[0][axis]&&
+			temp_edge.t<nodeBounds.faaBounds[1][axis])
+		{
+			float belowSA;
+			float aboveSA;
+			float pBelow ;
+			float pAbove;
+			float eb;
+			float cost_l,cost_r;
+			int n_left,n_right;
+			
+            // Compute cost for split at _i_th edge
+             otherAxis0 = (axis + 1) % 3;
+			otherAxis1 = (axis + 2) % 3;
+             belowSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (temp_edge.t - nodeBounds.faaBounds[0][axis]) *  //read 5
+                                 (d[otherAxis0] + d[otherAxis1]));
+             aboveSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (nodeBounds.faaBounds[1][axis] - temp_edge.t ) *  //read 6
+                                 (d[otherAxis0] + d[otherAxis1]));
+             pBelow = belowSA * invTotalSA;
+             pAbove = aboveSA * invTotalSA;
+			
+			 
+			 //SAH
+			 n_left=nBelow+nplanar;
+			 n_right = nAbove;
+			 
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+             cost_l = kd_accel->traversalCost +
+                         kd_accel->isectCost * (1.f - eb) * (pBelow * n_left + pAbove * n_right); //read 8,9
+
+			 n_left=nBelow;
+			 n_right = nAbove+nplanar;
+
+             eb = (n_right == 0 || n_left == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+			 cost_r = kd_accel->traversalCost +
+                         kd_accel->isectCost * (1.f - eb) * (pBelow * n_left + pAbove *n_right); //read 8,9
+			 //SAH over
+
+			 //cost comparing
+			 if(cost_l<=cost_r){
+            // Update best split if this is lowest cost so far
+				if (cost_l < bestCost)  {
+					bestCost = cost_l;
+					bestAxis = axis;
+					bestOffset=iter;
+					best_side = LEFT;
+					best_edge = temp_edge;
+				}
+			 }
+			 else{
+            // Update best split if this is lowest cost so far
+				if (cost_r < bestCost)  {
+					bestCost = cost_r;
+					bestAxis = axis;
+					bestOffset=iter;
+					best_side = RIGHT;
+					best_edge = temp_edge;
+				}
+
+			}
+		}
+		nBelow +=(p_start+p_planar);
+		nplanar=0;
+
+
+        
+    }
+#ifdef kd_experiment
+	total_memory_read+=(5+(2*nPrimitives));
+	total_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+	SAH_memory_read+=(5+(2*nPrimitives));
+	SAH_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+#endif
+    Assert(nBelow == nPrimitives && nAbove == 0); 
+	
+
+    // Create leaf if no good splits were found
+    if (bestAxis == -1 && retries < 2) {
+        retries++;
+        axis = (axis+1) % 3;
+        goto retrySplit;
+    }
+
+    if (bestCost > oldCost) ++badRefines;
+    if ((bestCost > 4.f * oldCost && nPrimitives < 16) ||
+        bestAxis == -1 || badRefines == 3) {
+        
+        initLeaf(&kd_accel->nodes[nodeNum],primNums, nPrimitives);
+		leaf++;
+        return;
+    }
+	if(edges[bestAxis][bestOffset-1].t != best_edge.t)
+	{
+		printf("error");
+		getchar();
+	}
+	for ( i = 0; i < bestOffset-1; i++){
+		if (edges[bestAxis][i].e_type == START){
+            prims0[n0] = edges[bestAxis][i].primNum;
+			n0++;
+			
+		}
+		else if(edges[bestAxis][i].e_type ==PLANAR)// && best_side==LEFT)
+		{
+			prims0[n0] = edges[bestAxis][i].primNum;
+			n0++;
+		}
+		
+	}
+    for ( i = bestOffset-1; i < j; i++){
+		if (edges[bestAxis][i].e_type == END){
+            prims1[n1] = edges[bestAxis][i].primNum;
+			n1++;
+			
+		}
+		else if(edges[bestAxis][i].e_type ==PLANAR)// && best_side==RIGHT)
+		{
+			prims1[n1] = edges[bestAxis][i].primNum;
+			n1++;
+		}
+		
+	}
+
+	// Classify primitives with respect to split
+	//for(i=0;i<j;i++)
+	//{
+	//	if((edges[bestAxis][i].e_type==END) && (edges[bestAxis][i].t<=best_edge.t)){
+	//		temp_tri[edges[bestAxis][i].primNum]=1;//leftonly
+	//	}
+	//	else if((edges[bestAxis][i].e_type==START) && (edges[bestAxis][i].t>=best_edge.t)){
+	//		temp_tri[edges[bestAxis][i].primNum]=2;//rightonly
+	//	}
+	//	else if(edges[bestAxis][i].e_type==PLANAR)
+	//	{
+	//		if((edges[bestAxis][i].t<best_edge.t) || (best_edge.t==edges[bestAxis][i].t&&best_side==LEFT))
+	//		{
+	//			temp_tri[edges[bestAxis][i].primNum]=1;//leftonly
+	//			
+	//		}
+	//		if((edges[bestAxis][i].t>best_edge.t) || (best_edge.t==edges[bestAxis][i].t&&best_side==RIGHT))
+	//		{
+	//			temp_tri[edges[bestAxis][i].primNum]=2;//rightonly
+	//		}
+	//	}
+	//	
+	//}
+	//{
+	//	int tt1=0,tt2=0;
+	//	int test2=0;
+	//test=0;
+	//for(i=0;i<kd_accel->num_prim;i++)
+	//{
+	//	if(temp_tri[i]==1)
+	//	{
+	//		prims0[n0] = i;
+	//		n0++;
+	//		tt1++;
+	//	}
+	//	else if(temp_tri[i]==2)
+	//	{
+	//		prims1[n1] = i;
+	//		n1++;
+	//		tt2++;
+	//	}
+	//	else if(temp_tri[i]==3)
+	//	{
+	//		prims0[n0] = i;
+	//		n0++;
+	//		prims1[n1] = i;
+	//		n1++;
+	//		test2++;
+	//		
+	//	}
+	//	else
+	//		test++;
+	//}
+	//}
+		
+    
+	
+	
+   /*
+    for ( i = 0; i < bestOffset; i++){
+		if (edges[bestAxis][i].e_type == START){
+            prims0[n0] = edges[bestAxis][i].primNum;
+			n0++;
+			
+		}
+		else if((edges[bestAxis][i].e_type==PLANAR)&&((best_edge.t>edges[bestAxis][i].t)||(best_edge.t==edges[bestAxis][i].t&&best_side==LEFT)))
+		{
+			prims0[n0] = edges[bestAxis][i].primNum;
+			n0++;
+		}
+		
+	}
+    for ( i = bestOffset+1; i < j; i++){
+		if (edges[bestAxis][i].e_type == END){
+            prims1[n1] = edges[bestAxis][i].primNum;
+			n1++;
+			
+		}
+		else if((edges[bestAxis][i].e_type==PLANAR)&&((best_edge.t<edges[bestAxis][i].t)||(best_edge.t==edges[bestAxis][i].t&&best_side==RIGHT)))
+		{
+			prims1[n1] = edges[bestAxis][i].primNum;
+			n1++;
+		}
+		
+	}*/
+
+#ifdef kd_experiment
+	total_memory_read+=(2*nPrimitives);
+	total_memory_write+=(2*nPrimitives);
+	total_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	total_memory_write_size+=((2*nPrimitives)*sizeof(int));
+	
+	split_memory_read+=(2*nPrimitives);
+	split_memory_write+=(2*nPrimitives);
+	split_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	split_memory_write_size+=((2*nPrimitives)*sizeof(int));
+#endif
+    // Recursively initialize children nodes
+    tsplit = best_edge.t;
+	
+    //PBRT_KDTREE_CREATED_INTERIOR_NODE(bestAxis, tsplit);
+    bounds0 = nodeBounds;
+	bounds1 = nodeBounds;
+	
+	bounds0.faaBounds[1][bestAxis] = bounds1.faaBounds[0][bestAxis] = tsplit;
+
+	/*printf("%d %d (%d %d %d %d)\n",n0,n1,tt1,tt2,test2,test);*/
+	
+		 
+    sweep_buildTree(kd_accel,nodeNum+1, bounds0,
+              allPrimBounds, prims0, n0, depth-1, edges,
+              prims0, prims1 + nPrimitives, badRefines);
+     
+	aboveChild = kd_accel->nextFreeNode;
+	
+    initInterior(&kd_accel->nodes[nodeNum],bestAxis, aboveChild, tsplit);
+
+    sweep_buildTree(kd_accel, aboveChild, bounds1, allPrimBounds, prims1, n1,
+              depth-1, edges, prims0, prims1 + nPrimitives, badRefines);
+	
+	
+}
+
+//pbrt kdtree
+void buildTree(KdTreeAccel *kd_accel,int nodeNum, BBox nodeBounds,
+         BBox *allPrimBounds, unsigned int *primNums,
+        unsigned int nPrimitives, int depth, BoundEdge *edges[3],
+        unsigned int *prims0, unsigned int *prims1, int badRefines) {
+
+	int bestAxis = -1, bestOffset = -1;
+    float bestCost = INFINITY;
+    float oldCost = kd_accel->isectCost * ((float)(nPrimitives));
+    float totalSA = kd_ComputeArea(nodeBounds.faaBounds);
+    float invTotalSA = 1.f / totalSA;
+    float d[3];
+	unsigned int axis;
+    int retries = 0;
+	int i;
+	int nBelow = 0, nAbove = nPrimitives;
+	 int n0 = 0;
+	int	 n1 = 0;
+	 float tsplit;
+	  BBox bounds0 ,bounds1;
+	  unsigned int aboveChild;
+	  float edget;
+
+
+#ifdef kd_experiment
+	  if(real_depth<(kd_accel->maxDepth-depth))
+		  real_depth=(kd_accel->maxDepth-depth);
+	  uiNum_node++;
+#endif
+
+    Assert(nodeNum == kd_accel.nextFreeNode);
+	
+    // Get next free node from _nodes_ array
+    if (kd_accel->nextFreeNode == kd_accel->nAllocedNodes) {
+        int nAlloc = max(2 * kd_accel->nAllocedNodes, 512);
+        KdAccelNode *n = (KdAccelNode*)malloc(sizeof(KdAccelNode)*nAlloc);
+#ifdef kd_experiment
+		memory_alloc_cnt++;
+#endif
+        if (kd_accel->nAllocedNodes > 0) {
+            memcpy(n, kd_accel->nodes, kd_accel->nAllocedNodes * sizeof(KdAccelNode));
+			free(kd_accel->nodes);
+
+#ifdef kd_experiment
+			total_memory_write+=kd_accel->nAllocedNodes;
+			total_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_read+=kd_accel->nAllocedNodes;
+			re_alloc_memory_write+=kd_accel->nAllocedNodes;
+
+
+			total_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			total_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_read_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+			re_alloc_memory_write_size+=kd_accel->nAllocedNodes * sizeof(KdAccelNode);
+#endif
+            
+        }
+        kd_accel->nodes = n; //???????????????????????
+		
+        kd_accel->nAllocedNodes = nAlloc;
+		
+    }
+	
+    kd_accel->nextFreeNode++;
+
+	
+    // Initialize leaf node if termination criteria met
+    if (nPrimitives <= kd_accel->maxPrims || depth == 0) {
+    
+
+
+      initLeaf(  &kd_accel->nodes[nodeNum],primNums, nPrimitives);
+	  
+        return;
+    }
+	
+    // Initialize interior node and continue recursion
+
+    // Choose split axis position for interior node
+    
+	v3Substract(d,nodeBounds.faaBounds[1],nodeBounds.faaBounds[0]);
+	axis = MaximumExtent(d);
+	
+    // Choose which axis to split along
+    
+    retrySplit:
+	nBelow = 0;
+	nAbove = nPrimitives;
+    // Initialize edges for _axis_
+    for ( i = 0; i < nPrimitives; i++) {
+        int pn = primNums[i];
+		BBox bbox = allPrimBounds[pn];
+	
+		int double_i=2*i;
+		edges[axis][double_i].t =bbox.faaBounds[0][axis];
+		edges[axis][double_i].primNum=pn;
+		edges[axis][double_i].e_type=START;
+		
+		edges[axis][double_i+1].t =bbox.faaBounds[1][axis];
+		edges[axis][double_i+1].primNum=pn;
+		edges[axis][double_i+1].e_type=END;
+		
+        
+    }
+	  qsort(edges[axis],(2*nPrimitives),sizeof(BoundEdge), compareedge);
+
+#ifdef kd_experiment
+	total_memory_read+=(2*nPrimitives);
+	total_memory_write+=(6*nPrimitives);
+	total_memory_read_size+=((sizeof(BBox)+sizeof(unsigned int))*nPrimitives);
+	total_memory_write_size+=((sizeof(float)+sizeof(int)+sizeof(edge_type))*2*nPrimitives);
+
+	init_memory_read+=(2*nPrimitives);
+	init_memory_write+=(6*nPrimitives);
+	init_memory_read_size+=((sizeof(BBox)+sizeof(unsigned int))*nPrimitives);
+	init_memory_write_size+=((sizeof(float)+sizeof(int)+sizeof(edge_type))*2*nPrimitives);
+
+	total_memory_read+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	total_memory_write+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	qsort_memory_read+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+	qsort_memory_write+=(2*nPrimitives*Log2((float)(2*nPrimitives)));
+
+	total_memory_read_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));
+	total_memory_write_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+	qsort_memory_read_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+	qsort_memory_write_size+=((2*nPrimitives*Log2((float)(2*nPrimitives)))*(sizeof(BoundEdge)));	
+#endif
+
+    // Compute cost of all splits for _axis_ to find best
+    
+    for ( i = 0; i < 2*nPrimitives; i++) {
+        
+		if (edges[axis][i].e_type == END) nAbove--; //
+
+         edget = edges[axis][i].t;// read 2
+        if (edget > nodeBounds.faaBounds[0][axis] &&
+            edget < nodeBounds.faaBounds[1][axis]) {   //read 3,4
+				unsigned int otherAxis0,otherAxis1;
+				float belowSA;
+				float aboveSA;
+				float pBelow ;
+				 float pAbove;
+				 float eb;
+				  float cost;
+            // Compute cost for split at _i_th edge
+             otherAxis0 = (axis + 1) % 3;
+			otherAxis1 = (axis + 2) % 3;
+             belowSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (edget - nodeBounds.faaBounds[0][axis]) *  //read 5
+                                 (d[otherAxis0] + d[otherAxis1]));
+             aboveSA = 2 * (d[otherAxis0] * d[otherAxis1] +
+                                 (nodeBounds.faaBounds[1][axis] - edget) *  //read 6
+                                 (d[otherAxis0] + d[otherAxis1]));
+             pBelow = belowSA * invTotalSA;
+             pAbove = aboveSA * invTotalSA;
+             eb = (nAbove == 0 || nBelow == 0) ? kd_accel->emptyBonus : 0.f;  //read 7
+             cost = kd_accel->traversalCost +
+                         kd_accel->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove); //read 8,9
+
+            // Update best split if this is lowest cost so far
+            if (cost < bestCost)  {
+                bestCost = cost;
+                bestAxis = axis;
+                bestOffset = i;
+            }
+        }
+
+        if (edges[axis][i].e_type == START) nBelow++;
+    }
+#ifdef kd_experiment
+	total_memory_read+=(5+(2*nPrimitives));
+	total_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+	SAH_memory_read+=(5+(2*nPrimitives));
+	SAH_memory_read_size+=((2*sizeof(int))+(((2*nPrimitives)+3)*sizeof(float)));
+#endif
+    Assert(nBelow == nPrimitives && nAbove == 0); 
+	
+
+    // Create leaf if no good splits were found
+    if (bestAxis == -1 && retries < 2) {
+        retries++;
+        axis = (axis+1) % 3;
+        goto retrySplit;
+    }
+    if (bestCost > oldCost) ++badRefines;
+    if ((bestCost > 4.f * oldCost && nPrimitives < 16) ||
+        bestAxis == -1 || badRefines == 3) {
+        
+        initLeaf(&kd_accel->nodes[nodeNum],primNums, nPrimitives);
+		
+        return;
+    }
+
+    // Classify primitives with respect to split
+   
+    for ( i = 0; i < bestOffset; i++){
+		if (edges[bestAxis][i].e_type == START){
+            prims0[n0] = edges[bestAxis][i].primNum;
+			n0++;
+			
+		}
+		
+	}
+    for ( i = bestOffset+1; i < 2*nPrimitives; i++){
+		if (edges[bestAxis][i].e_type == END){
+            prims1[n1] = edges[bestAxis][i].primNum;
+			n1++;
+			
+		}
+		
+	}
+
+#ifdef kd_experiment
+	total_memory_read+=(2*nPrimitives);
+	total_memory_write+=(2*nPrimitives);
+	total_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	total_memory_write_size+=((2*nPrimitives)*sizeof(int));
+	
+	split_memory_read+=(2*nPrimitives);
+	split_memory_write+=(2*nPrimitives);
+	split_memory_read_size+=((2*nPrimitives)*sizeof(int));
+	split_memory_write_size+=((2*nPrimitives)*sizeof(int));
+#endif
+    // Recursively initialize children nodes
+    tsplit = edges[bestAxis][bestOffset].t;
+	
+    //PBRT_KDTREE_CREATED_INTERIOR_NODE(bestAxis, tsplit);
+    bounds0 = nodeBounds;
+	bounds1 = nodeBounds;
+	
+	bounds0.faaBounds[1][bestAxis] = bounds1.faaBounds[0][bestAxis] = tsplit;
+
+	
+	
+		 
+    buildTree(kd_accel,nodeNum+1, bounds0,
+              allPrimBounds, prims0, n0, depth-1, edges,
+              prims0, prims1 + nPrimitives, badRefines);
+     
+	aboveChild = kd_accel->nextFreeNode;
+	
+    initInterior(&kd_accel->nodes[nodeNum],bestAxis, aboveChild, tsplit);
+
+    buildTree(kd_accel, aboveChild, bounds1, allPrimBounds, prims1, n1,
+              depth-1, edges, prims0, prims1 + nPrimitives, badRefines);
+	
+}
+
+bool box_IntersectP(BBox b_box, Ray ray, float *hitt0,
+                      float *hitt1)  {
+	int i;
+    float t0 = ray.fMinimumT, t1 = ray.fMaximumT;
+    for ( i = 0; i < 3; i++) {
+        // Update interval for _i_th bounding box slab
+        float invRayDir = 1.f / ray.faDir[i];
+		float tNear = (b_box.faaBounds[0][i] - ray.faOri[i]) * invRayDir;
+		float tFar  = (b_box.faaBounds[1][i] - ray.faOri[i]) * invRayDir;
+
+        // Update parametric interval from slab intersection $t$s
+        if (tNear > tFar) swap(tNear, tFar);
+        t0 = tNear > t0 ? tNear : t0;
+        t1 = tFar  < t1 ? tFar  : t1;
+        if (t0 > t1) return false;
+    }
+    if (hitt0) 
+		*hitt0 = t0;
+    if (hitt1) 
+		*hitt1 = t1;
+    return true;
+}
+
+//void Intersect(BBox b_box,KdTreeAccel kd_accel, Ray ray,Hit *hit)  {
+//   // PBRT_KDTREE_INTERSECTION_TEST(const_cast<KdTreeAccel *>(this), const_cast<Ray *>(&ray));
+//    // Compute initial parametric range of ray inside kd-tree extent
+//   #define MAX_TODO 64
+//    KdToDo todo[MAX_TODO];
+//	float tmin, tmax;
+//	 float invDir[3];
+//	 int todoPos = 0;
+//
+//    // Traverse kd-tree nodes in order for ray
+//    bool b_hit = false;
+//    KdAccelNode *node = &kd_accel.nodes[0];
+//
+//    if (!box_IntersectP(b_box,ray, &tmin, &tmax))
+//    {
+//        //PBRT_KDTREE_RAY_MISSED_BOUNDS();
+//        return ;
+//    }
+//
+//    // Prepare to traverse kd-tree for ray
+//   
+//	invDir[0]=1.f/ray.faDir[0];
+//	invDir[1]=1.f/ray.faDir[1];
+//	invDir[2]=1.f/ray.faDir[2];
+//
+//	
+//
+//    
+//    while (node != NULL) {
+//        // Bail out if we found a hit closer than the current node
+//        if (ray.fMaximumT < tmin) break;
+//        if (!IsLeaf(node)) {
+//            //PBRT_KDTREE_INTERSECTION_TRAVERSED_INTERIOR_NODE(const_cast<KdAccelNode *>(node));
+//            // Process kd-tree interior node
+//
+//            // Compute parametric distance along ray to split plane
+//            int axis = SplitAxis(node);
+//            float tplane = (SplitPos(node) - ray.faOri[axis]) * invDir[axis];
+//
+//            // Get node children pointers for ray
+//            KdAccelNode *firstChild, *secondChild;
+//            int belowFirst = (ray.faOri[axis] <  SplitPos(node)) ||
+//                             (ray.faOri[axis] == SplitPos(node) && ray.faDir[axis] <= 0);
+//            if (belowFirst) {
+//                firstChild = node + 1;
+//                secondChild = &kd_accel.nodes[AboveChild(node)];
+//            }
+//            else {
+//                firstChild = &kd_accel.nodes[AboveChild(node)];
+//                secondChild = node + 1;
+//            }
+//
+//            // Advance to next child node, possibly enqueue other child
+//            if (tplane > tmax || tplane <= 0)
+//                node = firstChild;
+//            else if (tplane < tmin)
+//                node = secondChild;
+//            else {
+//                // Enqueue _secondChild_ in todo list
+//                todo[todoPos].node = secondChild;
+//                todo[todoPos].tmin = tplane;
+//                todo[todoPos].tmax = tmax;
+//                ++todoPos;
+//                node = firstChild;
+//                tmax = tplane;
+//            }
+//        }
+//        else {
+//            //PBRT_KDTREE_INTERSECTION_TRAVERSED_LEAF_NODE(const_cast<KdAccelNode *>(node), node->nPrimitives());
+//            // Check for intersections inside leaf node
+//            unsigned int nPrimitives = func_nPrimitives(node);
+//            if (nPrimitives == 1) {
+//                Primitive prim = kd_accel.primitives[node->onePrimitive];
+//                // Check one primitive inside leaf node
+//                //PBRT_KDTREE_INTERSECTION_PRIMITIVE_TEST(const_cast<Primitive *>(prim.GetPtr()));
+//                //if (prim->Intersect(ray, isect))
+//                //{
+//                //    //PBRT_KDTREE_INTERSECTION_HIT(const_cast<Primitive *>(prim.GetPtr()));
+//                //    b_hit = true;
+//                //}
+//            }
+//            else {
+//				unsigned int i;
+//                unsigned int *prims = node->primitives;
+//                for ( i = 0; i < nPrimitives; ++i) {
+//                    Primitive* prim = &kd_accel.primitives[prims[i]];
+//                    // Check one primitive inside leaf node
+//                    //PBRT_KDTREE_INTERSECTION_PRIMITIVE_TEST(const_cast<Primitive *>(prim.GetPtr()));
+//                    //if (prim->Intersect(ray, isect))
+//                    //{
+//                    //    //PBRT_KDTREE_INTERSECTION_HIT(const_cast<Primitive *>(prim.GetPtr()));
+//                    //    b_hit = true;
+//                    //}
+//                }
+//            }
+//
+//            // Grab next node to process from todo list
+//            if (todoPos > 0) {
+//                --todoPos;
+//                node = todo[todoPos].node;
+//                tmin = todo[todoPos].tmin;
+//                tmax = todo[todoPos].tmax;
+//            }
+//            else
+//                break;
+//        }
+//    }
+//    //PBRT_KDTREE_INTERSECTION_FINISHED();
+//    return ;
+//}
+
+
+//bool IntersectP(BBox b_box, Ray ray,KdTreeAccel kd_accel)  {
+//    //PBRT_KDTREE_INTERSECTIONP_TEST(const_cast<KdTreeAccel *>(this), const_cast<Ray *>(&ray));
+//    // Compute initial parametric range of ray inside kd-tree extent
+//   #define MAX_TODO 64
+//    KdToDo todo[MAX_TODO];
+//	float tmin, tmax;
+//	float invDir[3];
+//	 int todoPos = 0;
+//	 KdAccelNode node = kd_accel.nodes[0];
+//    if (!box_IntersectP(b_box,ray, &tmin, &tmax))
+//    {
+//        //PBRT_KDTREE_RAY_MISSED_BOUNDS();
+//        return false;
+//    }
+//
+//    // Prepare to traverse kd-tree for ray
+//    
+//	invDir[0]=1.f/ray.faDir[0];
+//	invDir[1]=1.f/ray.faDir[1];
+//	invDir[2]=1.f/ray.faDir[2];
+//
+//   
+//    
+//    while (node != NULL) {
+//        if (!IsLeaf(node)) {
+//            //PBRT_KDTREE_INTERSECTIONP_TRAVERSED_LEAF_NODE(const_cast<KdAccelNode *>(node), node->nPrimitives());
+//            // Check for shadow ray intersections inside leaf node
+//            unsigned int nPrimitives = func_nPrimitives(node);
+//            if (nPrimitives == 1) {
+//                Primitive* prim = &kd_accel.primitives[node->onePrimitive];
+//                //PBRT_KDTREE_INTERSECTIONP_PRIMITIVE_TEST(const_cast<Primitive *>(prim.GetPtr()));
+//                //if (prim->IntersectP(ray)) {
+//                //   // PBRT_KDTREE_INTERSECTIONP_HIT(const_cast<Primitive *>(prim.GetPtr()));
+//                //    return true;
+//                //}
+//            }
+//            else {
+//				unsigned int i;
+//                unsigned int *prims = node->primitives;
+//                for ( i = 0; i < nPrimitives; ++i) {
+//                    Primitive* prim = &kd_accel.primitives[prims[i]];
+//                    //PBRT_KDTREE_INTERSECTIONP_PRIMITIVE_TEST(const_cast<Primitive *>(prim.GetPtr()));
+//                    //if (prim->IntersectP(ray)) {
+//                    //    //PBRT_KDTREE_INTERSECTIONP_HIT(const_cast<Primitive *>(prim.GetPtr()));
+//                    //    return true;
+//                    //}
+//                }
+//            }
+//
+//            // Grab next node to process from todo list
+//            if (todoPos > 0) {
+//                --todoPos;
+//                node = todo[todoPos].node;
+//                tmin = todo[todoPos].tmin;
+//                tmax = todo[todoPos].tmax;
+//            }
+//            else
+//                break;
+//        }
+//        else {
+//            //PBRT_KDTREE_INTERSECTIONP_TRAVERSED_INTERIOR_NODE(const_cast<KdAccelNode *>(node));
+//            // Process kd-tree interior node
+//
+//            // Compute parametric distance along ray to split plane
+//            int axis = SplitAxis(node);
+//            float tplane = (SplitPos(node) - ray.faOri[axis]) * invDir[axis];
+//
+//            // Get node children pointers for ray
+//             KdAccelNode *firstChild, *secondChild;
+//            int belowFirst = (ray.faOri[axis] <  SplitPos(node)) ||
+//                             (ray.faOri[axis] == SplitPos(node) && ray.faDir[axis] <= 0);
+//            if (belowFirst) {
+//                firstChild = node + 1;
+//                secondChild = &kd_accel.nodes[AboveChild(node)];
+//            }
+//            else {
+//                firstChild = &kd_accel.nodes[AboveChild(node)];
+//                secondChild = node + 1;
+//            }
+//
+//            // Advance to next child node, possibly enqueue other child
+//            if (tplane > tmax || tplane <= 0)
+//                node = firstChild;
+//            else if (tplane < tmin)
+//                node = secondChild;
+//            else {
+//                // Enqueue _secondChild_ in todo list
+//                todo[todoPos].node = secondChild;
+//                todo[todoPos].tmin = tplane;
+//                todo[todoPos].tmax = tmax;
+//                ++todoPos;
+//                node = firstChild;
+//                tmax = tplane;
+//            }
+//        }
+//    }
+//    //PBRT_KDTREE_INTERSECTIONP_MISSED();
+//    return false;
+//}
+
+void kdtree_init(Scene* scene,KdTreeAccel *kd_accel,BBox* b_box,KdAccelNode** nodes)
+{
+#ifdef kd_experiment
+	  qsort_memory_read=0;
+	  qsort_memory_write=0;
+	  re_alloc_memory_read=0;
+	  re_alloc_memory_write=0;
+	  SAH_memory_read=0;
+	  SAH_memory_write=0;
+	  split_memory_read=0;
+	  split_memory_write=0;
+	  total_memory_read=0;
+	  total_memory_write=0;
+	  init_memory_read=0;
+	  init_memory_write=0;
+
+	  qsort_memory_read_size=0;
+	  qsort_memory_write_size=0;
+	  re_alloc_memory_read_size=0;
+	  re_alloc_memory_write_size=0;
+	  SAH_memory_read_size=0;
+	  SAH_memory_write_size=0;
+	  split_memory_read_size=0;
+	  split_memory_write_size=0;
+	  total_memory_read_size=0;
+	  total_memory_write_size=0;
+	  init_memory_read_size=0;
+	  init_memory_write_size=0;
+	  real_depth=0;
+	 memory_alloc=0;
+	 memory_alloc_cnt=0;
+	 uiNum_leafnode=0;
+	 uiNum_node=0;
+	 memory_alloc_for_stack=0;
+	 local_value_size=0;
+#endif
+	
+	 kd_accel->nAllocedNodes =0;
+	(*b_box)=ObjectBound(scene->pPrims[0]);
+	(*nodes)=(KdAccelNode*)malloc(sizeof(KdAccelNode)*scene->uiNumPrims * 2*64);
+	
+	
+}
+
+void CreateKdTreeAccelerator(Scene* scene ) {
+    int isectCost = 80;
+    int travCost = 1;
+    float emptyBonus = 0.5f;
+    int maxPrims = 1;
+    int maxDepth = -1;
+	int max_nodenum=0;
+	LARGE_INTEGER start,end, liFrequency;
+
+	if (PRINT_TREE_BUILD_STATS == 1)
+        {
+            printf("start build..");
+            QueryPerformanceFrequency(&liFrequency); /*시간 측정 초기화*/
+            QueryPerformanceCounter(&start); /*시간 시작 측정*/
+        }
+
+	kdtree_init(scene,&scene->kd_accelerator,&scene->kd_accelerator.bounds,&scene->kd_accelerator.nodes);
+	//printf("%d",scene->kd_accelerator);
+     scene->kd_accelerator=func_KdTreeAccel(0,scene->uiNumPrims,  isectCost, travCost,max_nodenum,
+        emptyBonus, maxPrims, maxDepth,scene);
+	
+	   if (PRINT_TREE_BUILD_STATS == 1)
+        {
+            QueryPerformanceCounter(&end); /*시간 측정 완료*/
+            printf ("done\n");        
+                     printf("build time : %lfs\n", 
+                    (float64)(end.QuadPart - start.QuadPart) / 
+                    (float64)liFrequency.QuadPart);
+        }
+	 return;
+}
+
+

@@ -1,32 +1,44 @@
 CC = gcc
-TARGET = RayTracing.exe
-SRCS := $(shell ls | grep c$$)
-DEPEND_FILE = depend_file
 CCLIB = -lm -msse2 -mfpmath=sse
+TARGET = RayTracing.exe
+
+SRCS := $(shell ls | grep c$$)
+### kdtree folder add
+#SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
+
+RELEASE_DIR = gcc_release
+DEBUG_DIR = gcc_debug
+DEPEND_FILE = depend_file
 
 ifeq ($(MAKECMDGOALS), release)
-OBJS_DIR = gcc_release
+OBJS_DIR = $(RELEASE_DIR)
 CCOPT = -O2
 else
-OBJS_DIR = gcc_debug
+OBJS_DIR = $(DEBUG_DIR)
 CCOPT = -O0 -Wall -DDEBUG
 endif
 
 OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
 
+
+ifneq ($(strip $(count)),)
+counts = $(addprefix -c,$(count))
+endif
+
 .SUFFIXES: .c .o
-.PHONY: all release debug clean test oneshot
+.PHONY: all release debug clean test
 
 all:
 	@echo "=========================="
 	@echo "usage: make release"
 	@echo "       make debug"
 	@echo "       make clean"
-	@echo "       make test [filename=filename.obj]"
+	@echo "       make test [filename=filename.obj] [count=n]"
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
 	$(CC) $(CCOPT) -c $< -o $@ $(CCLIB)
+
 
 release: chkdir depend $(OBJS)
 	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
@@ -35,10 +47,10 @@ debug: chkdir depend $(OBJS)
 	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
-	@rm -rf $(DEPEND_FILE) gcc_debug gcc_release $(TARGET) *.bmp
+	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp
 
 test:
-	./$(TARGET) $(filename)
+	./$(TARGET) $(filename) $(counts)
 
 chkdir:
 	@`[ -d $(OBJS_DIR) ] || mkdir $(OBJS_DIR)`
