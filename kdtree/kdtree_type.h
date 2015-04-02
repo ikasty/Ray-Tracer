@@ -1,4 +1,4 @@
-#ifndef KDTREE_TYPE_H
+﻿#ifndef KDTREE_TYPE_H
 #define KDTREE_TYPE_H
 
 #include "../include/type.h"

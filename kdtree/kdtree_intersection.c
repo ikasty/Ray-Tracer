@@ -1,4 +1,4 @@
-#include <string.h>
+﻿#include <string.h>
 #include "kdtree_type.h"
 #include "kdtree_queue.h"
 #include "../intersection.h"
