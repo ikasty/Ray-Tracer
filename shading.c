@@ -1,21 +1,27 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "msl_math.h"
-#include "type.h"
-#include "settings.h"
 
-unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
+#include "settings.h"
+#include "include/msl_math.h"
+#include "include/type.h"
+
+unsigned int Shading(Ray s_ray, Primitive s_tri, Hit __hit)
 {
 	unsigned int Out_color = 0;
-	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],Line_B[3],multi_A[3],multi_B[3];
+	//float Line_B[3];
+	float ist_point[3],Ray[3],ortho_line[3],edge1[3],edge2[3],multi_A[3],multi_B[3];
 	int get_ist_point;
 	int result_of_color;
-	float dot_AB,abs_A,abs_B,multi_AB,inv_multi_AB,cos_AB;
+	//float inv_multi_AB;
+	float dot_AB,abs_A,abs_B,multi_AB,cos_AB;
 	float tuv[3], temp_ori[3];
 	tuv[0] =__hit.t;
 	tuv[1] =__hit.u;
 	tuv[2] =__hit.v;
+
+	// 광원 설정값을 사용함
+	USE_LIGHT(light);
 
 	if(tuv[1]>0 && tuv[2]> 0 && tuv[1]+tuv[2] <=1 ){
 	
@@ -23,9 +29,9 @@ unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit)
 			ist_point[get_ist_point]=s_ray.orig[get_ist_point]+(tuv[0]*s_ray.dir[get_ist_point]);
 		}
 		//광원 정보를 temp_ori에 적용
-		temp_ori[0] = LIGHT_POS_X;
-		temp_ori[1] = LIGHT_POS_Y;
-		temp_ori[2] = LIGHT_POS_Z;
+		temp_ori[0] = light[0];
+		temp_ori[1] = light[1];
+		temp_ori[2] = light[2];
 		SUB(Ray,ist_point,temp_ori);
 	
 		SUB(edge1,s_tri.vert1,ist_point);

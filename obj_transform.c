@@ -1,10 +1,11 @@
 ﻿#include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "type.h"
 #include "obj_transform.h"
-#include "msl_math.h"
+
 #include "settings.h"
+#include "include/type.h"
+#include "include/msl_math.h"
 
 // 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!
@@ -15,12 +16,14 @@ static void get_rotated_vector(float *original_vector, float *rotated_vector);
 set_rotate: 받은 frame 번호를 바탕으로 로테이션에 필요한 기본 정보를 채우는 함수입니다.
 - num_frame: 몇번째 frame인지를 나타내는 값입니다.
 */
-void set_rotate(int num_frame){
+void set_rotate(int num_frame, unsigned int framecount){
 	float degree, radian;
 	float r_cos, r_sin;
 
-	// frame이 30개이므로 한 frame당 12도씩 돌아가게 만들어져 있습니다.
-	degree = 360.0 / FRAME_COUNT;
+	USE_SCREEN(screen);
+
+	// frame 개수만큼 돌아갈 각도를 계산합니다.
+	degree = 360.0 / screen->frame_count;
 
 	// 각도 표현을 라디안 표현법으로 고치기
 	radian = degree * num_frame * (float)PI / 180; 
@@ -67,9 +70,9 @@ getTriangle: 회전을 수행한 후 삼각형의 좌표를 반환하는 함수�
 - id_org: 삼각형의 id입니다.
 * result_t: 주어진 삼각형을 회전시킨 후의 위치 정보가 들어가 있습니다.
 */
-TriangleVertex getTriangle(Vertex v[], Triangle t[], int id)
+Primitive getTriangle(Vertex v[], Triangle t[], int id)
 {
-    TriangleVertex result_t;
+    Primitive result_t;
 
 	// 아래에서 호출되는 get_rotated_vector 함수의 첫 번째 인자로
 	// 삼각형(t[id])의 첫번째 Vertex의 주소를 넘겨줍니다.

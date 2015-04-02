@@ -2,7 +2,7 @@
 #define MAIN_H
 
 // global type definition
-#include "type.h"
+#include "include/type.h"
 
 // file_read.c
 //int file_read(FILE* fp, struct Data *data);
@@ -13,11 +13,11 @@
 #include "gen_ray.h"
 
 // intersection.c
-//Hit intersect_triangle(Ray ray, TriangleVertex triangle);
+//Hit intersect_triangle(Ray ray, Primitive triangle);
 #include "intersection.h"
 
 // shading.c
-//unsigned int Shading(Ray s_ray, TriangleVertex s_tri, Hit __hit);
+//unsigned int Shading(Ray s_ray, Primitive s_tri, Hit __hit);
 #include "shading.h"
 
 
