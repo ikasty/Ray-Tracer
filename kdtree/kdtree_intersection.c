@@ -1,9 +1,8 @@
-#include "kdtree_intersection.h"
-
 #include <string.h>
 #include "kdtree_type.h"
 #include "kdtree_queue.h"
 #include "../intersection.h"
+#include "kdtree_intersection.h"
 
 /**
  * kdtreeTraversal.c.old의 void Intersect 함수에서 가져옴
@@ -26,10 +25,10 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	}
 
 	// root 노드를 queue에 넣음
-	queue_add(accel_tree[0], workqueue);
+	queue_add(accel_tree->nodes, workqueue);
 
 	// queue 탐색
-	while (!is_queue_empty(workqueue))
+	while (!is_queue_empty(&workqueue))
 	{
 		queue_pop(node, workqueue, KDAccelNode);
 
@@ -51,7 +50,7 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 
 			int is_below_first =
 				(ray->orig[axis] < node->split) || ((ray->orig[axis] == node->split) && (ray->dir[axis] < 0));
-			float tplane = (node->split - ray.orig[axis]) / ray.dir[axis];
+			float tplane = (node->split - ray->orig[axis]) / ray->dir[axis];
 
 			if (is_below_first)
 			{	// swap first and second child
@@ -80,7 +79,7 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	return min_hit;
 }
 
-static bool box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
+static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
 {
 	int i;
 	float t0 = ray.min_t, t1 = ray.max_t;
@@ -100,11 +99,11 @@ static bool box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
 		}
 		t0 = tNear > t0 ? tNear : t0;
 		t1 = tFar  < t1 ? tFar  : t1;
-		if (t0 > t1) return false;
+		if (t0 > t1) return 0;
 	}
 
 	if (hit_t0) *hit_t0 = t0;
 	if (hit_t1) *hit_t1 = t1;
 
-	return true;
+	return 1;
 }

@@ -4,15 +4,12 @@
 #include "../include/type.h"
 #include "kdtree_queue.h"
 
+typedef struct __accelnode KDAccelNode;
+
 typedef struct __bbox
 {
 	float faaBounds[2][3];
 } BBox;
-
-typedef struct __acceltree
-{
-	struct __bbox bounds;
-} KDAccelTree;
 
 typedef struct __accelnode
 {
@@ -37,6 +34,10 @@ typedef struct __accelnode
 	
 } KDAccelNode;
 
-
+typedef struct __acceltree
+{
+	struct __bbox bounds;
+	KDAccelNode* nodes;
+} KDAccelTree;
 
 #endif
