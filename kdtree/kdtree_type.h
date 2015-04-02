@@ -4,11 +4,14 @@
 #include "../include/type.h"
 #include "kdtree_queue.h"
 
+typedef struct __bbox
+{
+	float faaBounds[2][3];
+} BBox;
+
 typedef struct __acceltree
 {
 	struct __bbox bounds;
-	float faaBounds[2][3];
-
 } KDAccelTree;
 
 typedef struct __accelnode
@@ -28,12 +31,12 @@ typedef struct __accelnode
 	// 이 노드가 포함하고 있는 primitive에 관한 정보
 	int primitive_count;
 	Primitive *primitives;
+
+	KDAccelNode *above_child;
+	KDAccelNode *below_child;
 	
 } KDAccelNode;
 
-typedef struct __bbox
-{
-	
-} BBox;
+
 
 #endif

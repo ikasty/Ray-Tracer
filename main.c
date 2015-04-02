@@ -23,6 +23,7 @@ DEFINE_SCREEN();
 static void print_percent(int framenumber, float percent, double spend_time)
 {
 	int i;
+	USE_SCREEN(screen);
 
 	// 디버그 메시지가 출력되었다면 메시지를 가리지 않도록 함
 	DEBUG_ONLY({
@@ -30,8 +31,7 @@ static void print_percent(int framenumber, float percent, double spend_time)
 		__PDEBUG_ENABLED = 0;
 	});
 
-	USE_SCREEN(screen);
-
+	
 	printf("\rframe %02d/%02d: [", framenumber, screen->frame_count);
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
@@ -84,6 +84,8 @@ int main(int argc, char *argv[])
 	if (fp == NULL) {
 		fp = fopen(default_obj_file, "r");
 		PDEBUG("open %s\n", default_obj_file);
+		strcpy(obj_file, default_obj_file);
+		screen->frame_count = 30;
 	}
 
 	// 파일에서 데이터를 불러옵니다

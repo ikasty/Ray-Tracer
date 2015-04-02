@@ -16,12 +16,14 @@ unsigned int Shading(Ray s_ray, Primitive s_tri, Hit __hit)
 	//float inv_multi_AB;
 	float dot_AB,abs_A,abs_B,multi_AB,cos_AB;
 	float tuv[3], temp_ori[3];
+	// 광원 설정값을 사용함
+	USE_LIGHT(light);
+
 	tuv[0] =__hit.t;
 	tuv[1] =__hit.u;
 	tuv[2] =__hit.v;
 
-	// 광원 설정값을 사용함
-	USE_LIGHT(light);
+	
 
 	if(tuv[1]>0 && tuv[2]> 0 && tuv[1]+tuv[2] <=1 ){
 	

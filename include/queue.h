@@ -2,6 +2,8 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include "list.h"
+
 #define queue_head(head) LIST_HEAD(head)
 #define queue_item(head) list_t queue_##head
 #define queue_add(item, head) list_add_tail(&(item)->queue_##head, &head)
