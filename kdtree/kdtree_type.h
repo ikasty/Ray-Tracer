@@ -5,6 +5,8 @@
 #include "kdtree_queue.h"
 
 typedef struct __accelnode KDAccelNode;
+typedef enum edge_type{ START = 3, PLANAR = 2, MID=1, END = 0 }edge_type; 
+typedef enum side_type{ LEFT = 1, RIGHT = 0} side_type; 
 
 typedef struct __bbox
 {
@@ -13,9 +15,6 @@ typedef struct __bbox
 
 typedef struct __accelnode
 {
-	// 하위 node
-	struct __accelnode *first_child, *second_child;
-
 	// 이 node의 상태 - x,y,z축으로 나뉘어 졌는지 또는 leaf node인지
 	int flags;
 
@@ -30,14 +29,40 @@ typedef struct __accelnode
 	Primitive *primitives;
 
 	KDAccelNode *above_child;
-	KDAccelNode *below_child;
-	
+	KDAccelNode *below_child;	
 } KDAccelNode;
 
 typedef struct __acceltree
 {
-	struct __bbox bounds;
 	KDAccelNode* nodes;
+	int nAllocednodes, nextFreeNodes;
+	//한 노드에 들어갈 수 있는 프리미티브의 최소 개수
+	int maxPrims;
+
+	struct __bbox bounds;
+	
+	Primitive* primitives;
+	int nPrims;
+
+	int isectCost, traversalCost, maxDepth;
+	float emptyBonus;
 } KDAccelTree;
+
+// 공간을 나누는 평면에 대한 정보를 담고 있다.
+// cost를 계산할 candidate가 된다.
+typedef struct{
+	// 삼각형의 start인지 end인지 저장 
+	edge_type e_type;
+	
+	// 이 평면에 다다르기까지의 t
+	float t;
+	// ????
+	float other_t;
+	// ????
+	int primNum;
+	
+	// 축 정보
+	int axis;
+}BoundEdge;
 
 #endif

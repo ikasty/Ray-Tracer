@@ -30,6 +30,13 @@ BBox union_bbox_and_bbox(BBox b1, BBox b2){
 	return bbox;
 }
 
+float get_surface_of_bbox(BBox* b){
+	float len1 = b->faaBounds[1][0] - b->faaBounds[0][0];
+	float len2 = b->faaBounds[1][1] - b->faaBounds[0][1];
+	float len3 = b->faaBounds[1][2] - b->faaBounds[0][2];
+	return 2*(len1*len2 + len2*len3 + len3*len1);
+}
+
 void set_backsouthwest(float des[3], float p1[1], float p2[2]){
 	des[0] = p1[0]<p2[0]? p1[0]: p2[0];
 	des[1] = p1[1]<p2[1]? p1[1]: p2[1];
@@ -39,4 +46,21 @@ void set_frontnortheast(float des[3], float p1[1], float p2[2]){
 	des[0] = p1[0]>p2[0]? p1[0]: p2[0];
 	des[1] = p1[1]>p2[1]? p1[1]: p2[1];
 	des[2] = p1[2]>p2[2]? p1[2]: p2[2];
+}
+
+// bbox를 각 축에 projection 했을 때 가장 긴 범위를 가진 축을 반환
+int find_axis_of_maximum_extent(BBox *b){
+	float len1 = b->faaBounds[1][0] - b->faaBounds[0][0];
+	float len2 = b->faaBounds[1][1] - b->faaBounds[0][1];
+	float len3 = b->faaBounds[1][2] - b->faaBounds[0][2];
+
+	if(len1 > len2 && len1 > len3){
+		return 0;
+	}
+	else if(len2 > len3){
+		return 1;
+	}
+	else{
+		return 2;
+	}
 }

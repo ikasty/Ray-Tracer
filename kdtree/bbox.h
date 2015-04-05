@@ -13,4 +13,7 @@ BBox union_bbox_and_bbox(BBox b1, BBox b2);
 void set_backsouthwest(float des[3], float p1[1], float p2[2]);
 void set_frontnortheast(float des[3], float p1[1], float p2[2]);
 
+float get_surface_of_bbox(BBox* b);
+int find_axis_of_maximum_extent(BBox *b);
+
 #endif
