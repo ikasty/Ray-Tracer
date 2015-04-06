@@ -1,10 +1,11 @@
 ﻿#include <string.h>
 #include <float.h>
-#include "kdtree/kdtree_type.h"
-#include "kdtree/kdtree_queue.h"
-#include "intersection.h"
+#include "kdtree_intersection.h"
 
-#include "kdtree/kdtree_intersection.h"
+#include "kdtree_type.h"
+#include "kdtree_queue.h"
+
+static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1);
 
 /**
  * kdtreeTraversal.c.old의 void Intersect 함수에서 가져옴

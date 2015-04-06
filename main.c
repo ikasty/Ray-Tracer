@@ -21,6 +21,11 @@ DEFINE_CAMERA();
 DEFINE_LIGHT();
 DEFINE_SCREEN();
 
+// accelaration 구조체 설정 함수
+void (*accel_build)(Data *data) = &kdtree_accel_build;
+
+// 교차 검사 함수
+Hit (*intersect_search)(Data *data, Ray *ray) = &kdtree_intersect_search;
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int framenumber, float percent, double spend_time)
@@ -96,7 +101,7 @@ int main(int argc, char *argv[])
 	if (file_read(fp, &data) < 0) return -1;
 
 	// 데이터 구조체 초기화
-	data.prims = (Primitive *)malloc(sizeof(Primitive) * data.face_count);
+	data.primitives = (Primitive *)malloc(sizeof(Primitive) * data.face_count);
 	data.accel_struct = malloc(sizeof(KDAccelTree));
 	
 	for (framenumber = 0; framenumber < screen->frame_count; framenumber++)
@@ -110,10 +115,13 @@ int main(int argc, char *argv[])
 		// 현재 frame에 맞게 회전한 primitive 배열을 생성합니다.
 		// 삼각형의 id는 0부터 시작
 		for(i=0; i<data.face_count; i++){
-			data.prims[i] = getTriangle(data.vert, data.face, i);
+			data.primitives[i] = getTriangle(data.vert, data.face, i);
 		}
+
+		if (accel_build)
+			(*accel_build)(&data);
 		// kdtree 초기화 및 build
-		initTree((KDAccelTree *)data.accel_struct, data.prims, data.face_count, 80, 1, 0.5f, 1, 10);
+		//initTree((KDAccelTree *)data.accel_struct, data.primitives, data.face_count, 80, 1, 0.5f, 1, 10);
 
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < camera->resy; index_y++)
@@ -130,12 +138,12 @@ int main(int argc, char *argv[])
 			for (index_x = 0; index_x < camera->resx; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
-				Hit ist_hit = kdtree_intersect_search(&data, &f_ray);
+				Hit ist_hit = (*intersect_search)(&data, &f_ray);
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				if(ist_hit.t>0){
 					screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-						= Shading(f_ray, data.prims[ist_hit.triangle_id], ist_hit);
+						= Shading(f_ray, data.primitives[ist_hit.triangle_id], ist_hit);
 				}
 			}
 

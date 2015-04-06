@@ -7,7 +7,7 @@
 #include "settings.h"
 #include "include/msl_math.h"
 
-Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
+Hit naive_intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 {
 	const int triangleCount = data->face_count;
 	Hit min_hit;
@@ -20,7 +20,7 @@ Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 	for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
 	{
 		Hit ist_hit;
-		ist_hit = intersect_triangle(f_ray, data->prims[triangle_id]);
+		ist_hit = intersect_triangle(f_ray, data->primitives[triangle_id]);
 
 		if (ist_hit.t > 0 && (ist_hit.t<min_hit.t || min_hit.t == 0))
 		{

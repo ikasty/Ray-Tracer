@@ -68,7 +68,6 @@ typedef struct  {
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
 	Vertex *vert;
-	Primitive *prims;
 	int vert_count;
 
 	Triangle *face;

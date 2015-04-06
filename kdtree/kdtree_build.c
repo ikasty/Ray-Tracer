@@ -7,6 +7,13 @@
 #include "boundedge.h"
 #include "../include/debug-msg.h"
 
+static void initLeaf(KDAccelTree* kdtree, KDAccelNode* node, int* primNums, int np);
+static void initInterior(KDAccelTree* kdtree, KDAccelNode* node, int axis, int ac, int bc, float s);
+static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 
+			   BBox *allPrimBounds, int *primNums, int nPrimitives,int depth, 
+			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines);
+static void initTree(KDAccelTree *kdtree, Primitive* p);
+
 static int compare_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
@@ -62,16 +69,7 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	if (kdtree->nextFreeNodes == kdtree->nAllocednodes)
 	{
 		int *alloc_size = &kdtree->nAllocednodes;
-		/*
-		int nAlloc = (2 * kdtree->nAllocednodes > 512) ? (2 * kdtree->nAllocednodes) : 512;
-		KDAccelNode* n = (KDAccelNode* )malloc(nAlloc*sizeof(KDAccelNode));
-		if(kdtree->nAllocednodes > 0){
-			memcpy(n, kdtree->nodes, kdtree->nAllocednodes*sizeof(KDAccelNode));
-			free(kdtree->nodes);
-		}
-		kdtree->nodes = n;
-		kdtree->nAllocednodes = nAlloc;
-		*/
+
 		if ((*alloc_size) == 0)
 		{
 			*alloc_size = 512;
@@ -160,13 +158,14 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			if (bestCost > oldCost) badRefines++;
 
 			// 결국 축을 못찾았거나, 모든 축의 cost
-			if (bestCost > 4.f * oldCost && nPrimitives < 16 ||
+			if ((bestCost > 4.f * oldCost && nPrimitives < 16) ||
 				bestAxis == -1 ||
 				badRefines >= 3)
 			{
 					initLeaf(kdtree, &kdtree->nodes[nodeNum], primNums, nPrimitives);
 					return;
 			}
+			break;
 		}
 	}
 	// 분할에 대해 프리미티브 분류
@@ -211,16 +210,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 
 	int i;
 
-	/*
-	TODO: 이 부분은 kdtree_accel_build에서 kdtree 객체에 넣어서 전달하도록 한다
-	kdtree->isectCost = icost;
-	kdtree->traversalCost = tcost;
-	kdtree->maxPrims = maxp;
-	kdtree->maxDepth = md;
-	kdtree->emptyBonus = ebonus;
-	kdtree->nPrims = prims_count;
-	*/
-	
 	for (i = 0; i < prims_count; i++)
 	{
 		kdtree->primitives[i] = p[i];
@@ -251,8 +240,8 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	{
 		edges[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count);
 	}
-	prims0 = (int *)malloc(sizeof(int) * prims_count);
-	prims1 = (int *)malloc(sizeof(int) * prims_count * (kdtree->maxDepth + 1));
+	prims0 = (int *)mzalloc(sizeof(int) * prims_count);
+	prims1 = (int *)mzalloc(sizeof(int) * prims_count * (kdtree->maxDepth + 1));
 
 	// kdtree 구축을 primNums(노드에 들어있는 프리미티브의 인덱스 모음) 초기화 
 	primNums = (int *)malloc(sizeof(int) * prims_count);
@@ -279,12 +268,14 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 void kdtree_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = mzalloc(sizeof(KDAccelTree));
-	data->accel_struct = (void)kdtree;
+	data->accel_struct = (void *)kdtree;
 
+	kdtree->isectCost = 80;
+	kdtree->traversalCost = 1;
+	kdtree->emptyBonus = 0.5f;
+	kdtree->maxPrims = 1;
+	kdtree->maxDepth = 10;
 	kdtree->nPrims = data->prim_count;
-	/*
-	kdtree->isectCost = 0;
-	*/
-
+	
 	initTree(kdtree, data->primitives);
 }
