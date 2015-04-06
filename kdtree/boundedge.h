@@ -1,4 +1,4 @@
-#ifndef BOUNDEDGE_H
+﻿#ifndef BOUNDEDGE_H
 #define BOUNDEDGE_H
 
 #include "kdtree_type.h"

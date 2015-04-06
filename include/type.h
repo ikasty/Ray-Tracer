@@ -73,6 +73,9 @@ typedef struct {
 	Triangle *face;
 	int face_count;
 
+	Primitive *primitives;
+	int prim_count;
+
 	void *accel_struct;
 
 } Data;

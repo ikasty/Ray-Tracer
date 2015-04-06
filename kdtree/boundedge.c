@@ -1,4 +1,4 @@
-#include "boundedge.h"
+﻿#include "boundedge.h"
 
 void init_bound_edge(BoundEdge* bd, float tt, int pn, edge_type t){
 	bd->t = tt;
