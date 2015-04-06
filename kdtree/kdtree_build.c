@@ -104,7 +104,7 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			init_bound_edge(&edges[axis][2*i], bbox.faaBounds[0][axis], pn, START);
 			init_bound_edge(&edges[axis][2*i+1], bbox.faaBounds[1][axis], pn, END);
 		}
-		qsort(&edges[axis][0], 2*nPrimitives, sizeof(BoundEdge), compare_bound);
+		qsort(edges[axis], 2 * nPrimitives, sizeof(BoundEdge), compare_bound);
 		
 		// 베스트를 찾기 위해 모든 코스트를 계산함
 		for (i = 0; i < 2 * nPrimitives; i++)
@@ -238,7 +238,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	// kdtree 구축에 필요한 공간 할당
 	for (i = 0; i < 3; i++)
 	{
-		edges[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count);
+		edges[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2);
 	}
 	prims0 = (int *)mzalloc(sizeof(int) * prims_count);
 	prims1 = (int *)mzalloc(sizeof(int) * prims_count * (kdtree->maxDepth + 1));
@@ -258,7 +258,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	free(primBounds);
 	for (i = 0; i < 3; i++)
 	{
-		// TODO: 여기서 메모리 해제 시 오류!
 		free(edges[i]);
 	}
 	free(prims0);
