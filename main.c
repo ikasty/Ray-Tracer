@@ -45,8 +45,7 @@ static void print_percent(int framenumber, float percent, double spend_time)
 int main(int argc, char *argv[])
 {
 	FILE		*fp = NULL;										// 파일 포인터
-	char		obj_file[100];									// 입력 obj 파일 이름 버퍼
-	char		default_obj_file[100] = "cube.obj";				// 기본 obj 파일 이름
+	char		obj_file[100] = {0,};							// 입력 obj 파일 이름 버퍼
 	char		img_file[100];									// 출력 이미지 파일 이름 버퍼
 
 	int			screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
@@ -76,27 +75,43 @@ int main(int argc, char *argv[])
 			continue;
 		} 
 
-		if (fp != NULL) break;
+		if (obj_file[0] != '\0') continue;
 		sprintf(obj_file, "%s", option);
-		fp = fopen(option, "r");
-		PDEBUG("open %s\n", option);
 	}
-	if (fp == NULL) {
-		fp = fopen(default_obj_file, "r");
-		PDEBUG("open %s\n", default_obj_file);
-	}
+	
+	if (obj_file[0] == '\0')
+		sprintf(obj_file, "%s", "cube.obj");
+	
+	fp = fopen(obj_file, "r");
+	PDEBUG("open %s\n", obj_file);
 
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));
 	if (file_read(fp, &data) < 0) return -1;
 
+	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
+	set_rotate(screen->frame_count);
+
 	for (framenumber = 0; framenumber < screen->frame_count; framenumber++)
 	{
-		// 현재 frame에서 보여줄 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
-		set_rotate(framenumber, screen->frame_count);
+	//// -- preset phase --
+
+		// 우선 해당 framenumber에 맞게 object를 회전합니다.
+		if (framenumber)
+		{
+			int i;
+			for (i = 0; i < data.prim_count; i++)
+			{
+				get_rotated_vector(data.primitives[i].vert0);
+				get_rotated_vector(data.primitives[i].vert1);
+				get_rotated_vector(data.primitives[i].vert2);
+			}
+		}
 
 		// bmp buffer 배열인 screen_buffer을 초기화해 줍니다.
 		memset(screen_buffer, 0, sizeof(screen_buffer));
+
+	//// -- execute phase --
 
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < camera->resy; index_y++)
@@ -117,7 +132,7 @@ int main(int argc, char *argv[])
 			
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
+					= Shading(f_ray, data.primitives[ ist_hit.prim_id ], ist_hit);
 			}
 
 			// 종료 시간 계산
@@ -125,6 +140,8 @@ int main(int argc, char *argv[])
 			sum_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		} // index_y
 	
+	//// -- post-step phase --
+
 		// img_file 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(img_file, "%s.%04d.bmp", obj_file, framenumber);
 		
