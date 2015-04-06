@@ -52,13 +52,13 @@ typedef struct __acceltree
 // cost를 계산할 candidate가 된다.
 typedef struct{
 	// 삼각형의 start인지 end인지 저장 
-	edge_type e_type;
+	int e_type;
 	
 	// 이 평면에 다다르기까지의 t
 	float t;
-	// ????
+	// ???
 	float other_t;
-	// ????
+	// 소속 prim num 개수
 	int primNum;
 	
 	// 축 정보

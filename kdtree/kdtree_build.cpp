@@ -1,4 +1,4 @@
-#include "kdtree_type.h"
+#include "kdtree_build.h"
 #include "bbox.h"
 #include "boundedge.h"
 #include <float.h>

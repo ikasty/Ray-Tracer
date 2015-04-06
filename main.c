@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 {
 	FILE		*fp = NULL;										// 파일 포인터
 	char		obj_file[100];									// 입력 obj 파일 이름 버퍼
-	char		default_obj_file[100] = "cube.obj";				// 기본 obj 파일 이름
+	char		default_obj_file[100] = "cutbu.obj";				// 기본 obj 파일 이름
 	char		img_file[100];									// 출력 이미지 파일 이름 버퍼
 
 	int			screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
@@ -92,6 +92,9 @@ int main(int argc, char *argv[])
 	memset(&data, 0, sizeof(data));
 	if (file_read(fp, &data) < 0) return -1;
 
+	// 데이터 구조체 초기화
+	data.prims = (Primitive *)malloc(sizeof(Primitive) * data.face_count);
+
 	for (framenumber = 0; framenumber < screen->frame_count; framenumber++)
 	{
 		// 현재 frame에서 보여줄 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
@@ -99,6 +102,12 @@ int main(int argc, char *argv[])
 
 		// bmp buffer 배열인 screen_buffer을 초기화해 줍니다.
 		memset(screen_buffer, 0, sizeof(screen_buffer));
+
+		// 현재 frame에 맞게 회전한 primitive 배열을 생성합니다.
+		// 삼각형의 id는 0부터 시작
+		for(i=0; i<data.face_count; i++){
+			data.prims[i] = getTriangle(data.vert, data.face, i);
+		}
 
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < camera->resy; index_y++)
@@ -119,7 +128,7 @@ int main(int argc, char *argv[])
 			
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-					= Shading(f_ray, getTriangle(data.vert, data.face, ist_hit.triangle_id), ist_hit);
+					= Shading(f_ray, data.prims[ist_hit.triangle_id], ist_hit);
 			}
 
 			// 종료 시간 계산

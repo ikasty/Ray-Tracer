@@ -6,4 +6,3 @@
 void init_bound_edge(BoundEdge* bd, float tt, int pn, int t);
 
 #endif
-
