@@ -130,18 +130,12 @@ int main(int argc, char *argv[])
 			for (index_x = 0; index_x < camera->resx; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
-				//Hit ist_hit = intersect_search(&data, &f_ray, (float)index_x, (float)index_y);
-				Hit ist_hit2 = kdtree_intersect_search(&data, &f_ray);
-
-				/*if(ist_hit.t != ist_hit2.t || ist_hit.u != ist_hit2.u || ist_hit.v != ist_hit2.v || ist_hit.triangle_id != ist_hit2.triangle_id){
-					int a = 0;
-					a = a+1;
-				}*/
+				Hit ist_hit = kdtree_intersect_search(&data, &f_ray);
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
-				if(ist_hit2.t>0){
+				if(ist_hit.t>0){
 					screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-						= Shading(f_ray, data.prims[ist_hit2.triangle_id], ist_hit2);
+						= Shading(f_ray, data.prims[ist_hit.triangle_id], ist_hit);
 				}
 			}
 

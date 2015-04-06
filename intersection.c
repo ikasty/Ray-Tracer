@@ -22,7 +22,7 @@ Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 		Hit ist_hit;
 		ist_hit = intersect_triangle(f_ray, data->prims[triangle_id]);
 
-		if (ist_hit.t > 0)
+		if (ist_hit.t > 0 && (ist_hit.t<min_hit.t || min_hit.t == 0))
 		{
 			memcpy(&min_hit, &ist_hit, sizeof(ist_hit));
 			min_hit.triangle_id = triangle_id;

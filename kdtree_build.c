@@ -6,10 +6,10 @@
 
 int compare(const void* a, const void* b){
 	if((*(BoundEdge *)a).t == (*(BoundEdge *)b).t){
-		return (*(BoundEdge *)a).e_type < (*(BoundEdge *)b).e_type? -1: 1;
+		return (*(BoundEdge *)a).e_type > (*(BoundEdge *)b).e_type? -1: 1;
 	}
 	else{
-		return (*(BoundEdge *)a).t - (*(BoundEdge *)b).t;
+		return (*(BoundEdge *)a).t < (*(BoundEdge *)b).t? -1: 1;
 	}	
 };
 
@@ -59,8 +59,8 @@ void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost,
 	for(i=0; i<3; i++){
 		edges[i] = (BoundEdge* )malloc(2*sizeof(BoundEdge)*kdtree->nPrims);
 	}
-	prims0 = (int *)malloc(sizeof(int)*kdtree->nPrims);
-	prims1 = (int *)malloc(sizeof(int)*kdtree->nPrims*(kdtree->maxDepth+1));
+	prims0 = (int *)calloc(kdtree->nPrims, sizeof(int));
+	prims1 = (int *)calloc(kdtree->nPrims*(kdtree->maxDepth+1), sizeof(int));
 
 	// kdtree 구축을 primNums(노드에 들어있는 프리미티브의 인덱스 모음) 초기화 
 	primNums = (int *)malloc(sizeof(int)*kdtree->nPrims);
