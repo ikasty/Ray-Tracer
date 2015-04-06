@@ -1,8 +1,6 @@
-#ifndef __BBOX_H__
+﻿#ifndef __BBOX_H__
 #define __BBOX_H__
 
-
-#include "../include/type.h"
 #include "kdtree_type.h"
 
 BBox make_bbox_by_triangle(Primitive tri);
