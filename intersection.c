@@ -20,7 +20,7 @@ Hit intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 	for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
 	{
 		Hit ist_hit;
-		ist_hit = intersect_triangle(f_ray, getTriangle(data->vert, data->face, triangle_id));
+		ist_hit = intersect_triangle(f_ray, data->prims[triangle_id]);
 
 		if (ist_hit.t > 0)
 		{
