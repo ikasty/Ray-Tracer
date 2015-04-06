@@ -1,6 +1,6 @@
-#include "kdtree_build.h"
-#include "bbox.h"
-#include "boundedge.h"
+#include "kdtree/kdtree_build.h"
+#include "kdtree/bbox.h"
+#include "kdtree/boundedge.h"
 #include <float.h>
 #include <stdlib.h>
 
@@ -26,7 +26,8 @@ void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost,
 	kdtree->maxDepth = md;
 	kdtree->emptyBonus = ebonus;
 	kdtree->nPrims = np;
-	
+	kdtree->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
+
 	for(i=0; i<np; i++){
 		kdtree->primitives[i] = p[i];
 	}
@@ -50,7 +51,7 @@ void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost,
 
 	// kdtree 구축에 필요한 공간 할당
 	for(i=0; i<3; i++){
-		edges[i] = (BoundEdge* )malloc(sizeof(BoundEdge)*kdtree->nPrims);
+		edges[i] = (BoundEdge* )malloc(2*sizeof(BoundEdge)*kdtree->nPrims);
 	}
 	prims0 = (int *)malloc(sizeof(int)*kdtree->nPrims);
 	prims1 = (int *)malloc(sizeof(int)*kdtree->nPrims*(kdtree->maxDepth+1));
@@ -195,6 +196,7 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 					initLeaf(kdtree, &kdtree->nodes[nodeNum], primNums, nPrimitives);
 					return;
 			}
+			break;
 		}
 	}
 	// 분할에 대해 프리미티브 분류

@@ -1,4 +1,4 @@
-#include "bbox.h"
+#include "kdtree/bbox.h"
 
 BBox make_bbox_by_triangle(Primitive tri){
 	return union_bbox_and_point(

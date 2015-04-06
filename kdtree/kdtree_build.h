@@ -3,9 +3,8 @@
 
 #include "kdtree_type.h"
 
+void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost, float ebonus, int maxp, int md);
 int compare(const void* a, const void* b);
-void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost, 
-			  float ebonus, int maxp, int md);
 void initLeaf(KDAccelTree* kdtree, KDAccelNode* node, int* primNums, int np);
 void initInterior(KDAccelTree* kdtree, KDAccelNode* node, int axis, int ac, int bc, float s);
 void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 

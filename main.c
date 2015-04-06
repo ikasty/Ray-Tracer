@@ -10,6 +10,7 @@
 #include "obj_transform.h"
 #include "settings.h"
 #include "include/debug-msg.h"
+#include "kdtree/kdtree_build.h"
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
@@ -18,6 +19,8 @@ PDEBUG_INIT();
 DEFINE_CAMERA();
 DEFINE_LIGHT();
 DEFINE_SCREEN();
+
+void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost, float ebonus, int maxp, int md);
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int framenumber, float percent, double spend_time)
@@ -46,7 +49,7 @@ int main(int argc, char *argv[])
 {
 	FILE		*fp = NULL;										// 파일 포인터
 	char		obj_file[100];									// 입력 obj 파일 이름 버퍼
-	char		default_obj_file[100] = "cutbu.obj";				// 기본 obj 파일 이름
+	char		default_obj_file[100] = "cube.obj";				// 기본 obj 파일 이름
 	char		img_file[100];									// 출력 이미지 파일 이름 버퍼
 
 	int			screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
@@ -94,7 +97,8 @@ int main(int argc, char *argv[])
 
 	// 데이터 구조체 초기화
 	data.prims = (Primitive *)malloc(sizeof(Primitive) * data.face_count);
-
+	data.accel_struct = malloc(sizeof(KDAccelTree));
+	
 	for (framenumber = 0; framenumber < screen->frame_count; framenumber++)
 	{
 		// 현재 frame에서 보여줄 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
@@ -108,6 +112,8 @@ int main(int argc, char *argv[])
 		for(i=0; i<data.face_count; i++){
 			data.prims[i] = getTriangle(data.vert, data.face, i);
 		}
+		// kdtree 초기화 및 build
+		initTree((KDAccelTree *)data.accel_struct, data.prims, data.face_count, 80, 1, 0.5f, 1, 10);
 
 		// 각 픽셀별로 교차검사를 수행합니다.
 		for (index_y = 0; index_y < camera->resy; index_y++)

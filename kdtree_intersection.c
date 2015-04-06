@@ -1,8 +1,8 @@
 ﻿#include <string.h>
-#include "kdtree_type.h"
-#include "kdtree_queue.h"
-#include "../intersection.h"
-#include "kdtree_intersection.h"
+#include "kdtree/kdtree_type.h"
+#include "kdtree/kdtree_queue.h"
+#include "intersection.h"
+#include "kdtree/kdtree_intersection.h"
 
 /**
  * kdtreeTraversal.c.old의 void Intersect 함수에서 가져옴
