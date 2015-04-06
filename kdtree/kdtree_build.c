@@ -258,6 +258,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	free(primBounds);
 	for (i = 0; i < 3; i++)
 	{
+		// TODO: 여기서 메모리 해제 시 오류!
 		free(edges[i]);
 	}
 	free(prims0);
@@ -268,6 +269,8 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 void kdtree_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = mzalloc(sizeof(KDAccelTree));
+
+	if (data->accel_struct) free(data->accel_struct);
 	data->accel_struct = (void *)kdtree;
 
 	kdtree->isectCost = 80;
@@ -276,6 +279,9 @@ void kdtree_accel_build(Data *data)
 	kdtree->maxPrims = 1;
 	kdtree->maxDepth = 10;
 	kdtree->nPrims = data->prim_count;
+
+	kdtree->primitives = malloc(sizeof(data->primitives[0]) * data->prim_count);
+	memcpy(kdtree->primitives, data->primitives, sizeof(kdtree->primitives));
 	
 	initTree(kdtree, data->primitives);
 }

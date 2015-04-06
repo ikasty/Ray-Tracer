@@ -236,3 +236,8 @@ FakesAssemblies/
 *.bmp
 *.jpg
 *.jpeg
+
+# gitignore of DEViANCE
+# bullshit trash
+thumbs.db
+desktop.ini

@@ -9,30 +9,30 @@
 
 Hit naive_intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
 {
-	const int triangleCount = data->face_count;
+	const int prim_count = data->prim_count;
 	Hit min_hit;
-	int triangle_id;
+	int prim_id;
 
 	memset(&min_hit, 0, sizeof(min_hit));
 
 	// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
 	// TODO: 교차 검사 수행을 줄일 알고리즘을 도입할 것
-	for (triangle_id = 0; triangle_id < triangleCount; triangle_id++)
+	for (prim_id = 0; prim_id < prim_count; prim_id++)
 	{
 		Hit ist_hit;
-		ist_hit = intersect_triangle(f_ray, data->primitives[triangle_id]);
+		ist_hit = intersect_triangle(f_ray, data->primitives[prim_id]);
 
 		if (ist_hit.t > 0 && (ist_hit.t<min_hit.t || min_hit.t == 0))
 		{
 			memcpy(&min_hit, &ist_hit, sizeof(ist_hit));
-			min_hit.triangle_id = triangle_id;
+			min_hit.prim_id = prim_id;
 		}
 	}
 
 	return min_hit;
 }
 
-Hit intersect_triangle(Ray *ray, Primitive triangle)
+Hit intersect_triangle(Ray *ray, Primitive prim)
 {
 	float edge1[3], edge2[3], tvec[3], pvec[3], qvec[3];
 	float det,inv_det;
@@ -43,8 +43,8 @@ Hit intersect_triangle(Ray *ray, Primitive triangle)
 	// ray.orig + t * ray.dir = (1 - u - v) * vert0 + u * vert1 + v * vert2
 
 	// 점 vert0을 공유하고 있는 삼각형의 두 vector를 구한다
-	SUB(edge1, triangle.vert1, triangle.vert0);
-	SUB(edge2, triangle.vert2, triangle.vert0);
+	SUB(edge1, prim.vert1, prim.vert0);
+	SUB(edge2, prim.vert2, prim.vert0);
 	
 	CROSS(pvec, ray->dir, edge2);
 
@@ -57,7 +57,7 @@ Hit intersect_triangle(Ray *ray, Primitive triangle)
 	inv_det = 1.0f / det;
 
 	// ray의 원점에서 점 vert0까지의 거리를 구한다
-	SUB(tvec, ray->orig, triangle.vert0);
+	SUB(tvec, ray->orig, prim.vert0);
 
 	u = DOT(tvec, pvec) * inv_det;
 	if (u < 0.0 || u > 1.0)
@@ -76,7 +76,7 @@ Hit intersect_triangle(Ray *ray, Primitive triangle)
 	ist_hit.t = ray->max_t = t;
 	ist_hit.u = u;
 	ist_hit.v = v;
-	ist_hit.triangle_id = triangle.prim_id;
+	ist_hit.prim_id = prim.prim_id;
 	
 	return ist_hit;
 }
