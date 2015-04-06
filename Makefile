@@ -25,21 +25,15 @@ endif
 OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS))
 OBJS := $(OBJS:%.c=%.o)
 
-
-ifneq ($(strip $(count)),)
-counts = $(addprefix -c,$(count))
-endif
-
 .SUFFIXES: .c .o
 .PHONY: all release debug clean test
 
 all:
-	@echo "$(DIR_CHECK)"
 	@echo "=========================="
 	@echo "usage: make release"
 	@echo "       make debug"
 	@echo "       make clean"
-	@echo "       make test [filename=filename.obj] [count=n]"
+	@echo "       make test [option=\"-cnf\"]"
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
@@ -56,7 +50,7 @@ clean:
 	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp
 
 test:
-	./$(TARGET) $(filename) $(counts)
+	./$(TARGET) $(option)
 
 chkdir:
 	@`[ -d $(OBJS_DIR) ] || mkdir $(OBJS_DIR)`

@@ -7,7 +7,7 @@
 #include "settings.h"
 #include "include/msl_math.h"
 
-Hit naive_intersect_search(Data *data, Ray *f_ray, float index_x, float index_y)
+Hit naive_intersect_search(Data *data, Ray *f_ray)
 {
 	const int prim_count = data->prim_count;
 	Hit min_hit;

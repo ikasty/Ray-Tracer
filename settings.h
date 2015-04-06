@@ -3,6 +3,8 @@
 
 #include "include/type.h"
 
+#define DEFAULT_OBJ_FILE		"cube.obj"
+
 #define MAX_RENDER_DISTANCE		1000000
 
 #define X_SCREEN_SIZE			320
@@ -18,6 +20,11 @@
 #define LIGHT_POS_Z				10.0
 
 #define FRAME_COUNT				1
+
+// define if use accel option
+//#define ACCEL_OPTION
+// define if program get accel option
+#define ACCEL_USE_ASK
 
 ///////////////////////////////////////////////
 // option structs
@@ -58,5 +65,10 @@ float __light__[3] = {								\
 }
 extern float __light__[3];
 #define USE_LIGHT(__name) float *__name = __light__
+
+// argc option extern
+extern int optind;
+extern char *optarg;
+int getopt(int argc, char *argv[], char *optstring);
 
 #endif
