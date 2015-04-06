@@ -39,7 +39,7 @@ typedef struct
 	float vert0[3];
 	float vert1[3];
 	float vert2[3];
-
+	int prim_id;
 } Primitive;
 
 typedef struct

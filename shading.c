@@ -21,9 +21,7 @@ unsigned int Shading(Ray s_ray, Primitive s_tri, Hit __hit)
 
 	tuv[0] =__hit.t;
 	tuv[1] =__hit.u;
-	tuv[2] =__hit.v;
-
-	
+	tuv[2] =__hit.v;	
 
 	if(tuv[1]>0 && tuv[2]> 0 && tuv[1]+tuv[2] <=1 ){
 	

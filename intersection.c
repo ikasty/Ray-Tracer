@@ -76,6 +76,7 @@ Hit intersect_triangle(Ray *ray, Primitive triangle)
 	ist_hit.t = ray->max_t = t;
 	ist_hit.u = u;
 	ist_hit.v = v;
+	ist_hit.triangle_id = triangle.prim_id;
 	
 	return ist_hit;
 }

@@ -1,7 +1,9 @@
 ﻿#include <string.h>
+#include <float.h>
 #include "kdtree/kdtree_type.h"
 #include "kdtree/kdtree_queue.h"
 #include "intersection.h"
+
 #include "kdtree/kdtree_intersection.h"
 
 /**
@@ -17,7 +19,7 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 
 	Hit min_hit;
 	memset(&min_hit, 0, sizeof(min_hit));
-
+	
 	// tmin과 tmax를 계산하는 것과 동시에, 현재 트리와 광선이 교차하는지 검사
 	if (!box_IntersectP(accel_tree->bounds, *ray, &tmin, &tmax))
 	{
@@ -38,7 +40,7 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 			for (i = 0; i < node->primitive_count; i++)
 			{
 				Hit hit = intersect_triangle(ray, node->primitives[i]);
-				if (hit.t > 0) memcpy(&min_hit, &hit, sizeof(hit));
+				if (hit.t > 0 && (hit.t < min_hit.t || min_hit.t == 0)) memcpy(&min_hit, &hit, sizeof(hit));
 			}
 
 		}

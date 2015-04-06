@@ -11,6 +11,7 @@
 #include "settings.h"
 #include "include/debug-msg.h"
 #include "kdtree/kdtree_build.h"
+#include "kdtree/kdtree_intersection.h"
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
@@ -20,7 +21,6 @@ DEFINE_CAMERA();
 DEFINE_LIGHT();
 DEFINE_SCREEN();
 
-void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost, float ebonus, int maxp, int md);
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int framenumber, float percent, double spend_time)
@@ -130,11 +130,19 @@ int main(int argc, char *argv[])
 			for (index_x = 0; index_x < camera->resx; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
-				Hit ist_hit = intersect_search(&data, &f_ray, (float)index_x, (float)index_y);
-			
+				//Hit ist_hit = intersect_search(&data, &f_ray, (float)index_x, (float)index_y);
+				Hit ist_hit2 = kdtree_intersect_search(&data, &f_ray);
+
+				/*if(ist_hit.t != ist_hit2.t || ist_hit.u != ist_hit2.u || ist_hit.v != ist_hit2.v || ist_hit.triangle_id != ist_hit2.triangle_id){
+					int a = 0;
+					a = a+1;
+				}*/
+
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
-				screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-					= Shading(f_ray, data.prims[ist_hit.triangle_id], ist_hit);
+				if(ist_hit2.t>0){
+					screen_buffer[X_SCREEN_SIZE * index_y + index_x]
+						= Shading(f_ray, data.prims[ist_hit2.triangle_id], ist_hit2);
+				}
 			}
 
 			// 종료 시간 계산

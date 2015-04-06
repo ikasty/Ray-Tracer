@@ -79,6 +79,7 @@ Primitive getTriangle(Vertex v[], Triangle t[], int id)
 	get_rotated_vector((float*) &v[ t[id].v1 - 1 ], result_t.vert0);
 	get_rotated_vector((float*) &v[ t[id].v2 - 1 ], result_t.vert1);
 	get_rotated_vector((float*) &v[ t[id].v3 - 1 ], result_t.vert2);
+	result_t.prim_id = id;
 
 	return result_t;
 }

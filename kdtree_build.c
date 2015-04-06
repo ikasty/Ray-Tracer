@@ -6,10 +6,10 @@
 
 int compare(const void* a, const void* b){
 	if((*(BoundEdge *)a).t == (*(BoundEdge *)b).t){
-		return (*(BoundEdge *)a).e_type < (*(BoundEdge *)b).e_type;
+		return (*(BoundEdge *)a).e_type < (*(BoundEdge *)b).e_type? -1: 1;
 	}
 	else{
-		return (*(BoundEdge *)a).t < (*(BoundEdge *)b).t;
+		return (*(BoundEdge *)a).t - (*(BoundEdge *)b).t;
 	}	
 };
 
@@ -27,6 +27,12 @@ void initTree(KDAccelTree *kdtree, Primitive* p, int np, int icost, int tcost,
 	kdtree->emptyBonus = ebonus;
 	kdtree->nPrims = np;
 	kdtree->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
+	kdtree->bounds.faaBounds[0][0] = 0;
+	kdtree->bounds.faaBounds[0][1] = 0;
+	kdtree->bounds.faaBounds[0][2] = 0;
+	kdtree->bounds.faaBounds[1][0] = 0;
+	kdtree->bounds.faaBounds[1][1] = 0;
+	kdtree->bounds.faaBounds[1][2] = 0;
 
 	for(i=0; i<np; i++){
 		kdtree->primitives[i] = p[i];
