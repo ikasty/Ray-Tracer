@@ -35,7 +35,7 @@ DEFINE_SCREEN();
 #endif
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
-static void print_percent(int frame_number, float percent, double build_clock, double search_clock)
+static void print_percent(int frame_number, float percent, double build_clock, double search_clock, double render_clock)
 {
 	int i;
 	USE_SCREEN(screen);
@@ -45,15 +45,21 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 		if (__PDEBUG_ENABLED) printf("\n");
 		__PDEBUG_ENABLED = 0;
 	});
-
 	
 	printf("\rframe %02d/%02d: [", frame_number, screen->frame_count);
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
-	printf("] %05.2f%% %.3fs build, %.3fs search", percent, build_clock, search_clock);
-	if (percent == 100.0f) printf("\n");
+	//printf("] %05.2f%% %.3fs build, %.3fs search", percent, build_clock, search_clock);
+	printf("] build %.2fs, search %.2fs, render %.2fs", build_clock, search_clock, render_clock);
+	if (percent == 100.0f)
+	{
+		printf("\n");
+		printf("build %.3fs, search %.3fs, render %.3fs, total %.4fs\n",
+			build_clock, search_clock, render_clock,
+			build_clock + search_clock + render_clock);
+	}
 	fflush(stdout);
 }
 
@@ -68,6 +74,7 @@ static void do_algorithm(Data *data, char *input_file)
 	clock_t		start_clock, end_clock;							// 수행 시간 계산용 clock_t 변수
 	double		build_clock = 0.0;								// 가속체 구성 시간 누적 변수
 	double		search_clock = 0.0;								// 탐색 시간 누적 변수
+	double		render_clock = 0.0;								// 렌더링 시간 누적 변수
 
 	USE_SCREEN(screen);
 	USE_CAMERA(camera);
@@ -110,39 +117,42 @@ static void do_algorithm(Data *data, char *input_file)
 
 			// 진행 상태 출력
 			percent = ((float)index_y / camera->resy + frame_number) / screen->frame_count * 100.0f;
-			print_percent(frame_number, percent, build_clock, search_clock);
-
-			// 시작 시간 계산
-			start_clock = clock();
+			print_percent(frame_number, percent, build_clock, search_clock, render_clock);
 
 			for (index_x = 0; index_x < camera->resx; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
-				Hit ist_hit = (*intersect_search)(data, &f_ray);
+				Hit ist_hit;
+
+				start_clock = clock();
+				ist_hit = (*intersect_search)(data, &f_ray);
+				end_clock = clock();
+				search_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				if (ist_hit.t > 0)
 				{
-					screen_buffer[X_SCREEN_SIZE * index_y + index_x]
-						= Shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					int *pixel = &screen_buffer[X_SCREEN_SIZE * index_y + index_x];
+
+					start_clock = clock();
+					*pixel = Shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					end_clock = clock();
+					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 				}
 			}
 
-			// 종료 시간 계산
-			end_clock = clock();
-			search_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		} // index_y
 	
 	//// -- post-step phase --
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number);
+		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
 		
 		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
 		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, output_file);
 	} // index_x
 
-	print_percent(frame_number, 100.0f, build_clock, search_clock);
+	print_percent(frame_number, 100.0f, build_clock, search_clock, render_clock);
 }
 
 int main(int argc, char *argv[])
