@@ -1,62 +1,18 @@
-#include <string.h>
-
 #include "settings.h"
 
-int optind = 0;
-char *optarg;
+//////////////////////////////////
+// 각종 옵션들을 위한 구조체 원형들
+struct __screen_info __screen__ = {
+	X_SCREEN_SIZE, Y_SCREEN_SIZE,
+	CAMERA_DISTANCE, FRAME_COUNT
+};
 
-int getopt(int argc, char *argv[], char *optstring)
-{
-	static char *next = NULL;
-	char c, *cp;
+struct __camera_info __camera__ = {
+	{CAMERA_POS_X, CAMERA_POS_Y, CAMERA_POS_Z},
+	CAMERA_DISTANCE,
+	X_SCREEN_SIZE, Y_SCREEN_SIZE
+};
 
-	optarg = NULL;
-
-	if (next == NULL || *next == '\0')
-	{
-		if (!optind) optind++;
-
-		if (optind >= argc || argv[optind][0] != '-' || argv[optind][1] == '\0')
-		{
-			optarg = NULL;
-			if (optind < argc) optarg = argv[optind];
-			return -1;
-		}
-
-		next = argv[optind];
-		next++;
-		optind++;
-	}
-
-	c = *next++;
-	cp = strchr(optstring, c);
-
-	if (c == '-')
-	{
-		optarg = next;
-		return '-';
-	}
-	if (cp == NULL || c == ':')
-		return '?';
-	
-	cp++;
-	if (*cp == ':')
-	{
-		if (*next != '\0')
-		{
-			optarg = next;
-			next = NULL;
-		}
-		else if (optind < argc)
-		{
-			optarg = argv[optind];
-			optind++;
-		}
-		else
-		{
-			return '?';
-		}
-	}
-
-	return c;
-}
+float __light__[3] = {
+	LIGHT_POS_X, LIGHT_POS_Y, LIGHT_POS_Z
+};

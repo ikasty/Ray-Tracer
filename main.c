@@ -15,15 +15,12 @@
 #include "bitmap_make.h"
 #include "obj_transform.h"
 #include "settings.h"
+
+#include "include/getopt.h"
 #include "include/debug-msg.h"
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
-
-// 카메라와 광원 선언
-DEFINE_CAMERA();
-DEFINE_LIGHT();
-DEFINE_SCREEN();
 
 // accelaration 구조체 설정 함수
 #if defined(ACCEL_OPTION) || defined(ACCEL_USE_ASK)
@@ -95,7 +92,7 @@ static void do_algorithm(Data *data, char *input_file)
 			}
 		}
 
-		// bmp buffer 배열인 screen_buffer을 초기화해 줍니다.
+		// 이미지 버퍼를 초기화해 줍니다.
 		memset(screen_buffer, 0, sizeof(screen_buffer));
 
 	//// -- execute phase --
@@ -124,9 +121,11 @@ static void do_algorithm(Data *data, char *input_file)
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
 				Hit ist_hit;
 
+				// 현재 광선에서 교차검사를 수행함
 				start_clock = clock();
 				ist_hit = (*intersect_search)(data, &f_ray);
 				end_clock = clock();
+
 				search_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
@@ -134,9 +133,11 @@ static void do_algorithm(Data *data, char *input_file)
 				{
 					int *pixel = &screen_buffer[X_SCREEN_SIZE * index_y + index_x];
 
+					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
 					*pixel = Shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
 					end_clock = clock();
+
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 				}
 			}
@@ -148,7 +149,7 @@ static void do_algorithm(Data *data, char *input_file)
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
 		
-		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
+		// 실제 bmp 파일을 만들어 줍니다.
 		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, output_file);
 	} // index_x
 
@@ -175,44 +176,47 @@ long_option:
 			else if (strncmp(optarg, "help", 4) == 0)	c = 'h', optarg += 4;
 			else if (strncmp(optarg, "file", 4) == 0)	c = 'f', optarg += 4;
 
-			if (*(optarg++) != '=') c = '?';
+			if (*optarg == '=') optarg++;
 			goto long_option;
-		case 'h':
-			printf(
-				"usage: ./RayTracing.exe -cafh [filename]\n"
-				"\t-c[count], --count: set frame count\n"
-				"\t-a(naive|kdtree): algorithm set\n"
-				"\t-f[filename], --file: set obj filename\n"
-				"\t-h, --help: print this usage\n");
-			return 0;
+
 		case 'c':
 			screen->frame_count = atoi(optarg);
-			PDEBUG("set frame count = %d\n", screen->frame_count);
+			printf("set frame count = %d\n", screen->frame_count);
 			break;
+
 		case 'a':
-		#ifdef ACCEL_USE_ASK
 			if (strncmp(optarg, "naive", 5) == 0)
 			{
-				PDEBUG("use naive algorithm\n");
+				printf("use naive algorithm\n");
 				accel_build = NULL;
 				intersect_search = &naive_intersect_search;
 			}
 			else if (strncmp(optarg, "kdtree", 6) == 0)
 			{
-				PDEBUG("use kdtree nlog^2n algorithm\n");
+				printf("use kdtree nlog^2n algorithm\n");
 			}
-		#endif
 			break;
+
 		case 'f':
 			if (input_file[0] != '\0') break;
-			PDEBUG("set filename %s\n", optarg);
+			printf("set filename %s\n", optarg);
 			sprintf(input_file, "%s", optarg);
 			break;
 
+		// program will terminated!
 		case '?':
 		default:
-			PDEBUG("unknown command %s\n!", argv[optind - 1]);
-			return -1;
+			printf("unknown command %s\n!", argv[optind - 1]);
+		case 'h':
+			printf(
+				"Usage: ./RayTracing.exe [options] [filename]\n"
+				"Options:\n"
+				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
+				"  -a (naive|kdtree)\t\t\t"				"Set search algorithm.\n"
+				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
+				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
+
+			return (c == 'h') ? 0 : -1;
 		}
 	}
 	

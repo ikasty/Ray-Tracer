@@ -30,19 +30,15 @@
 // option structs
 // usage: USE_CAMERA(cam); cam->orig[0];
 ///////////////////////////////////////////////
+#define USE_SCREEN(__name) struct __screen_info *__name = &__screen__
+#define USE_CAMERA(__name) struct __camera_info *__name = &__camera__
+#define USE_LIGHT(__name) float *__name = __light__
 
 struct __screen_info {
 	int xsize, ysize;
 	int distance, frame_count;
 };
 extern struct __screen_info __screen__;
-
-#define DEFINE_SCREEN()				\
-struct __screen_info __screen__ = {	\
-	X_SCREEN_SIZE, Y_SCREEN_SIZE,	\
-	CAMERA_DISTANCE, FRAME_COUNT 	\
-};
-#define USE_SCREEN(__name) struct __screen_info *__name = &__screen__
 
 struct __camera_info {
 	float orig[3];
@@ -51,24 +47,6 @@ struct __camera_info {
 };
 extern struct __camera_info __camera__;
 
-#define DEFINE_CAMERA()								\
-struct __camera_info __camera__ = {					\
-	{CAMERA_POS_X, CAMERA_POS_Y, CAMERA_POS_Z},		\
-	CAMERA_DISTANCE,								\
-	X_SCREEN_SIZE, Y_SCREEN_SIZE					\
-};
-#define USE_CAMERA(__name) struct __camera_info *__name = &__camera__
-
-#define DEFINE_LIGHT()								\
-float __light__[3] = {								\
-	LIGHT_POS_X, LIGHT_POS_Y, LIGHT_POS_Z			\
-}
 extern float __light__[3];
-#define USE_LIGHT(__name) float *__name = __light__
-
-// argc option extern
-extern int optind;
-extern char *optarg;
-int getopt(int argc, char *argv[], char *optstring);
 
 #endif
