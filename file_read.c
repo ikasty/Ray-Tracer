@@ -208,7 +208,7 @@ int file_read(FILE* fp, Data *data)
 	data->prim_count = face_count;
 
 	{
-		int i, j;
+		int i;
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];

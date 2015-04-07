@@ -170,7 +170,7 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	}
 	// 분할에 대해 프리미티브 분류
 	// split 지점 밑에 START가 위치하면 일단 밑에 위치함
-	for (i = 0; i < bestOffset; i++)
+	for (i = 0; i <= bestOffset; i++)
 	{
 		if (edges[bestAxis][i].e_type == START)
 		{
@@ -178,7 +178,7 @@ void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		}
 	}
 	// split 지점 위에 END가 위치하면 일단 위에 위치함
-	for (i = bestOffset + 1; i < 2 * nPrimitives; i++)
+	for (i = bestOffset; i < 2 * nPrimitives; i++)
 	{
 		if (edges[bestAxis][i].e_type == END)
 		{
