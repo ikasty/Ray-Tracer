@@ -25,3 +25,27 @@ Makefile에 컴파일과 테스트를 위한 환경이 준비되어 있습니다
 
 #### Visual Studio ####
 컴파일 시 Release 모드로 컴파일하면 디버그 메시지를 출력하지 않습니다. 옵션은 `settings.h`에서 디파인된 값을 조절하는 것으로 사용할 수 있습니다. 각각의 옵션은 해당 파일의 주석을 확인하기 바랍니다.
+
+## 3. 알고리즘 추가 방법 ##
+새로운 알고리즘을 도입할 때에는 다음과 같이 수행합니다.
+
+  1. 적당한 폴더를 만듭니다.
+  2. 가속구조체 생성과 교차 검사에 대한 함수를 만듭니다. 형식은 다음과 같습니다:
+   - `void {알고리즘_이름}_accel_build(Data *data);`
+   - `Hit {알고리즘_이름}_intersect_search(Data *data, Ray *ray);`
+  3. 위의 함수들을 헤더 파일에 추가한 뒤, 해당 헤더 파일을 main.c 상단에 추가합니다.
+
+    ```c
+    // {알고리즘 이름}
+    #include "{알고리즘_이름}.h"
+    ```
+  4. main.c의 `main` 함수에서 `-a`옵션 수행 부분에 적당히 추가합니다.
+
+    ```c
+    case 'a':
+      else if (strncmp(optarg, "{알고리즘_이름}", {글자수}) == 0)
+      {
+        accel_build = &{알고리즘_이름}_accel_build;
+        intersect_search = &{알고리즘_이름}_intersect_search(Data *data, Ray *ray);
+      }
+    ```
