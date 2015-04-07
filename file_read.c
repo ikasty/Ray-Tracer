@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "file_read.h"
+#include "include/msl_math.h"
 
 #include "include/debug-msg.h"
 
@@ -64,6 +65,7 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
  */
 int file_read(FILE* fp, Data *data)
 {
+	int i;
 	// vertex info
 	int vert_count = 0, vert_capacity = 0;
 	Vertex *vert = NULL;
@@ -72,7 +74,14 @@ int file_read(FILE* fp, Data *data)
 	int face_count = 0, face_capacity = 0;
 	Triangle *face = NULL;
 
+	// normal vector info
+	int nv_count = 0, nv_capacity = 0;
+	float **nv = (float **)calloc(10000, sizeof(float *));
 	char buf_orig[100];
+
+	for(i=0; i<10000; i++){
+		nv[i] = (float *)calloc(3, sizeof(float));
+	}
 
 	if (fp == NULL)
 	{
@@ -112,7 +121,19 @@ int file_read(FILE* fp, Data *data)
 
 			continue;
 		}
+		else if (strcmp(op, "vn") == 0){
+			float x, y, z, w = 1.0;
 
+			//resize_if_full( (void**)nv, nv_count, &nv_capacity, 3*sizeof(float) );
+			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
+
+			nv[nv_count][0] = x;
+			nv[nv_count][1] = y;
+			nv[nv_count][2] = z;
+			nv_count++;
+
+			continue;
+		}
 		// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
 		// 꼭지점의 ID는 위에서부터 1입니다.
 		else if (strcmp(op, "f") == 0)
@@ -154,7 +175,7 @@ int file_read(FILE* fp, Data *data)
 					face[face_count].v2 = result[1][0];
 					face[face_count].v3 = result[2][0];
 					face_count++;
-					
+
 					// 다각형을 삼각형으로 쪼개기 위해 마지막 점을 두 번째 점으로 옮김
 					memcpy(result[1], result[2], sizeof(result[1]));
 				}
@@ -174,10 +195,11 @@ int file_read(FILE* fp, Data *data)
 	data->prim_count = face_count;
 
 	{
-		int i;
+		int i, j;
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];
+			float temp1[3], temp2[3], temp3[3], temp4[3];
 
 			prim->vert0[0] = vert[ face[i].v1 - 1].x;
 			prim->vert0[1] = vert[ face[i].v1 - 1].y;
@@ -190,7 +212,27 @@ int file_read(FILE* fp, Data *data)
 			prim->vert2[0] = vert[ face[i].v3 - 1].x;
 			prim->vert2[1] = vert[ face[i].v3 - 1].y;
 			prim->vert2[2] = vert[ face[i].v3 - 1].z;
+
 			prim->prim_id = i;
+
+
+			if(*nv[face[i].v1-1] != 0){
+				//normal vector와 비교해서 결과 값을 고치는 코드 추가
+				SUB(temp3, prim->vert1, prim->vert0);
+				SUB(temp4, prim->vert2, prim->vert0);
+				CROSS(temp1, temp3, temp4);
+				
+				if(DOT(nv[face[i].v1-1], temp1) <= 0){
+					memcpy(temp3, prim->vert1, sizeof(float)*3);
+					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
+					memcpy(prim->vert2, temp3, sizeof(float)*3);		
+				}
+				else{
+					int a = 0;
+					a+= 1;
+				}
+			}		
+							
 		}
 	}
 
