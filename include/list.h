@@ -7,6 +7,9 @@
 #ifndef LIST_H
 #define LIST_H
 
+#include <stddef.h>
+#include "../include/debug-msg.h"
+
 typedef struct list_head list_t;
 typedef struct list_head list_head;
 struct list_head { list_t *next, *prev; };

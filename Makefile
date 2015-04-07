@@ -2,9 +2,12 @@ CC = gcc
 CCLIB = -lm -msse2 -mfpmath=sse
 TARGET = RayTracing.exe
 
+DIR_CHECK =
+
 SRCS := $(shell ls | grep c$$)
 ### kdtree folder add
-#SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
+SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
+DIR_CHECK += kdtree
 
 RELEASE_DIR = gcc_release
 DEBUG_DIR = gcc_debug
@@ -18,12 +21,9 @@ OBJS_DIR = $(DEBUG_DIR)
 CCOPT = -O0 -Wall -DDEBUG
 endif
 
-OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.o)
-
-
-ifneq ($(strip $(count)),)
-counts = $(addprefix -c,$(count))
-endif
+#OBJS = $(addprefix $(OBJS_DIR)/, $(notdir $(SRCS)))
+OBJS = $(addprefix $(OBJS_DIR)/, $(SRCS))
+OBJS := $(OBJS:%.c=%.o)
 
 .SUFFIXES: .c .o
 .PHONY: all release debug clean test
@@ -33,7 +33,7 @@ all:
 	@echo "usage: make release"
 	@echo "       make debug"
 	@echo "       make clean"
-	@echo "       make test [filename=filename.obj] [count=n]"
+	@echo "       make test [option=\"-cnf\"]"
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
@@ -50,10 +50,13 @@ clean:
 	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp
 
 test:
-	./$(TARGET) $(filename) $(counts)
+	./$(TARGET) $(option)
 
 chkdir:
 	@`[ -d $(OBJS_DIR) ] || mkdir $(OBJS_DIR)`
+	@for DIR in $(DIR_CHECK); do \
+		[ -d $(OBJS_DIR)/$$DIR ] || mkdir $(OBJS_DIR)/$$DIR; \
+	done
 
 depend: chkdir
 	@rm -f $(DEPEND_FILE)

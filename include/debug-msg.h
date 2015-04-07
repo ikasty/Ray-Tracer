@@ -36,8 +36,9 @@
 
 ////////////////////////////
 // debug print module
+extern int __PDEBUG_ENABLED;
 #ifdef DEBUG
-	extern int __PDEBUG_ENABLED;
+	
 #	define PDEBUG(...) 	{		\
 	  	__PDEBUG_ENABLED = 1;	\
 		printf("DEBUG] ");		\

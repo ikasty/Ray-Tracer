@@ -39,39 +39,20 @@ typedef struct
 	float vert0[3];
 	float vert1[3];
 	float vert2[3];
-
+	int prim_id;
 } Primitive;
 
 typedef struct
 {
 	float t,u,v;
-	int triangle_id;
+	int prim_id;
 
 } Hit;
 
-typedef struct  {
-       
-       int v1;
-       int v2;
-       int v3;
-       
-} Triangle;
-
-typedef struct  {
-      
-      float x;
-      float y;
-      float z;
-            
-} Vertex;
-
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
-	Vertex *vert;
-	int vert_count;
-
-	Triangle *face;
-	int face_count;
+	Primitive *primitives;
+	int prim_count;
 
 	void *accel_struct;
 
