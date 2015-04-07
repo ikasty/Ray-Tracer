@@ -76,12 +76,9 @@ int file_read(FILE* fp, Data *data)
 
 	// normal vector info
 	int nv_count = 0, nv_capacity = 0;
-	float **nv = (float **)calloc(10000, sizeof(float *));
+	float **nv = NULL;
+	
 	char buf_orig[100];
-
-	for(i=0; i<10000; i++){
-		nv[i] = (float *)calloc(3, sizeof(float));
-	}
 
 	if (fp == NULL)
 	{
@@ -124,7 +121,23 @@ int file_read(FILE* fp, Data *data)
 		else if (strcmp(op, "vn") == 0){
 			float x, y, z, w = 1.0;
 
-			//resize_if_full( (void**)nv, nv_count, &nv_capacity, 3*sizeof(float) );
+			if (nv_capacity == 0)
+			{
+				nv_capacity = 100;
+				nv = (float **)malloc(nv_capacity * sizeof(float *));
+				for(i=0; i<nv_capacity; i++){
+					nv[i] = (float *)malloc(3 * sizeof(float));
+				}
+			}
+			else if (nv_count == nv_capacity)
+			{
+				int old_nv_capacity = nv_capacity;
+				nv_capacity *= 2;
+				nv = (float **)realloc(nv, nv_capacity * sizeof(float *));
+				for(i=old_nv_capacity; i<nv_capacity; i++){
+					nv[i] = (float *)malloc(3 * sizeof(float));
+				}
+			}
 			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
 
 			nv[nv_count][0] = x;
@@ -199,7 +212,7 @@ int file_read(FILE* fp, Data *data)
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];
-			float temp1[3], temp2[3], temp3[3], temp4[3];
+			float temp0[3], temp1[3], temp2[3], temp3[3];
 
 			prim->vert0[0] = vert[ face[i].v1 - 1].x;
 			prim->vert0[1] = vert[ face[i].v1 - 1].y;
@@ -215,14 +228,14 @@ int file_read(FILE* fp, Data *data)
 
 			prim->prim_id = i;
 
-
-			if(*nv[face[i].v1-1] != 0){
-				//normal vector와 비교해서 결과 값을 고치는 코드 추가
-				SUB(temp3, prim->vert1, prim->vert0);
-				SUB(temp4, prim->vert2, prim->vert0);
-				CROSS(temp1, temp3, temp4);
+			if(nv != NULL && face[i].v1 - 1 < nv_count){
+				SUB(temp0, prim->vert1, prim->vert0);
+				SUB(temp1, prim->vert2, prim->vert0);
+				CROSS(temp2, temp0, temp1);
 				
-				if(DOT(nv[face[i].v1-1], temp1) <= 0){
+				// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
+				// 
+				if(DOT(nv[face[i].v1-1], temp2) < 0){
 					memcpy(temp3, prim->vert1, sizeof(float)*3);
 					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
 					memcpy(prim->vert2, temp3, sizeof(float)*3);		
