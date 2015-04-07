@@ -3,17 +3,13 @@
 
 #include "include/type.h"
 
-typedef struct  {
-	int v1;
-	int v2;
-	int v3;
+typedef struct {
+	int v[3], vn[3];
 
 } Triangle;
 
-typedef struct  {
-	float x;
-	float y;
-	float z;
+typedef struct {
+	float vect[3];
 
 } Vertex;
 
