@@ -280,7 +280,7 @@ void kdtree_accel_build(Data *data)
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
-	memcpy(kdtree->primitives, data->primitives, sizeof(kdtree->primitives));
+	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
 	
 	initTree(kdtree, data->primitives);
 }
