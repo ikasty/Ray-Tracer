@@ -1,0 +1,41 @@
+﻿#ifndef __KDTREETRAVERSAL_H__
+#define __KDTREETRAVERSAL_H__
+
+
+#include "common/Types.h"
+#include "common/scene.h"
+#include "common/Triangle.h"
+#include "misc/config.h"
+#include "rgs/shading.h"
+#include "tree/kdbuild.h"
+
+
+/* Legacy
+#define RESTART_TRAIL
+#define PUSHDOWN 0
+#define PRIMAABB_TEST 1
+#define STACK_SIZE 8 *< Size of the traversal stack in local memory
+*/
+extern int32 iNumNodes;
+
+#define max4(a, b, c, d) max(max((a), (b)), max((c),(d)))
+#define min4(a, b, c, d) min(min((a), (b)), min((c),(d)))
+#define fmaxf(a, b) max(a, b)
+#define fminf(a, b) min(a, b)
+
+
+#if defined(__cplusplus)
+extern "C"{
+#endif
+void kd_RayQEnqueue(Ray ray);
+void Intersect(Scene *pScene,KdTreeAccel kd_accel, Ray ray,Hit *hit, int iAnyHit) ;
+void AddPixelColor(int32 iX, int32 iY, float32 *fOutColor);
+void kd_Rendering(Scene *pScene, Shader *shader, Config *pConfig);
+void kd_RenderingStream(Scene *pScene, Shader *pShader, Config *pConfig);
+
+#if defined(__cplusplus)
+}
+#endif
+
+
+#endif /* __BVHTRAVERSAL_H__ */
