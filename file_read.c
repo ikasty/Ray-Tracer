@@ -202,7 +202,7 @@ int file_read(FILE* fp, Data *data)
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];
-			float temp1[3], /*temp2[3],*/ temp3[3], temp4[3];
+			float temp0[3], temp1[3], temp2[3], temp3[3];
 
 			prim->vert0[0] = vert[ face[i].v[0] - 1 ].vect[0];
 			prim->vert0[1] = vert[ face[i].v[0] - 1 ].vect[1];
@@ -221,11 +221,12 @@ int file_read(FILE* fp, Data *data)
 			if (face[i].vn[0] && norm[ face[i].vn[0] - 1 ].vect[0] != 0)
 			{
 				//normal vector와 비교해서 결과 값을 고치는 코드 추가
-				SUB(temp3, prim->vert1, prim->vert0);
-				SUB(temp4, prim->vert2, prim->vert0);
-				CROSS(temp1, temp3, temp4);
+				SUB(temp0, prim->vert1, prim->vert0);
+				SUB(temp1, prim->vert2, prim->vert0);
+				CROSS(temp2, temp0, temp1);
 				
-				if (DOT(norm[ face[i].vn[0] - 1 ].vect, temp1) <= 0)
+				// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
+				if (DOT(norm[ face[i].vn[0] - 1 ].vect, temp2) <= 0)
 				{
 					memcpy(temp3, prim->vert1, sizeof(float)*3);
 					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
