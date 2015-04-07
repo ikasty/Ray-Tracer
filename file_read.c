@@ -170,7 +170,7 @@ int file_read(FILE* fp, Data *data)
 
 	// data에 primitives 배열 채워넣기
 	// TODO: vert0, vert1, vert2를 배열로 바꿔보자
-	data->primitives = mzalloc(sizeof(Primitive) * face_count);
+	data->primitives = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
 	data->prim_count = face_count;
 
 	{
@@ -190,6 +190,7 @@ int file_read(FILE* fp, Data *data)
 			prim->vert2[0] = vert[ face[i].v3 - 1].x;
 			prim->vert2[1] = vert[ face[i].v3 - 1].y;
 			prim->vert2[2] = vert[ face[i].v3 - 1].z;
+			prim->prim_id = i;
 		}
 	}
 

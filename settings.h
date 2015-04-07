@@ -19,7 +19,7 @@
 #define LIGHT_POS_Y				300.0
 #define LIGHT_POS_Z				10.0
 
-#define FRAME_COUNT				1
+#define FRAME_COUNT				30
 
 // define if use accel option
 //#define ACCEL_OPTION

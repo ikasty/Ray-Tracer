@@ -19,9 +19,9 @@ static int compare_bound(const void *a, const void *b)
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
 
 	if (l->t == r->t)
-		return (l->e_type) < (r->e_type);
+		return (l->e_type) < (r->e_type)? 1: -1;
 	else
-		return (l->t) < (r->t);
+		return (l->t) > (r->t)? 1: -1;
 };
 
 static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *primNums, int np)
@@ -267,7 +267,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 
 void kdtree_accel_build(Data *data)
 {
-	KDAccelTree *kdtree = mzalloc(sizeof(KDAccelTree));
+	KDAccelTree *kdtree = (KDAccelTree *)mzalloc(sizeof(KDAccelTree));
 
 	if (data->accel_struct) free(data->accel_struct);
 	data->accel_struct = (void *)kdtree;
@@ -279,7 +279,7 @@ void kdtree_accel_build(Data *data)
 	kdtree->maxDepth = 10;
 	kdtree->nPrims = data->prim_count;
 
-	kdtree->primitives = malloc(sizeof(data->primitives[0]) * data->prim_count);
+	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
 	memcpy(kdtree->primitives, data->primitives, sizeof(kdtree->primitives));
 	
 	initTree(kdtree, data->primitives);
