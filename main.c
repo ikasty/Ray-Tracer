@@ -9,7 +9,8 @@
 #include "intersection.h"
 
 // kdtree(nlog^2n)
-#include "kdtree/kdtree_build.h"
+//#include "kdtree/kdtree_build.h"
+#include "nlogn_kdtree/kdtree_build.h"
 #include "kdtree/kdtree_intersection.h"
 
 #include "bitmap_make.h"
@@ -27,7 +28,7 @@ DEFINE_SCREEN();
 
 // accelaration 구조체 설정 함수
 #if defined(ACCEL_OPTION) || defined(ACCEL_USE_ASK)
-	void (*accel_build)(Data *data) = &kdtree_accel_build;
+	void (*accel_build)(Data *data) = &nlogn_kdtree_accel_build;
 	Hit (*intersect_search)(Data *data, Ray *ray) = &kdtree_intersect_search;
 #else
 	void (*accel_build)(Data *data) = NULL;

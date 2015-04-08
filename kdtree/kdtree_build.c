@@ -13,6 +13,7 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			   BBox *allPrimBounds, int *primNums, int nPrimitives,int depth, 
 			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines);
 static void initTree(KDAccelTree *kdtree, Primitive* p);
+void kdtree_accel_build(Data *data);
 
 static int compare_bound(const void *a, const void *b)
 {

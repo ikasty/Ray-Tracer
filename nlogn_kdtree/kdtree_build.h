@@ -3,6 +3,6 @@
 
 #include "kdtree_type.h"
 
-void kdtree_accel_build(Data *data);
+void nlogn_kdtree_accel_build(Data *data);
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"diamond.obj"
+#define DEFAULT_OBJ_FILE		"cutbu.obj"
 
 #define MAX_RENDER_DISTANCE		1000000
 
