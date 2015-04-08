@@ -9,8 +9,7 @@ struct __screen_info __screen__ = {
 
 struct __camera_info __camera__ = {
 	{CAMERA_POS_X, CAMERA_POS_Y, CAMERA_POS_Z},
-	CAMERA_DISTANCE,
-	X_SCREEN_SIZE, Y_SCREEN_SIZE
+	CAMERA_DISTANCE
 };
 
 float __light__[3] = {

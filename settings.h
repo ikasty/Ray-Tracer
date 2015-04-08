@@ -43,7 +43,6 @@ extern struct __screen_info __screen__;
 struct __camera_info {
 	float orig[3];
 	float distance;
-	int resx, resy;
 };
 extern struct __camera_info __camera__;
 

@@ -63,7 +63,7 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
  * obj 파일을 읽는 함수입니다.
  * 파일 문법은 http://paulbourke.net/dataformats/obj/ 를 참고하세요.
  */
-int file_read(FILE* fp, Data *data)
+int file_read(FILE* fp, Data *data, float scale)
 {
 	// vertex info
 	int vert_count = 0, vert_capacity = 0;
@@ -110,9 +110,9 @@ int file_read(FILE* fp, Data *data)
 			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
 
 			// 우리는 w값을 사용하지 않음
-			vert[vert_count].vect[0] = x;
-			vert[vert_count].vect[1] = y;
-			vert[vert_count].vect[2] = z;
+			vert[vert_count].vect[0] = x * scale;
+			vert[vert_count].vect[1] = y * scale;
+			vert[vert_count].vect[2] = z * scale;
 			vert_count++;
 
 			continue;
