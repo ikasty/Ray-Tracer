@@ -1,4 +1,4 @@
-#ifndef GETOPT_H
+﻿#ifndef GETOPT_H
 #define GETOPT_H
 
 // argc option extern

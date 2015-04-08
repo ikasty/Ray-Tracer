@@ -1,4 +1,4 @@
-#ifndef INTERSECTION_H
+﻿#ifndef INTERSECTION_H
 #define INTERSECTION_H
 
 #include "../include/type.h"

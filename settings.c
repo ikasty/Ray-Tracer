@@ -1,4 +1,4 @@
-#include "settings.h"
+﻿#include "settings.h"
 
 //////////////////////////////////
 // 각종 옵션들을 위한 구조체 원형들

@@ -1,4 +1,4 @@
-#ifndef KDTREE_INTERSECTION_H
+﻿#ifndef KDTREE_INTERSECTION_H
 #define KDTREE_INTERSECTION_H
 
 #include "kdtree_type.h"

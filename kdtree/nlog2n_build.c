@@ -7,13 +7,6 @@
 #include "boundedge.h"
 #include "../include/debug-msg.h"
 
-//static void initLeaf(KDAccelTree* kdtree, KDAccelNode* node, int* primNums, int np);
-//static void initInterior(KDAccelTree* kdtree, KDAccelNode* node, int axis, int ac, int bc, float s);
-//static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 
-//			   BBox *allPrimBounds, int *primNums, int nPrimitives,int depth, 
-//			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines);
-//static void initTree(KDAccelTree *kdtree, Primitive* p);
-
 static int compare_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
@@ -136,6 +129,10 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 					bestCost = cost;
 					bestAxis = axis;
 					bestOffset = i;
+					
+					DEBUG_ONLY(
+						if (cost < 0) PDEBUG("nBelow %d, nAbove %d\n", nBelow, nAbove);
+					);
 				}
 			}
 			if (edges[axis][i].e_type == START)
@@ -185,6 +182,9 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			prims1[n1++] = edges[bestAxis][i].primNum;
 		}
 	}
+
+	PDEBUG("nlog2n buildTree depth %d, cost %f, left %d, right %d\n", 10 - depth, bestCost, n0, n1);
+
 	// 재귀적으로 자식 노드 초기화
 	bounds0 = *nodeBounds;
 	bounds1 = *nodeBounds;

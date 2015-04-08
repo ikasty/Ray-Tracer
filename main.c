@@ -40,7 +40,7 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 	if (percent == 100.0f)
 	{
 		printf("\n");
-		printf("build %.3fs, search %.3fs, render %.3fs, total %.4fs\n",
+		printf("build %.3fs, search %.3fs, render %.3fs, total %.3fs\n",
 			build_clock, search_clock, render_clock,
 			build_clock + search_clock + render_clock);
 	}
