@@ -31,21 +31,30 @@ Makefile에 컴파일과 테스트를 위한 환경이 준비되어 있습니다
 
   1. 적당한 폴더를 만듭니다.
   2. 가속구조체 생성과 교차 검사에 대한 함수를 만듭니다. 형식은 다음과 같습니다:
-   - `void {알고리즘_이름}_accel_build(Data *data);`
-   - `Hit {알고리즘_이름}_intersect_search(Data *data, Ray *ray);`
-  3. 위의 함수들을 헤더 파일에 추가한 뒤, 해당 헤더 파일을 main.c 상단에 추가합니다.
+
+    ```c
+    void {알고리즘_이름}_accel_build(Data *data);
+    Hit {알고리즘_이름}_intersect_search(Data *data, Ray *ray);
+    ```
+  3. 위의 함수들을 헤더 파일에 추가한 뒤, 해당 헤더 파일을 algorithms.c 상단에 추가합니다.
 
     ```c
     // {알고리즘 이름}
     #include "{알고리즘_이름}.h"
     ```
-  4. main.c의 `main` 함수에서 `-a`옵션 수행 부분에 적당히 추가합니다.
+  4. algorithms.c의 함수에서 `-a`옵션 수행 부분에 적당히 추가합니다.
 
     ```c
-    case 'a':
-      else if (strncmp(optarg, "{알고리즘_이름}", {글자수}) == 0)
-      {
-        accel_build = &{알고리즘_이름}_accel_build;
-        intersect_search = &{알고리즘_이름}_intersect_search(Data *data, Ray *ray);
-      }
+    else if (strncmp(optarg, "{알고리즘_이름}", {글자수}) == 0)
+    {
+      accel_build = &{알고리즘_이름}_accel_build;
+      intersect_search = &{알고리즘_이름}_intersect_search(Data *data, Ray *ray);
+    }
+    ```
+  5. 폴더를 추가한 경우 Makefile에 해당 폴더를 추가합니다.
+
+    ```makefile
+      ### {폴더이름} folder add
+      SRCS += $(addprefix {폴더이름}/, $(shell ls {폴더이름} | grep c$$))
+      DIR_CHECK += {폴더이름}
     ```

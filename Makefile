@@ -8,6 +8,10 @@ SRCS := $(shell ls | grep c$$)
 SRCS += $(addprefix include/, $(shell ls include | grep c$$))
 DIR_CHECK += include
 
+### naive folder add
+SRCS += $(addprefix naive/, $(shell ls naive | grep c$$))
+DIR_CHECK += naive
+
 ### kdtree folder add
 SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
 DIR_CHECK += kdtree

@@ -2,11 +2,11 @@
 #include <string.h>
 #include <math.h>
 
-#include "settings.h"
-#include "include/msl_math.h"
-#include "include/type.h"
+#include "../settings.h"
+#include "../include/msl_math.h"
+#include "../include/type.h"
 
-unsigned int Shading(Ray s_ray, Primitive s_tri, Hit __hit)
+unsigned int naive_shading(Ray s_ray, Primitive s_tri, Hit __hit)
 {
 	unsigned int Out_color = 0;
 	//float Line_B[3];

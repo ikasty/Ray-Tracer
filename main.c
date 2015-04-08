@@ -5,12 +5,8 @@
 #include <time.h>
 #include "main.h"
 
-// naive
-#include "intersection.h"
-
-// kdtree(nlog^2n)
-#include "kdtree/kdtree_build.h"
-#include "kdtree/kdtree_intersection.h"
+// include search and render algorithm
+#include "algorithms.h"
 
 #include "bitmap_make.h"
 #include "obj_transform.h"
@@ -21,15 +17,6 @@
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
-
-// accelaration 구조체 설정 함수
-#if defined(ACCEL_OPTION) || defined(ACCEL_USE_ASK)
-	void (*accel_build)(Data *data) = &kdtree_accel_build;
-	Hit (*intersect_search)(Data *data, Ray *ray) = &kdtree_intersect_search;
-#else
-	void (*accel_build)(Data *data) = NULL;
-	Hit (*intersect_search)(Data *data, Ray *ray) = &naive_intersect_search;
-#endif
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int frame_number, float percent, double build_clock, double search_clock, double render_clock)
@@ -135,7 +122,7 @@ static void do_algorithm(Data *data, char *input_file)
 
 					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = Shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
 					end_clock = clock();
 
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
@@ -185,11 +172,10 @@ long_option:
 			break;
 
 		case 'a':
+			init_search_algo(optarg);
 			if (strncmp(optarg, "naive", 5) == 0)
 			{
-				printf("use naive algorithm\n");
-				accel_build = NULL;
-				intersect_search = &naive_intersect_search;
+				printf("use naive algorithm\n");	
 			}
 			else if (strncmp(optarg, "kdtree", 6) == 0)
 			{

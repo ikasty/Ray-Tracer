@@ -1,18 +1,18 @@
 ﻿#include <float.h>
 #include <stdlib.h>
-#include "kdtree_build.h"
+#include "nlog2n_build.h"
 
 #include "kdtree_type.h"
 #include "bbox.h"
 #include "boundedge.h"
 #include "../include/debug-msg.h"
 
-static void initLeaf(KDAccelTree* kdtree, KDAccelNode* node, int* primNums, int np);
-static void initInterior(KDAccelTree* kdtree, KDAccelNode* node, int axis, int ac, int bc, float s);
-static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 
-			   BBox *allPrimBounds, int *primNums, int nPrimitives,int depth, 
-			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines);
-static void initTree(KDAccelTree *kdtree, Primitive* p);
+//static void initLeaf(KDAccelTree* kdtree, KDAccelNode* node, int* primNums, int np);
+//static void initInterior(KDAccelTree* kdtree, KDAccelNode* node, int axis, int ac, int bc, float s);
+//static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 
+//			   BBox *allPrimBounds, int *primNums, int nPrimitives,int depth, 
+//			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines);
+//static void initTree(KDAccelTree *kdtree, Primitive* p);
 
 static int compare_bound(const void *a, const void *b)
 {
@@ -36,7 +36,7 @@ static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *primNums, int 
 	}
 }
 
-void initInterior(KDAccelTree *kdtree, KDAccelNode *node, int axis, int ac, int bc, float s)
+static void initInterior(KDAccelTree *kdtree, KDAccelNode *node, int axis, int ac, int bc, float s)
 {
 	node->split = s;
 	node->flags = axis;
@@ -46,7 +46,7 @@ void initInterior(KDAccelTree *kdtree, KDAccelNode *node, int axis, int ac, int 
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
-void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
+static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			   BBox *allPrimBounds, int *primNums, int nPrimitives, int depth,
 			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines)
 {
@@ -265,7 +265,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	free(primNums);
 }
 
-void kdtree_accel_build(Data *data)
+void nlog2n_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = (KDAccelTree *)mzalloc(sizeof(KDAccelTree));
 

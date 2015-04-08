@@ -1,16 +1,43 @@
 ﻿#include <string.h>
 #include <float.h>
-#include "kdtree_intersection.h"
+#include "nlog2n_intersection.h"
 
 #include "kdtree_type.h"
 #include "kdtree_queue.h"
 
-static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1);
+static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
+{
+	int i;
+	float t0 = ray.min_t, t1 = ray.max_t;
+
+	for (i = 0; i < 3; i++)
+	{
+		// Update interval for _i_th bounding box slab
+		float tNear = (b_box.faaBounds[0][i] - ray.orig[i]) / ray.dir[i];
+		float tFar  = (b_box.faaBounds[1][i] - ray.orig[i]) / ray.dir[i];
+
+		// Update parametric interval from slab intersection $t$s
+		if (tNear > tFar)
+		{
+			float temp = tNear;
+			tNear = tFar;
+			tFar = temp;
+		}
+		t0 = tNear > t0 ? tNear : t0;
+		t1 = tFar  < t1 ? tFar  : t1;
+		if (t0 > t1) return 0;
+	}
+
+	if (hit_t0) *hit_t0 = t0;
+	if (hit_t1) *hit_t1 = t1;
+
+	return 1;
+}
 
 /**
  * kdtreeTraversal.c.old의 void Intersect 함수에서 가져옴
  */
-Hit kdtree_intersect_search(Data *data, Ray *ray)
+Hit nlog2n_intersect_search(Data *data, Ray *ray)
 {
 	KDAccelTree *accel_tree = (KDAccelTree *)data->accel_struct;
 	KDAccelNode *node;
@@ -80,33 +107,4 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	} // while
 
 	return min_hit;
-}
-
-static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
-{
-	int i;
-	float t0 = ray.min_t, t1 = ray.max_t;
-
-	for (i = 0; i < 3; i++)
-	{
-		// Update interval for _i_th bounding box slab
-		float tNear = (b_box.faaBounds[0][i] - ray.orig[i]) / ray.dir[i];
-		float tFar  = (b_box.faaBounds[1][i] - ray.orig[i]) / ray.dir[i];
-
-		// Update parametric interval from slab intersection $t$s
-		if (tNear > tFar)
-		{
-			float temp = tNear;
-			tNear = tFar;
-			tFar = temp;
-		}
-		t0 = tNear > t0 ? tNear : t0;
-		t1 = tFar  < t1 ? tFar  : t1;
-		if (t0 > t1) return 0;
-	}
-
-	if (hit_t0) *hit_t0 = t0;
-	if (hit_t1) *hit_t1 = t1;
-
-	return 1;
 }
