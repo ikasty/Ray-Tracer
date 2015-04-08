@@ -91,6 +91,7 @@ static void do_algorithm(Data *data, char *input_file)
 			(*accel_build)(data);
 			end_clock = clock();
 
+			PDEBUG("accel_build finished\n");
 			build_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		}
 
