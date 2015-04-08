@@ -41,9 +41,9 @@ static void initInterior(KDAccelTree *kdtree, KDAccelNode *node, int axis, int a
 // 인테리어 노드와 리프노드를 구별해야 한다.
 static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			   BBox *allPrimBounds, int *primNums, int nPrimitives, int depth,
-			   BoundEdge *edges[3], int *prims0, int *prims1, int badRefines)
+			   BoundEdge *edges[3], int *below_prims, int *abouve_prims, int badRefines)
 {
-	int i, n0 = 0, n1 = 0;
+	int i, below_count = 0, above_count = 0;
 	int bestAxis = -1, bestOffset = -1, axis;
 	int retries = 0;
 	float bestCost = FLT_MAX;
@@ -54,7 +54,6 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		nodeBounds->faaBounds[1][1] - nodeBounds->faaBounds[0][1],
 		nodeBounds->faaBounds[1][2] - nodeBounds->faaBounds[0][2]
 	};
-	int nBelow = 0, nAbove = nPrimitives;
 	BBox bounds0, bounds1;
 
 	// 노드 배열로 부터 비어있는 다음 노드를 구함
@@ -88,21 +87,44 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	axis = find_axis_of_maximum_extent(nodeBounds);
 	while (retries < 3)
 	{
+		int nBelow = 0, nAbove = nPrimitives, nCount = 0;
+
 		// 축을 기준으로 edge를 초기화
 		for (i = 0; i < nPrimitives; i++)
 		{
 			// 이 노드에 속한 프리미티브를 돌면서 edge를 찾음
 			int pn = primNums[i];
 			BBox bbox = allPrimBounds[pn];
-			init_bound_edge(&edges[axis][2*i], bbox.faaBounds[0][axis], pn, START);
-			init_bound_edge(&edges[axis][2*i+1], bbox.faaBounds[1][axis], pn, END);
+
+			if (bbox.faaBounds[0][axis] == bbox.faaBounds[1][axis])
+			{
+				init_bound_edge(&edges[axis][nCount++], bbox.faaBounds[0][axis], pn, PLANAR);
+			}
+			else
+			{
+				init_bound_edge(&edges[axis][nCount++], bbox.faaBounds[0][axis], pn, START);
+				init_bound_edge(&edges[axis][nCount++], bbox.faaBounds[1][axis], pn, END);
+			}
 		}
-		qsort(edges[axis], 2 * nPrimitives, sizeof(BoundEdge), compare_bound);
+		qsort(edges[axis], nCount, sizeof(BoundEdge), compare_bound);
 		
 		// 베스트를 찾기 위해 모든 코스트를 계산함
-		for (i = 0; i < 2 * nPrimitives; i++)
+		for (i = 0; i < nCount; i++)
 		{
-			if (edges[axis][i].e_type == END) nAbove--;
+			BoundEdge split_edge = edges[axis][i];
+			int start_count = 0, end_count = 0, planar_count = 0;
+
+			// 현재 split 후보에 걸치고 있는 primitive의 타입을 체크한다
+			while (	(i < nCount) && (split_edge.t == edges[axis][i].t) )
+			{
+				if (edges[axis][i].e_type == START)		start_count++;
+				if (edges[axis][i].e_type == END)		end_count++;
+				if (edges[axis][i].e_type == PLANAR)	planar_count++;
+				i++;
+			}
+
+			// split 후보 위에 있는 primitive 개수 갱신
+			nAbove -= (end_count + planar_count);
 
 			if (edges[axis][i].t > nodeBounds->faaBounds[0][axis] &&
 				edges[axis][i].t < nodeBounds->faaBounds[1][axis])
@@ -129,17 +151,16 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 					bestCost = cost;
 					bestAxis = axis;
 					bestOffset = i;
-					
+
 					DEBUG_ONLY(
 						if (cost < 0) PDEBUG("nBelow %d, nAbove %d\n", nBelow, nAbove);
 					);
 				}
 			}
-			if (edges[axis][i].e_type == START)
-			{
-				//다음 루프를 위한 개수 증가
-				nBelow++;
-			}
+			
+			// split 후보 아래에 있는 primitive 개수 갱신
+			// TODO: 이렇게 하면 위에서 코스트 갱신할 때 planar가 포함되지 않는데, 이게 정상적인 상태인지?
+			nBelow += (start_count + planar_count);
 		}
 
 		// 분할할 만한 적당한 위치가 없으면 리프 노드 생성
@@ -171,7 +192,7 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	{
 		if (edges[bestAxis][i].e_type == START)
 		{
-			prims0[n0++] = edges[bestAxis][i].primNum;
+			below_prims[below_count++] = edges[bestAxis][i].primNum;
 		}
 	}
 	// split 지점 위에 END가 위치하면 일단 위에 위치함
@@ -179,25 +200,25 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	{
 		if (edges[bestAxis][i].e_type == END)
 		{
-			prims1[n1++] = edges[bestAxis][i].primNum;
+			abouve_prims[above_count++] = edges[bestAxis][i].primNum;
 		}
 	}
 
-	PDEBUG("nlog2n buildTree depth %d, cost %f, left %d, right %d\n", 10 - depth, bestCost, n0, n1);
+	PDEBUG("nlog2n buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, below_count, above_count);
 
 	// 재귀적으로 자식 노드 초기화
 	bounds0 = *nodeBounds;
 	bounds1 = *nodeBounds;
 	bounds0.faaBounds[0][bestAxis] = edges[bestAxis][bestOffset].t;
 	bounds1.faaBounds[1][bestAxis] = edges[bestAxis][bestOffset].t;
-	buildTree(kdtree, nodeNum+1, &bounds0,
-		allPrimBounds, prims0, n0, depth-1, edges,
-		prims0, prims1+nPrimitives, badRefines);
+	buildTree(kdtree, nodeNum + 1, &bounds0,
+		allPrimBounds, below_prims, below_count, depth - 1, edges,
+		below_prims, abouve_prims + nPrimitives, badRefines);
 	initInterior(kdtree, &kdtree->nodes[nodeNum], bestAxis, 
-		kdtree->nextFreeNodes, nodeNum+1, edges[bestAxis][bestOffset].t);
+		kdtree->nextFreeNodes, nodeNum + 1, edges[bestAxis][bestOffset].t);
 	buildTree(kdtree, kdtree->nextFreeNodes, &bounds1,
-		allPrimBounds, prims1, n1, depth -1, edges,
-		prims0, prims1+nPrimitives, badRefines);
+		allPrimBounds, abouve_prims, above_count, depth - 1, edges,
+		below_prims, abouve_prims+nPrimitives, badRefines);
 }
 
 static void initTree(KDAccelTree *kdtree, Primitive* p)
