@@ -12,7 +12,7 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 static void initNlognTree(KDAccelTree *kdtree, Primitive* p);
 static void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1,int nE2);
 static int compare_nlogn_bound(const void *a, const void *b);
-static void get_prim_nums_from_edges(int* prims, BoundEdge* edges, int nEdges);
+static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges);
 void nlogn_kdtree_accel_build(Data *data);
 
 static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *primNums, int np)
@@ -61,18 +61,18 @@ static int compare_nlogn_bound(const void *a, const void *b)
 		return (l->t) > (r->t)? 1: -1;
 };
 
-static void get_prim_nums_from_edges(int* prims, BoundEdge* edges, int nEdges)
+static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges)
 {
-	int i, j, nPrims = 0;
+	int i, nPrims = 0;
+	int *checked_prims = (int *)calloc(nPrimsMax, sizeof(int));
 
 	for(i=0; i<nEdges; i++){
-		for(j=0; j<nPrims; j++)
-			if(prims[j] == edges[i].primNum) 
-				break;
-		// 이전까지 한번도 나오지 않은 prim일 경우
-		if(j == nPrims)
+		if(!checked_prims[edges[i].primNum]){
 			prims[nPrims++] = edges[i].primNum;
+			checked_prims[edges[i].primNum] = 1;
+		}		
 	}
+	free(checked_prims);
 }
 
 // build tree 함수는 tree node마다 불러와지므로 
@@ -95,7 +95,6 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	BoundEdge bestPlane;
 	BoundEdge *leftEdges, *rightEdges;
 	int nLeftEdges, nRightEdges;
-	int nLeftPrims, nRightPrims;
 	int *primNums;
 
 	// 노드 배열로 부터 비어있는 다음 노드를 구함
@@ -121,9 +120,9 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	if (nPrimitives <= kdtree->maxPrims || depth == 0)
 	{
 		primNums = (int*)malloc(nPrimitives*sizeof(int));
-		get_prim_nums_from_edges(primNums, edges, nEdges);
+		get_prim_nums_from_edges(primNums, kdtree->nPrims, edges, nEdges);
 		initLeaf(kdtree, &kdtree->nodes[nodeNum], primNums, nPrimitives);
-		//free(primNums);
+		free(primNums);
 		return;
 	}
 	
@@ -146,7 +145,6 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		{
 			BoundEdge curPlane = edges[i];
 			int nEndOfCurPlane=0, nPlanarOfCurPlane=0, nStartOfCurPlane=0;
-			float belowPlanarCost, abovePlanarCost;
 			float minBound = nodeBounds->faaBounds[0][curPlane.axis];
 			float maxBound = nodeBounds->faaBounds[1][curPlane.axis];
 
@@ -214,12 +212,12 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	}
 	if (bestCost > oldCost) badRefines++;
 	// 분할할 만한 적당한 위치가 없으면 리프 노드 생성
-	if ((bestCost > 4.f * oldCost && nPrimitives < 16) || bestPlane.axis == -1 ||	badRefines >= 3)
+	if ((bestCost > 4.f * oldCost && nPrimitives < 16) || bestPlane.axis == -1 || badRefines >= 3)
 	{
 		primNums = (int*)malloc(nPrimitives*sizeof(int));
-		get_prim_nums_from_edges(primNums, edges, nEdges);
+		get_prim_nums_from_edges(primNums, kdtree->nPrims, edges, nEdges);
 		initLeaf(kdtree, &kdtree->nodes[nodeNum], primNums, nPrimitives);
-		//free(primNums);
+		free(primNums);
 		return;
 	}
 
@@ -233,7 +231,7 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		rightOnlys 	= (BoundEdge*)malloc(nEdges*sizeof(BoundEdge));
 		bothLefts 	= (BoundEdge*)malloc(nEdges*sizeof(BoundEdge));
 		bothRights 	= (BoundEdge*)malloc(nEdges*sizeof(BoundEdge));
-		locationsOfPrims = (int*)malloc(nPrimitives*sizeof(int));
+		locationsOfPrims = (int*)malloc(kdtree->nPrims*sizeof(int));
 
 		// edge에 따라 primitive가 어느 쪽에 속하는지 결정		
 		for(i=0; i<kdtree->nPrims; i++)
@@ -264,21 +262,28 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		for(i=0; i<nEdges; i++)
 		{
 			switch(locationsOfPrims[edges[i].primNum]){
-				case BELOW:	
+			case BELOW:	
 				leftOnlys[nLO++] = edges[i]; 
 				break;
-				case ABOVE:
+			case ABOVE:
 				rightOnlys[nRO++] = edges[i];
 				break;
-				case BOTH:
-				if(edges[i].e_type == START){
+			case BOTH:
+				if(edges[i].axis != bestPlane.axis)
+				{
+					bothLefts[nBL++] = edges[i];
+					bothRights[nBR++] = edges[i];
+				}
+				else if(edges[i].e_type == START)
+				{
 					BoundEdge newEnd;
 					init_nlogn_bound_edge(&newEnd, bestPlane.t, edges[i].primNum, END, bestPlane.axis);
 					
 					bothLefts[nBL++] = edges[i];
 					bothLefts[nBL++] = newEnd;
 				} 
-				else if(edges[i].e_type == END){
+				else if(edges[i].e_type == END)
+				{
 					BoundEdge newStart;
 					init_nlogn_bound_edge(&newStart, bestPlane.t, edges[i].primNum, START, bestPlane.axis);
 
@@ -301,11 +306,11 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		merge_bound(leftEdges, leftOnlys, bothLefts, nLO, nBL);
 		merge_bound(rightEdges, rightOnlys, bothRights, nRO, nBR);
 		
-		//free(leftOnlys);
-		//free(rightOnlys);
-		//free(bothLefts);
-		//free(bothRights);
-		//free(locationsOfPrims);
+		free(leftOnlys);
+		free(rightOnlys);
+		free(bothLefts);
+		free(bothRights);
+		free(locationsOfPrims);
 	}
 
 	// 재귀적으로 자식 노드 초기화
@@ -313,16 +318,14 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	bounds1 = *nodeBounds;
 	bounds0.faaBounds[0][bestPlane.axis] = bestPlane.t;
 	bounds1.faaBounds[1][bestPlane.axis] = bestPlane.t;
-	nLeftPrims = bestSide == BELOW? nBelow[bestPlane.axis]: nBelow[bestPlane.axis];
-	nRightPrims = bestSide == ABOVE? nAbove[bestPlane.axis]: nBelow[bestPlane.axis];
 
 	buildNlognTree(kdtree, nodeNum+1, &bounds0,
 		bestNBelow, depth-1, leftEdges, nLeftEdges, badRefines);
 	initInterior(kdtree, &kdtree->nodes[nodeNum], bestPlane.axis, 
 		kdtree->nextFreeNodes, nodeNum+1, bestPlane.t);
 	buildNlognTree(kdtree, kdtree->nextFreeNodes, &bounds1,
-		bestNAbove, depth -1, rightEdges, nRightEdges, badRefines);
-
+		bestNAbove, depth-1, rightEdges, nRightEdges, badRefines);
+	
 	free(leftEdges);
 	free(rightEdges);
 }

@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"cutbu.obj"
+#define DEFAULT_OBJ_FILE		"airboat.obj"
 
 #define MAX_RENDER_DISTANCE		1000000
 
