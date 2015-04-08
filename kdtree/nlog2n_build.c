@@ -57,8 +57,8 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 {
 	KDAccelNode *above_child, *below_child;
 	int nCount = 0, below_count = 0, above_count = 0;
-	int bestAxis = -1, bestOffset = -1, bestPlanar, axis;
-	float split_position;
+	int bestAxis = -1, bestPlanar, axis;
+	float bestSplit = -1.0f;
 	int retries = 0;
 	float bestCost = FLT_MAX;
 	float oldCost = (float)kdtree->isectCost * total_prim_counts;
@@ -109,10 +109,12 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[1][axis], pn, END);
 			}
 		}
+
 		qsort(edge_buffer[axis], nCount, sizeof(BoundEdge), compare_bound);
 		
 		// 베스트를 찾기 위해 모든 코스트를 계산함
-		for (i = 0; i < nCount; i++)
+		i = 0;
+		while (i < nCount)
 		{
 			BoundEdge split_edge = edge_buffer[axis][i];
 			int start_count = 0, end_count = 0, planar_count = 0;
@@ -154,7 +156,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				{
 					bestCost = cost;
 					bestAxis = axis;
-					bestOffset = i;
+					bestSplit = split_edge.t;
 					bestPlanar = planar_count;
 
 					DEBUG_ONLY(
@@ -164,7 +166,6 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			}
 
 			// split 후보 아래에 있는 primitive 개수 갱신
-			// TODO: 이렇게 하면 위에서 코스트 갱신할 때 planar가 포함되지 않는데, 이게 정상적인 상태인지?
 			//nBelow += (start_count + planar_count);
 		}
 
@@ -192,13 +193,9 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		}
 	}
 
-	// 최종 split할 t값을 정한다
-	split_position = edge_buffer[bestAxis][bestOffset].t;
-
 	// 분할에 대해 프리미티브 분류
 	// split 지점 밑에 START가 위치하면 일단 밑에 위치함
-	//for (i = 0; i <= bestOffset + bestPlanar; i++)
-	for (i = 0; i < nCount && edge_buffer[bestAxis][i].t <= split_position; i++)
+	for (i = 0; i < nCount && edge_buffer[bestAxis][i].t <= bestSplit; i++)
 	{
 		if (edge_buffer[bestAxis][i].e_type == START ||
 		    edge_buffer[bestAxis][i].e_type == PLANAR)
@@ -206,12 +203,10 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			below_prims[below_count++] = edge_buffer[bestAxis][i].primNum;
 		}
 	}
+
 	// split 지점 위에 END가 위치하면 일단 위에 위치함
-	//for (i = bestOffset; i < nCount; i++)
-	for (i = nCount - 1; i >= 0 && edge_buffer[bestAxis][i].t >= split_position; i--)
-	//for (i = 0; i < nCount; i++)
+	for (i = nCount - 1; i >= 0 && edge_buffer[bestAxis][i].t >= bestSplit; i--)
 	{
-		if (edge_buffer[bestAxis][i].t < split_position) continue;
 		if (edge_buffer[bestAxis][i].e_type == END ||
 		    edge_buffer[bestAxis][i].e_type == PLANAR)
 		{
@@ -224,8 +219,8 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	// 재귀적으로 자식 노드 초기화
 	bounds0 = *nodeBounds;
 	bounds1 = *nodeBounds;
-	bounds0.faaBounds[0][bestAxis] = edge_buffer[bestAxis][bestOffset].t;
-	bounds1.faaBounds[1][bestAxis] = edge_buffer[bestAxis][bestOffset].t;
+	bounds0.faaBounds[0][bestAxis] = bestSplit;
+	bounds1.faaBounds[1][bestAxis] = bestSplit;
 
 	// 아래 노드 탐색
 	below_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
@@ -240,7 +235,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		below_prims, above_prims + total_prim_counts, badRefines);
 
 	// 현재 노드를 부모 노드로 설정
-	initInterior(current_node, above_child, below_child, bestAxis, split_position);
+	initInterior(current_node, above_child, below_child, bestAxis, bestSplit);
 }
 
 static void initTree(KDAccelTree *kdtree, Primitive* p)
