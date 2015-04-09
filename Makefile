@@ -25,7 +25,7 @@ OBJS_DIR = $(RELEASE_DIR)
 CCOPT = -O2
 else
 OBJS_DIR = $(DEBUG_DIR)
-CCOPT = -O0 -Wall -DDEBUG
+CCOPT = -O2 -Wall -DDEBUG
 endif
 
 #OBJS = $(addprefix $(OBJS_DIR)/, $(notdir $(SRCS)))
