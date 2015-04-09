@@ -1,11 +1,12 @@
 #include <float.h>
 #include <stdlib.h>
 #include "nlogn_build.h"
+#include "kdtree_common.h"
 
-#include "nlog2n_build.h"
 #include "kdtree_type.h"
 #include "bbox.h"
 #include "boundedge.h"
+
 #include "../include/debug-msg.h"
 
 static int compare_bound(const void *a, const void *b)

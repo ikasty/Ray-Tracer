@@ -1,10 +1,12 @@
 ﻿#include <float.h>
 #include <stdlib.h>
 #include "nlog2n_build.h"
+#include "kdtree_common.h"
 
 #include "kdtree_type.h"
 #include "bbox.h"
 #include "boundedge.h"
+
 #include "../include/debug-msg.h"
 
 //#define PLANAR_TRY_TWICE
@@ -19,38 +21,6 @@ static int compare_bound(const void *a, const void *b)
 	else
 		return (l->t) > (r->t)? 1: -1;
 };
-
-void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
-{
-	int i;
-	node->flags = 3;
-	node->primitive_count = np;
-	node->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
-	for (i = 0; i < np; i++)
-	{
-		node->primitives[i] = kdtree->primitives[prim_indexes[i]];
-	}
-}
-
-void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s)
-{
-	node->split = s;
-	node->flags = axis;
-	node->above_child = ac;
-	node->below_child = bc;
-}
-
-static void allocChild(KDAccelTree *kdtree)
-{
-	// 노드 배열로 부터 비어있는 다음 노드를 구함
-	// 가득 찼으면 공간 늘려서 새로 할당
-	if (kdtree->nextFreeNodes == kdtree->nAllocednodes)
-	{
-		kdtree->nAllocednodes *= 2;
-		kdtree->nodes = (KDAccelNode *)realloc(kdtree->nodes, sizeof(KDAccelNode) * kdtree->nAllocednodes);
-	}
-	kdtree->nextFreeNodes++;
-}
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
