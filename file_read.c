@@ -146,7 +146,7 @@ int file_read(FILE* fp, Data *data, float scale)
 			// 각각 v, v/vt, v/vt/vn, v//vn을 의미함
 			while ( sscanf(buf, "%s%n", face_buf, &read_size) > 0 )
 			{
-				int v, vt, vn = 0;
+				int v = 0, vt = 0, vn = 0;
 				buf += read_size;
 
 				// face_buf에서 각각의 값을 읽어옴

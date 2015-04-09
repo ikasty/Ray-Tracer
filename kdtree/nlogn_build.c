@@ -62,7 +62,7 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 {
 	int i;
 	float bestCost = FLT_MAX;
-	int bestNAbove = 0, bestNBelow = 0, bestSide;
+	int bestNAbove = 0, bestNBelow = 0, bestSide = BELOW;
 	float oldCost = (float)kdtree->isectCost * nPrimitives;
 	float invTotalSA = 1.f / get_surface_of_bbox(nodeBounds);
 	float d[3] = {
@@ -72,7 +72,7 @@ static void buildTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	};
 	BBox bounds0, bounds1;
 	int nBelow[3], nPlanar[3], nAbove[3];
-	BoundEdge bestPlane;
+	BoundEdge bestPlane = {0};
 	BoundEdge *leftEdges, *rightEdges;
 	int nLeftEdges, nRightEdges;
 	int *primNums;
