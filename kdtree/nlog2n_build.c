@@ -7,6 +7,9 @@
 #include "boundedge.h"
 #include "../include/debug-msg.h"
 
+//#define PLANAR_TRY_TWICE
+#define MAX_LEVEL 20
+
 static int compare_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
@@ -117,7 +120,6 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		{
 			BoundEdge split_edge = edge_buffer[axis][i];
 			int start_count = 0, end_count = 0, planar_count = 0;
-			float belowPlanarCost, abovePlanarCost, eb;
 
 			// 현재 split 후보에 걸치고 있는 primitive의 타입을 체크한다
 			while (	(i < nCount) && (split_edge.t == edge_buffer[axis][i].t) )
@@ -135,6 +137,9 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			if (split_edge.t > nodeBounds->faaBounds[0][axis] &&
 			    split_edge.t < nodeBounds->faaBounds[1][axis])
 			{
+				float cost, eb;
+				int side = LEFT;
+
 				// 이 노드 범위 내에 있는 edge를 위한 cost 계산
 				int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
 				float pBelow = 2 * (
@@ -148,35 +153,49 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 					(d[otherAxis0] + d[otherAxis1])
 				) * invTotalSA;
 
-				// planar를 below에 두고 코스트 계산 
-				eb = (nBelow+nPlanar == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-				belowPlanarCost = kdtree->traversalCost +
-					kdtree->isectCost * (1.f - eb) * (pBelow * (nBelow+nPlanar) + pAbove * nAbove);
+				#ifdef PLANAR_TRY_TWICE
+				float abovePlanarCost;
 
-				// planar를 above에 두고 코스트 계산 
-				eb = (nBelow == 0 || nAbove+nPlanar == 0) ? kdtree->emptyBonus : 0.0f;
-				abovePlanarCost = kdtree->traversalCost +
-					kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * (nAbove+nPlanar));
+				// planar를 above에 두고 코스트 계산
+				nAbove += nPlanar;
+
+				eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
+				abovePlanarCost = kdtree->traversalCost;
+				abovePlanarCost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
+
+				nAbove -= nPlanar;
+				#endif
+
+				// planar를 below에 두고 계산
+				nBelow += nPlanar;
+
+				eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
+				cost = kdtree->traversalCost;
+				cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
+
+				nBelow -= nPlanar;
+
+				#ifdef PLANAR_TRY_TWICE
+				if (cost > abovePlanarCost)
+				{
+					cost = abovePlanarCost;
+					side = RIGHT;
+				}
+				#endif
 
 				// 최소 코스트라면 갱신
-				if(belowPlanarCost<bestCost || abovePlanarCost<bestCost)
-				{					
+				if(cost < bestCost)
+				{
 					bestAxis = axis;
 					bestSplit = split_edge.t;
-					if(belowPlanarCost<abovePlanarCost)
+					bestCost = cost;
+					bestSide = side;
+
+					DEBUG_ONLY(if (bestCost < 0)
 					{
-						bestCost = belowPlanarCost;
-						bestSide = LEFT;
-					}
-					else
-					{
-						bestCost = abovePlanarCost;
-						bestSide = RIGHT;
-					}
-					DEBUG_ONLY(
-						if (bestCost < 0) 
-							PDEBUG("nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n", nBelow, pBelow, nAbove, pAbove);
-					);
+						PDEBUG("nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n", nBelow, pBelow, nAbove, pAbove);
+						PAUSE;
+					});
 				}
 			}
 
@@ -210,7 +229,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	}
 
 	// 분할에 대해 프리미티브 분류
-	// split 지점 밑에 START가 위치하면 일단 밑에 위치함
+/*	// split 지점 밑에 START가 위치하면 일단 밑에 위치함
 	for (i = 0; i < nCount && edge_buffer[bestAxis][i].t < bestSplit; i++)
 	{
 		if (edge_buffer[bestAxis][i].e_type == START || edge_buffer[bestAxis][i].e_type == PLANAR)
@@ -223,12 +242,13 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	for (; i < nCount && edge_buffer[bestAxis][i].t == bestSplit; i++)
 	{
 		// planar면 bestSide에 따라 결정
-		if (edge_buffer[bestAxis][i].e_type == PLANAR){
+		if (edge_buffer[bestAxis][i].e_type == PLANAR)
+		{
 			// 우리는 planar를 아래에 두기로 결정했었음
-			if(bestSide == LEFT)
+			if (bestSide == LEFT)
 				below_prims[below_count++] = edge_buffer[bestAxis][i].primNum;
 			// 우리는 planar를 위에 두기로 결정했었음
-			if(bestSide == RIGHT)
+			if (bestSide == RIGHT)
 				above_prims[above_count++] = edge_buffer[bestAxis][i].primNum;
 		}
 	}
@@ -240,8 +260,32 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			above_prims[above_count++] = edge_buffer[bestAxis][i].primNum;
 		}
 	}
+*/
+	for (i = 0; i < nCount; i++)
+	{
+		BoundEdge *edge = &edge_buffer[bestAxis][i];
 
-	PDEBUG("nlog2n buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, below_count, above_count);
+		if ( (edge->t < bestSplit) && (edge->e_type == START || edge->e_type == PLANAR) )
+		{
+			// split 지점 밑에 있는 start 또는 planar
+			below_prims[below_count++] = edge->primNum;
+		}
+		if ( (edge->t == bestSplit) && (edge->e_type == PLANAR) )
+		{
+			// split 지점에 있는 planar는 side에 따라 분류
+			if (bestSide == LEFT)
+				below_prims[below_count++] = edge->primNum;
+			else
+				above_prims[above_count++] = edge->primNum;
+		}
+		if ( (edge->t > bestSplit) && (edge->e_type == END || edge->e_type == PLANAR))
+		{
+			// split 지점 위에 있는 end 또는 planar
+			above_prims[above_count++] = edge->primNum;
+		}
+	}
+
+	PDEBUG("nlog2n buildTree depth %d, cost %f, below %d, above %d\n", MAX_LEVEL - depth, bestCost, below_count, above_count);
 
 	// 재귀적으로 자식 노드 초기화
 	bounds0 = *nodeBounds;
@@ -342,7 +386,7 @@ void nlog2n_accel_build(Data *data)
 	kdtree->traversalCost = 1;
 	kdtree->emptyBonus = 0.5f;
 	kdtree->maxPrims = 1;
-	kdtree->maxDepth = 10;
+	kdtree->maxDepth = MAX_LEVEL;
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
