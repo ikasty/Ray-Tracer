@@ -61,7 +61,7 @@ static void do_algorithm(Data *data, char *input_file)
 	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
 
 	USE_SCREEN(screen);
-	USE_CAMERA(camera);
+	//USE_CAMERA(camera);
 
 	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
 
@@ -89,6 +89,9 @@ static void do_algorithm(Data *data, char *input_file)
 		// 만약 가속구조체를 사용한다면 빌드함
 		if (accel_build)
 		{
+			// 기존 구조체 해제
+			(*clear_accel)(data);
+
 			start_clock = clock();
 			(*accel_build)(data);
 			end_clock = clock();

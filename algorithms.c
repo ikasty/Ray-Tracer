@@ -15,6 +15,7 @@
 #  include "naive/naive_shading.h"
 
 // default values
+void (*clear_accel)(Data *data) = &nlog2n_clear_accel;
 void (*accel_build)(Data *data) = &nlog2n_accel_build;
 Hit (*intersect_search)(Data *data, Ray *ray) = &nlog2n_intersect_search;
 
@@ -22,16 +23,19 @@ void init_search_algo(char *algo_name)
 {
 	if (strncmp(algo_name, "naive", 5) == 0)
 	{
+		clear_accel = NULL;
 		accel_build = NULL;
 		intersect_search = &naive_intersect_search;
 	}
 	else if (strncmp(algo_name, "kdtree", 6) == 0)
 	{
+		clear_accel = &nlog2n_clear_accel;
 		accel_build = &nlog2n_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
 	else
 	{
+		clear_accel = &nlog2n_clear_accel;
 		accel_build = &nlog2n_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}

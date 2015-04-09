@@ -378,8 +378,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 void nlog2n_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = (KDAccelTree *)mzalloc(sizeof(KDAccelTree));
-
-	if (data->accel_struct) free(data->accel_struct);
 	data->accel_struct = (void *)kdtree;
 
 	kdtree->isectCost = 80;
@@ -393,4 +391,23 @@ void nlog2n_accel_build(Data *data)
 	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
 	
 	initTree(kdtree, data->primitives);
+}
+
+void nlog2n_clear_accel(Data *data)
+{
+	int i;
+	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
+
+	if (kdtree == NULL) return ;
+
+	free(kdtree->primitives);
+
+	for (i = 0; i < kdtree->nextFreeNodes; i++)
+	{
+		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
+		free(node->primitives);
+	}
+
+	free(kdtree->nodes);
+	data->accel_struct = zfree(kdtree);
 }
