@@ -91,7 +91,7 @@ static void do_algorithm(Data *data, char *input_file)
 		if (accel_build)
 		{
 			// 기존 구조체 해제
-			(*clear_accel)(data);
+			if (clear_accel) (*clear_accel)(data);
 
 			start_clock = clock();
 			(*accel_build)(data);
