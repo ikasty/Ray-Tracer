@@ -5,6 +5,7 @@
 
 #define DEFAULT_OBJ_FILE		"teapot.obj"
 
+#define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
 
 #define X_SCREEN_SIZE			320
