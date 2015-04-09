@@ -2,9 +2,6 @@
 #include <string.h>
 #include "gen_ray.h"
 
-#include "settings.h"
-#include "include/type.h"
-
 Ray gen_ray(float current_x, float current_y)
 {
 	Ray make_ray;
