@@ -13,6 +13,6 @@ typedef struct {
 
 } Vertex;
 
-int file_read(FILE* fp, Data *data);
+int file_read(FILE* fp, Data *data, float scale);
 
 #endif

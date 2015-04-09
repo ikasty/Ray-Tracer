@@ -12,9 +12,10 @@ Ray gen_ray(float current_x, float current_y)
 	float index[3];
 
 	USE_CAMERA(cam);
+	USE_SCREEN(screen);
 
-	index[0] = current_x + cam->orig[0] - X_SCREEN_SIZE / 2;
-	index[1] = current_y + cam->orig[1] - Y_SCREEN_SIZE / 2;
+	index[0] = current_x + cam->orig[0] - screen->xsize / 2;
+	index[1] = current_y + cam->orig[1] - screen->ysize / 2;
 	index[2] = cam->distance;
 
 	for(dir = 0; dir < 3; dir++)

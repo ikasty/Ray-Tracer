@@ -1,41 +1,13 @@
 #include <float.h>
 #include <stdlib.h>
-#include "kdtree_build.h"
-
+#include "nlogn_build.h"
+#include "nlog2n_build.h"
 #include "kdtree_type.h"
 #include "bbox.h"
 #include "boundedge.h"
 #include "../include/debug-msg.h"
 
-static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds, 
-			  int nPrimitives, int depth, BoundEdge *edges, int nEdges, int badRefines);
-static void initNlognTree(KDAccelTree *kdtree, Primitive* p);
-static void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1,int nE2);
-static int compare_nlogn_bound(const void *a, const void *b);
-static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges);
-//void nlogn_kdtree_accel_build(Data *data);
-
-static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *primNums, int np)
-{
-	int i;
-	node->flags = 3;
-	node->primitive_count = np;
-	node->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
-	for (i = 0; i < np; i++)
-	{
-		node->primitives[i] = kdtree->primitives[primNums[i]];
-	}
-}
-
-void initInterior(KDAccelTree *kdtree, KDAccelNode *node, int axis, int ac, int bc, float s)
-{
-	node->split = s;
-	node->flags = axis;
-	node->above_child = &kdtree->nodes[ac];
-	node->below_child = &kdtree->nodes[bc];
-}
-
-static void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1,int nE2)
+void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1,int nE2)
 {
 	int rCount = 0, i = 0, j = 0;
   
@@ -51,7 +23,7 @@ static void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1
 			result[rCount++] = e1[i++];
 }
 
-static int compare_nlogn_bound(const void *a, const void *b)
+int compare_nlogn_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
 
@@ -61,7 +33,7 @@ static int compare_nlogn_bound(const void *a, const void *b)
 		return (l->t) > (r->t)? 1: -1;
 };
 
-static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges)
+void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges)
 {
 	int i, nPrims = 0;
 	int *checked_prims = (int *)calloc(nPrimsMax, sizeof(int));
@@ -77,7 +49,7 @@ static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
-static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
+void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 			   int nPrimitives, int depth, BoundEdge *edges, int nEdges, int badRefines)
 {
 	int i;
@@ -96,6 +68,7 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	BoundEdge *leftEdges, *rightEdges;
 	int nLeftEdges, nRightEdges;
 	int *primNums;
+	KDAccelNode *below_child, *above_child;
 
 	// 노드 배열로 부터 비어있는 다음 노드를 구함
 	// 가득 찼으면 공간 늘려서 새로 할당
@@ -319,18 +292,21 @@ static void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 	bounds0.faaBounds[0][bestPlane.axis] = bestPlane.t;
 	bounds1.faaBounds[1][bestPlane.axis] = bestPlane.t;
 
+	below_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
 	buildNlognTree(kdtree, nodeNum+1, &bounds0,
 		bestNBelow, depth-1, leftEdges, nLeftEdges, badRefines);
-	initInterior(kdtree, &kdtree->nodes[nodeNum], bestPlane.axis, 
-		kdtree->nextFreeNodes, nodeNum+1, bestPlane.t);
+
+	above_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
 	buildNlognTree(kdtree, kdtree->nextFreeNodes, &bounds1,
 		bestNAbove, depth-1, rightEdges, nRightEdges, badRefines);
+
+	initInterior(&kdtree->nodes[nodeNum], above_child, below_child, bestPlane.axis, bestPlane.t);
 	
 	free(leftEdges);
 	free(rightEdges);
 }
 
-static void initNlognTree(KDAccelTree *kdtree, Primitive* p)
+void initNlognTree(KDAccelTree *kdtree, Primitive* p)
 {
 	/* int icost, int tcost, float ebonus, int maxp, int md */
 	BBox *primBounds;
@@ -411,7 +387,7 @@ static void initNlognTree(KDAccelTree *kdtree, Primitive* p)
 	free(primNums);
 }
 
-void nlogn_kdtree_accel_build(Data *data)
+void nlogn_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = (KDAccelTree *)mzalloc(sizeof(KDAccelTree));
 

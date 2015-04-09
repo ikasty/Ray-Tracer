@@ -5,35 +5,19 @@
 #include <time.h>
 #include "main.h"
 
-// naive
-#include "intersection.h"
+// include search and render algorithm
+#include "algorithms.h"
 
-// kdtree(nlog^2n)
-//#include "kdtree/kdtree_build.h"
-#include "nlogn_kdtree/kdtree_build.h"
-#include "kdtree/kdtree_intersection.h"
 
 #include "bitmap_make.h"
 #include "obj_transform.h"
 #include "settings.h"
+
+#include "include/getopt.h"
 #include "include/debug-msg.h"
 
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
-
-// 카메라와 광원 선언
-DEFINE_CAMERA();
-DEFINE_LIGHT();
-DEFINE_SCREEN();
-
-// accelaration 구조체 설정 함수
-#if defined(ACCEL_OPTION) || defined(ACCEL_USE_ASK)
-	void (*accel_build)(Data *data) = &nlogn_kdtree_accel_build;
-	Hit (*intersect_search)(Data *data, Ray *ray) = &kdtree_intersect_search;
-#else
-	void (*accel_build)(Data *data) = NULL;
-	Hit (*intersect_search)(Data *data, Ray *ray) = &naive_intersect_search;
-#endif
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
 static void print_percent(int frame_number, float percent, double build_clock, double search_clock, double render_clock)
@@ -57,7 +41,7 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 	if (percent == 100.0f)
 	{
 		printf("\n");
-		printf("build %.3fs, search %.3fs, render %.3fs, total %.4fs\n",
+		printf("build %.3fs, search %.3fs, render %.3fs, total %.3fs\n",
 			build_clock, search_clock, render_clock,
 			build_clock + search_clock + render_clock);
 	}
@@ -66,19 +50,21 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 
 static void do_algorithm(Data *data, char *input_file)
 {
-	char		output_file[100];								// 출력 이미지 파일 이름 버퍼
+	char		output_file[100];			// 출력 이미지 파일 이름 버퍼
 
-	int			screen_buffer[X_SCREEN_SIZE * Y_SCREEN_SIZE];	// bmp파일을 위한 색상정보가 들어가는 배열입니다.
-	int			index_x, index_y;								// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
-	int			frame_number;									// 현재 이미지 frame 번호
+	int			*screen_buffer;				// bmp파일을 위한 색상정보가 들어가는 배열입니다.
+	int			index_x, index_y;			// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
+	int			frame_number;				// 현재 이미지 frame 번호
 
-	clock_t		start_clock, end_clock;							// 수행 시간 계산용 clock_t 변수
-	double		build_clock = 0.0;								// 가속체 구성 시간 누적 변수
-	double		search_clock = 0.0;								// 탐색 시간 누적 변수
-	double		render_clock = 0.0;								// 렌더링 시간 누적 변수
+	clock_t		start_clock, end_clock;		// 수행 시간 계산용 clock_t 변수
+	double		build_clock = 0.0;			// 가속체 구성 시간 누적 변수
+	double		search_clock = 0.0;			// 탐색 시간 누적 변수
+	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
 
 	USE_SCREEN(screen);
 	USE_CAMERA(camera);
+
+	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
 
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
@@ -96,8 +82,8 @@ static void do_algorithm(Data *data, char *input_file)
 			}
 		}
 
-		// bmp buffer 배열인 screen_buffer을 초기화해 줍니다.
-		memset(screen_buffer, 0, sizeof(screen_buffer));
+		// 이미지 버퍼를 초기화해 줍니다.
+		memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
 
 	//// -- execute phase --
 
@@ -108,36 +94,41 @@ static void do_algorithm(Data *data, char *input_file)
 			(*accel_build)(data);
 			end_clock = clock();
 
+			PDEBUG("accel_build finished\n");
 			build_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		}
 
 		// 각 픽셀별로 교차검사를 수행합니다.
-		for (index_y = 0; index_y < camera->resy; index_y++)
+		for (index_y = 0; index_y < screen->ysize; index_y++)
 		{
 			float percent;
 
 			// 진행 상태 출력
-			percent = ((float)index_y / camera->resy + frame_number) / screen->frame_count * 100.0f;
+			percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
 			print_percent(frame_number, percent, build_clock, search_clock, render_clock);
 
-			for (index_x = 0; index_x < camera->resx; index_x++)
+			for (index_x = 0; index_x < screen->xsize; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
 				Hit ist_hit;
 
+				// 현재 광선에서 교차검사를 수행함
 				start_clock = clock();
 				ist_hit = (*intersect_search)(data, &f_ray);
 				end_clock = clock();
+
 				search_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				if (ist_hit.t > 0)
 				{
-					int *pixel = &screen_buffer[X_SCREEN_SIZE * index_y + index_x];
+					int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
 
+					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = Shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
 					end_clock = clock();
+
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
 				}
 			}
@@ -149,11 +140,13 @@ static void do_algorithm(Data *data, char *input_file)
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
 		
-		// 실제 bmp 파일을 만들어 줍니다. screen_buffer 배열에 색상정보가 모두 들어가 있습니다.
-		OutputFrameBuffer(X_SCREEN_SIZE, Y_SCREEN_SIZE, screen_buffer, output_file);
+		// 실제 bmp 파일을 만들어 줍니다.
+		OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
 	} // index_x
 
 	print_percent(frame_number, 100.0f, build_clock, search_clock, render_clock);
+
+	free(screen_buffer);
 }
 
 int main(int argc, char *argv[])
@@ -161,12 +154,13 @@ int main(int argc, char *argv[])
 	FILE	*fp = NULL;					// 파일 포인터
 	char	input_file[100] = {0,};		// 입력 obj 파일 이름 버퍼
 	Data	data;						// 데이터 저장용 구조체
+	float	scale = 1.0f;				// 화면 scale용 변수
 
 	USE_SCREEN(screen);
 
 	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:")) != -1)
+	while ((c = getopt(argc, argv, "hc:a:f:s:")) != -1)
 	{
 long_option:
 		switch (c)
@@ -176,44 +170,52 @@ long_option:
 			else if (strncmp(optarg, "help", 4) == 0)	c = 'h', optarg += 4;
 			else if (strncmp(optarg, "file", 4) == 0)	c = 'f', optarg += 4;
 
-			if (*(optarg++) != '=') c = '?';
+			if (*optarg == '=') optarg++;
 			goto long_option;
-		case 'h':
-			printf(
-				"usage: ./RayTracing.exe -cafh [filename]\n"
-				"\t-c[count], --count: set frame count\n"
-				"\t-a(naive|kdtree): algorithm set\n"
-				"\t-f[filename], --file: set obj filename\n"
-				"\t-h, --help: print this usage\n");
-			return 0;
+
 		case 'c':
 			screen->frame_count = atoi(optarg);
-			PDEBUG("set frame count = %d\n", screen->frame_count);
+			printf("set frame count = %d\n", screen->frame_count);
 			break;
+
 		case 'a':
-		#ifdef ACCEL_USE_ASK
+			init_search_algo(optarg);
 			if (strncmp(optarg, "naive", 5) == 0)
 			{
-				PDEBUG("use naive algorithm\n");
-				accel_build = NULL;
-				intersect_search = &naive_intersect_search;
+				printf("use naive algorithm\n");	
 			}
 			else if (strncmp(optarg, "kdtree", 6) == 0)
 			{
-				PDEBUG("use kdtree nlog^2n algorithm\n");
+				printf("use kdtree nlog^2n algorithm\n");
 			}
-		#endif
 			break;
+
+		case 's':
+			scale = (float)atof(optarg);
+			printf("image scale to %f\n", scale);
+			break;
+
 		case 'f':
 			if (input_file[0] != '\0') break;
-			PDEBUG("set filename %s\n", optarg);
+			printf("set filename %s\n", optarg);
 			sprintf(input_file, "%s", optarg);
 			break;
 
+		// program will terminated!
 		case '?':
 		default:
-			PDEBUG("unknown command %s\n!", argv[optind - 1]);
-			return -1;
+			printf("unknown command %s\n!", argv[optind - 1]);
+		case 'h':
+			printf(
+				"Usage: ./RayTracing.exe [options] [filename]\n"
+				"Options:\n"
+				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
+				"  -a (naive|kdtree)\t\t\t"				"Set search algorithm.\n"
+				"  -s SCALE\t\t\t\t\t"					"Set scale factor\n"
+				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
+				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
+
+			return (c == 'h') ? 0 : -1;
 		}
 	}
 	
@@ -231,9 +233,12 @@ long_option:
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
 
+	screen->xsize *= scale;
+	screen->ysize *= scale;
+
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));
-	if (file_read(fp, &data) < 0) return -1;
+	if (file_read(fp, &data, scale) < 0) return -1;
 
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);

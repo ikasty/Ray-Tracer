@@ -2,9 +2,16 @@ CC = gcc
 CCLIB = -lm -msse2 -mfpmath=sse
 TARGET = RayTracing.exe
 
-DIR_CHECK =
-
 SRCS := $(shell ls | grep c$$)
+
+### include folder add
+SRCS += $(addprefix include/, $(shell ls include | grep c$$))
+DIR_CHECK += include
+
+### naive folder add
+SRCS += $(addprefix naive/, $(shell ls naive | grep c$$))
+DIR_CHECK += naive
+
 ### kdtree folder add
 SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
 DIR_CHECK += kdtree

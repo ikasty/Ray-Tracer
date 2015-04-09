@@ -8,6 +8,7 @@
 #define DEBUG_MSG_H
 
 #include <errno.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
