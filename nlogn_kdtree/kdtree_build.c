@@ -13,7 +13,7 @@ static void initNlognTree(KDAccelTree *kdtree, Primitive* p);
 static void merge_bound(BoundEdge* result, BoundEdge* e1, BoundEdge* e2, int nE1,int nE2);
 static int compare_nlogn_bound(const void *a, const void *b);
 static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges, int nEdges);
-void nlogn_kdtree_accel_build(Data *data);
+//void nlogn_kdtree_accel_build(Data *data);
 
 static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *primNums, int np)
 {
