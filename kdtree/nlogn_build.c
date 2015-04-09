@@ -271,6 +271,8 @@ void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		qsort(bothLefts, nBL, sizeof(BoundEdge), compare_nlogn_bound);
 		qsort(bothRights, nBR, sizeof(BoundEdge), compare_nlogn_bound);
 
+		
+
 		// 배열들을 합함
 		nLeftEdges 	= nLO + nBL;
 		nRightEdges = nRO + nBR;
@@ -285,6 +287,8 @@ void buildNlognTree(KDAccelTree *kdtree, int nodeNum, BBox *nodeBounds,
 		free(bothRights);
 		free(locationsOfPrims);
 	}
+
+	PDEBUG("nlog2n buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
 
 	// 재귀적으로 자식 노드 초기화
 	bounds0 = *nodeBounds;
