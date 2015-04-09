@@ -9,7 +9,7 @@ typedef struct __acceltree KDAccelTree;
 typedef struct __accelnode KDAccelNode;
 
 typedef enum edge_type{ START = 3, PLANAR = 2, MID=1, END = 0 } edge_type;
-typedef enum side_type{ LEFT = 1, RIGHT = 0} side_type;
+typedef enum side_type{ BOTH = 2, BELOW = 1, ABOVE = 0} side_type;
 
 struct __bbox
 {

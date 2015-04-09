@@ -8,6 +8,7 @@
 // include search and render algorithm
 #include "algorithms.h"
 
+
 #include "bitmap_make.h"
 #include "obj_transform.h"
 #include "settings.h"

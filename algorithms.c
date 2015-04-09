@@ -8,6 +8,8 @@
 // 2. kdtree(nlog^2n)
 #  include "kdtree/nlog2n_build.h"
 #  include "kdtree/nlog2n_intersection.h"
+// 3. kdtree(nlogn)
+#  include "kdtree/nlogn_build.h"
 
 /////////////////////////////////////
 // shading algorithms
@@ -33,7 +35,7 @@ void init_search_algo(char *algo_name)
 		accel_build = &nlog2n_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
-	else
+	else if (strncmp(algo_name, "nlogn_kdtree", 6) == 0)
 	{
 		clear_accel = &nlog2n_clear_accel;
 		accel_build = &nlog2n_accel_build;

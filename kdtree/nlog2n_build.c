@@ -20,7 +20,7 @@ static int compare_bound(const void *a, const void *b)
 		return (l->t) > (r->t)? 1: -1;
 };
 
-static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
+void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
 {
 	int i;
 	node->flags = 3;
@@ -32,7 +32,7 @@ static void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, 
 	}
 }
 
-static void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s)
+void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s)
 {
 	node->split = s;
 	node->flags = axis;
@@ -138,7 +138,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			    split_edge.t < nodeBounds->faaBounds[1][axis])
 			{
 				float cost, eb;
-				int side = LEFT;
+				int side = BELOW;
 
 				// 이 노드 범위 내에 있는 edge를 위한 cost 계산
 				int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
@@ -179,7 +179,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				if (cost > abovePlanarCost)
 				{
 					cost = abovePlanarCost;
-					side = RIGHT;
+					side = ABOVE;
 				}
 				#endif
 
@@ -228,59 +228,27 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		}
 	}
 
-	// 분할에 대해 프리미티브 분류
-/*	// split 지점 밑에 START가 위치하면 일단 밑에 위치함
-	for (i = 0; i < nCount && edge_buffer[bestAxis][i].t < bestSplit; i++)
-	{
-		if (edge_buffer[bestAxis][i].e_type == START || edge_buffer[bestAxis][i].e_type == PLANAR)
-		{
-			below_prims[below_count++] = edge_buffer[bestAxis][i].primNum;
-		}
-	}
-	
-	// 자르는 평면에 맞닿아 있는 edge들 처리
-	for (; i < nCount && edge_buffer[bestAxis][i].t == bestSplit; i++)
-	{
-		// planar면 bestSide에 따라 결정
-		if (edge_buffer[bestAxis][i].e_type == PLANAR)
-		{
-			// 우리는 planar를 아래에 두기로 결정했었음
-			if (bestSide == LEFT)
-				below_prims[below_count++] = edge_buffer[bestAxis][i].primNum;
-			// 우리는 planar를 위에 두기로 결정했었음
-			if (bestSide == RIGHT)
-				above_prims[above_count++] = edge_buffer[bestAxis][i].primNum;
-		}
-	}
-	// split 지점 위에 END가 위치하면 일단 위에 위치함
-	for (; i < nCount && edge_buffer[bestAxis][i].t > bestSplit; i++)
-	{
-		if (edge_buffer[bestAxis][i].e_type == END || edge_buffer[bestAxis][i].e_type == PLANAR)
-		{
-			above_prims[above_count++] = edge_buffer[bestAxis][i].primNum;
-		}
-	}
-*/
+	// 분할에 대해 프리미티브를 분류함
 	for (i = 0; i < nCount; i++)
 	{
 		BoundEdge *edge = &edge_buffer[bestAxis][i];
 
+		// split 지점 밑에 있는 start 또는 planar
 		if ( (edge->t < bestSplit) && (edge->e_type == START || edge->e_type == PLANAR) )
 		{
-			// split 지점 밑에 있는 start 또는 planar
 			below_prims[below_count++] = edge->primNum;
 		}
+		// split 지점에 있는 planar는 side에 따라 분류
 		if ( (edge->t == bestSplit) && (edge->e_type == PLANAR) )
 		{
-			// split 지점에 있는 planar는 side에 따라 분류
-			if (bestSide == LEFT)
+			if (bestSide == BELOW)
 				below_prims[below_count++] = edge->primNum;
 			else
 				above_prims[above_count++] = edge->primNum;
 		}
+		// split 지점 위에 있는 end 또는 planar
 		if ( (edge->t > bestSplit) && (edge->e_type == END || edge->e_type == PLANAR))
 		{
-			// split 지점 위에 있는 end 또는 planar
 			above_prims[above_count++] = edge->primNum;
 		}
 	}
