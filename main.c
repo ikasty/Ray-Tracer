@@ -232,8 +232,8 @@ long_option:
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
 
-	screen->xsize *= scale;
-	screen->ysize *= scale;
+	screen->xsize *= (int)scale;
+	screen->ysize *= (int)scale;
 
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));

@@ -1,4 +1,4 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 
 #include "kdtree_common.h"
 
@@ -48,7 +48,7 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	nBelow += nPlanar;
 
 	eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-	cost = kdtree->traversalCost;
+	cost = (float)kdtree->traversalCost;
 	cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nBelow -= nPlanar;
@@ -61,7 +61,7 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	nAbove += nPlanar;
 
 	eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-	above_cost = kdtree->traversalCost;
+	above_cost = (float)kdtree->traversalCost;
 	above_cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nAbove -= nPlanar;
