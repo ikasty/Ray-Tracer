@@ -62,7 +62,6 @@ static void do_algorithm(Data *data, char *input_file)
 	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
 
 	USE_SCREEN(screen);
-	//USE_CAMERA(camera);
 
 	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
 
@@ -87,12 +86,13 @@ static void do_algorithm(Data *data, char *input_file)
 
 	//// -- execute phase --
 
+		// 기존 구조체 해제
+		if (clear_accel)
+			(*clear_accel)(data);
+
 		// 만약 가속구조체를 사용한다면 빌드함
 		if (accel_build)
 		{
-			// 기존 구조체 해제
-			if (clear_accel) (*clear_accel)(data);
-
 			start_clock = clock();
 			(*accel_build)(data);
 			end_clock = clock();
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 
 	USE_SCREEN(screen);
 
-	// -- 명령줄 옵션 처리
+	// -- 명령줄 옵션 처리 --
 	char c;
 	while ((c = getopt(argc, argv, "hc:a:f:s:")) != -1)
 	{
@@ -205,7 +205,7 @@ long_option:
 				"Usage: ./RayTracing.exe [options] [filename]\n"
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
-				"  -a (naive|kdtree)\t\t\t"				"Set search algorithm.\n"
+				"  -a ALGORITHM_NAME\t\t\t"				"Set search algorithm.\n"
 				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
@@ -226,12 +226,13 @@ long_option:
 	// 기본 알고리즘 선택
 	init_search_algo("");
 	init_shading_algo("");
-	// -- 명령줄 옵션 처리 끝
+	// -- 명령줄 옵션 처리 끝 --
 	
 	// 파일 열기
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
 
+	// scale 정보에 따라 화면 크기 조절
 	screen->xsize *= (int)scale;
 	screen->ysize *= (int)scale;
 

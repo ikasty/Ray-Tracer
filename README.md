@@ -10,7 +10,7 @@ Microsoft Visual Studio 또는 GNU 환경에서 사용 가능합니다.
 gcc와 make가 필요합니다. gcc 4.9.2+, make 4.1+ 을 권장합니다.
 
 #### Visual Studio ####
-루트 폴더와 include 폴더, kdtree 폴더에 있는 .c파일과 .h 파일을 모두 프로젝트에 포함시킨 후 컴파일합니다. 솔루션을 위한 디렉토리는 만들지 않는 것을 권장합니다.
+Microsoft Visual Studio 2013 (12.0.21005.1 REL) 버전을 권장합니다. 하위 버전 호환성은 테스트되지 않았습니다.
 
 ## 2. 사용 방법 ##
 표준 3D Object 파일(.obj)을 준비합니다. [이곳](http://people.sc.fsu.edu/~jburkardt/data/obj/obj.html)에서 몇몇 파일들을 찾아볼 수 있습니다.
@@ -29,29 +29,34 @@ Makefile에 컴파일과 테스트를 위한 환경이 준비되어 있습니다
 ## 3. 알고리즘 추가 방법 ##
 새로운 알고리즘을 도입할 때에는 다음과 같이 수행합니다.
 
-  1. 적당한 폴더를 만듭니다.
-  2. 가속구조체 생성과 교차 검사에 대한 함수를 만듭니다. 형식은 다음과 같습니다:
+  1. 새로운 가속구조체를 도입하는 경우 적당한 폴더를 만듭니다.
+  2. 가속구조체 생성과 해제, 교차 검사에 대한 함수를 만듭니다. 기존에 만들어져 있는 함수를 동일하게 사용하는 경우에는 만들지 않아도 됩니다. 형식은 다음과 같습니다:
 
     ```c
+    void {알고리즘_이름}_clear_accel(Data *data);
     void {알고리즘_이름}_accel_build(Data *data);
     Hit {알고리즘_이름}_intersect_search(Data *data, Ray *ray);
     ```
   3. 위의 함수들을 헤더 파일에 추가한 뒤, 해당 헤더 파일을 algorithms.c 상단에 추가합니다.
 
     ```c
+    ////////////////////////////////////////
+    // search algorithms
     // {알고리즘 이름}
     #include "{알고리즘_이름}.h"
     ```
-  4. algorithms.c의 함수에서 `-a`옵션 수행 부분에 적당히 추가합니다.
+  4. algorithms.c의 `init_search_algo`함수에 알고리즘을 적당히 추가합니다. 기존에 만들어져 있는 함수를 동일하게 사용하는 경우 해당 함수를 기록합니다.
 
     ```c
-    else if (strncmp(optarg, "{알고리즘_이름}", {글자수}) == 0)
+    else if (strncmp(algo_name, "{알고리즘_이름}", {글자수}) == 0)
     {
+      printf("{알고리즘_선택시_안내문구}\n");
+      clear_accel = &{알고리즘_이름}_clear_accel;
       accel_build = &{알고리즘_이름}_accel_build;
-      intersect_search = &{알고리즘_이름}_intersect_search(Data *data, Ray *ray);
+      intersect_search = &{알고리즘_이름}_intersect_search;
     }
     ```
-  5. 폴더를 추가한 경우 Makefile에 해당 폴더를 추가합니다.
+  5. 위의 1.에서 폴더를 추가한 경우 Makefile에 해당 폴더를 추가합니다.
 
     ```makefile
       ### {폴더이름} folder add
