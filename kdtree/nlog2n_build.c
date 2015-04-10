@@ -107,54 +107,22 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			if (split_edge.t > nodeBounds->faaBounds[0][axis] &&
 			    split_edge.t < nodeBounds->faaBounds[1][axis])
 			{
-				float cost, eb;
-				int side = BELOW;
+				float cost;
+				int side;
 
 				// 이 노드 범위 내에 있는 edge를 위한 cost 계산
 				int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
 				float pBelow = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + 
-					(split_edge.t - nodeBounds->faaBounds[0][axis]) *
-					(d[otherAxis0] + d[otherAxis1])
+					(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
 				) * invTotalSA;
 				float pAbove = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + 
-					(nodeBounds->faaBounds[1][axis] - split_edge.t) *
-					(d[otherAxis0] + d[otherAxis1])
+					(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
 				) * invTotalSA;
 
-				#ifdef PLANAR_TRY_TWICE
-				float abovePlanarCost;
-
-				// planar를 above에 두고 코스트 계산
-				nAbove += nPlanar;
-
-				eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-				abovePlanarCost = kdtree->traversalCost;
-				abovePlanarCost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
-
-				nAbove -= nPlanar;
-				#endif
-
-				// planar를 below에 두고 계산
-				nBelow += nPlanar;
-
-				eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-				cost = kdtree->traversalCost;
-				cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
-
-				nBelow -= nPlanar;
-
-				#ifdef PLANAR_TRY_TWICE
-				if (cost > abovePlanarCost)
-				{
-					cost = abovePlanarCost;
-					side = ABOVE;
-				}
-				#endif
+				cost = getCost(kdtree, nBelow, nPlanar, nAbove, pBelow, pAbove, &side);
 
 				// 최소 코스트라면 갱신
-				if(cost < bestCost)
+				if (cost < bestCost)
 				{
 					bestAxis = axis;
 					bestSplit = split_edge.t;
