@@ -183,14 +183,6 @@ long_option:
 
 		case 'a':
 			init_search_algo(optarg);
-			if (strncmp(optarg, "naive", 5) == 0)
-			{
-				printf("use naive algorithm\n");	
-			}
-			else if (strncmp(optarg, "kdtree", 6) == 0)
-			{
-				printf("use kdtree nlog^2n algorithm\n");
-			}
 			break;
 
 		case 's':
@@ -214,7 +206,7 @@ long_option:
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
 				"  -a (naive|kdtree)\t\t\t"				"Set search algorithm.\n"
-				"  -s SCALE\t\t\t\t\t"					"Set scale factor\n"
+				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 
@@ -230,6 +222,10 @@ long_option:
 		else
 			sprintf(input_file, "%s", DEFAULT_OBJ_FILE);
 	}
+
+	// 기본 알고리즘 선택
+	init_search_algo("");
+	init_shading_algo("");
 	// -- 명령줄 옵션 처리 끝
 	
 	// 파일 열기
