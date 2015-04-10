@@ -7,12 +7,21 @@
 Microsoft Visual Studio 또는 GNU 환경에서 사용 가능합니다.
 
 #### GNU ####
-gcc와 make가 필요합니다. gcc 4.9.2+, make 4.1+ 을 권장합니다.
+gcc와 make가 필요합니다. gcc 4.9.2 이상, make 4.1 이상 버전을 권장합니다.
 
 #### Visual Studio ####
 Microsoft Visual Studio 2013 (12.0.21005.1 REL) 버전을 권장합니다. 하위 버전 호환성은 테스트되지 않았습니다.
 
-## 2. 사용 방법 ##
+## 2. 실행 방법 ##
+GNU 환경이라면 RayTracing.exe 실행 파일이, Visual Studio 환경이라면 Debug 또는 Release 폴더 안에 Sojong.exe 실행 파일이 생성됩니다. 콘솔 창에서 실행하는 것을 권장합니다.
+다음과 같은 옵션을 사용할 수 있습니다.
+  -c COUNT, --count=COUNT               생성할 frame 수를 설정합니다.
+  -a ALGORITHM_NAME                     검색 알고리즘을 선택합니다. 현재는 naive, nlog2n, nlogn을 사용할 수 있습니다.
+  -s SCALE                              이미지를 확대 또는 축소합니다. 기본값은 1.0입니다.
+  -f FILENAME, --file=FILENAME          .obj 파일을 지정합니다.
+  -h, --help                            도움말을 출력한 후 종료합니다.
+
+## 3. 사용 방법 ##
 표준 3D Object 파일(.obj)을 준비합니다. [이곳](http://people.sc.fsu.edu/~jburkardt/data/obj/obj.html)에서 몇몇 파일들을 찾아볼 수 있습니다.
 
 #### GNU ####
@@ -26,7 +35,7 @@ Makefile에 컴파일과 테스트를 위한 환경이 준비되어 있습니다
 #### Visual Studio ####
 컴파일 시 Release 모드로 컴파일하면 디버그 메시지를 출력하지 않습니다. 옵션은 `settings.h`에서 디파인된 값을 조절하는 것으로 사용할 수 있습니다. 각각의 옵션은 해당 파일의 주석을 확인하기 바랍니다.
 
-## 3. 알고리즘 추가 방법 ##
+## 4. 새로운 알고리즘 추가 방법 ##
 새로운 알고리즘을 도입할 때에는 다음과 같이 수행합니다.
 
   1. 새로운 가속구조체를 도입하는 경우 적당한 폴더를 만듭니다.
