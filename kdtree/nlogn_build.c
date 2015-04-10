@@ -1,4 +1,10 @@
-﻿#include <float.h>
+﻿
+/*
+    Original source code from pbrt (https://github.com/mmp/pbrt-v2),
+    Copyright(c) 1998-2012 Matt Pharr and Greg Humphreys.
+*/
+
+#include <float.h>
 #include <stdlib.h>
 #include "nlogn_build.h"
 #include "kdtree_common.h"
