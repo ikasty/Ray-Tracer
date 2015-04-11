@@ -1,9 +1,4 @@
-﻿
-/*
-Copyright (c) 2015, Daeyoun Kang(mail.ikasty@gmail.com),
-                    HyungKwan Park(rpdladps@gmail.com),
-                    Ingyu Kim(goracom0@gmail.com),
-                    Jungmin Kim(kukakhan@gmail.com)
+Copyright (c) 2015. All code is copyrighted by the respective authors.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -29,14 +24,3 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies, 
 either expressed or implied, of the FreeBSD Project.
-*/
-
-#ifndef BOUNDEDGE_H
-#define BOUNDEDGE_H
-
-#include "kdtree_type.h"
-
-void init_nlogn_bound_edge(BoundEdge* bd, float tt, int pn, int t, int a);
-void init_bound_edge(BoundEdge* bd, float tt, int pn, int t);
-
-#endif
