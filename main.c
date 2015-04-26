@@ -205,7 +205,7 @@ long_option:
 				"Usage: ./RayTracing.exe [options] [filename]\n"
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
-				"  -a (naive|kdtree)\t\t\t"				"Set search algorithm.\n"
+				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
 				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");

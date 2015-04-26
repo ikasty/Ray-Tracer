@@ -258,7 +258,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				else if(edge_buffer[i].e_type == START)
 				{
 					BoundEdge newEnd;
-					init_nlogn_bound_edge(&newEnd, bestPlane.t, edge_buffer[i].primNum, END, bestPlane.axis);
+					init_bound_edge(&newEnd, bestPlane.t, edge_buffer[i].primNum, END, bestPlane.axis);
 					
 					bothLefts[nBL++] = edge_buffer[i];
 					bothLefts[nBL++] = newEnd;
@@ -266,7 +266,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				else if(edge_buffer[i].e_type == END)
 				{
 					BoundEdge newStart;
-					init_nlogn_bound_edge(&newStart, bestPlane.t, edge_buffer[i].primNum, START, bestPlane.axis);
+					init_bound_edge(&newStart, bestPlane.t, edge_buffer[i].primNum, START, bestPlane.axis);
 
 					bothRights[nBR++] = newStart;
 					bothRights[nBR++] = edge_buffer[i];
@@ -375,12 +375,12 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 
 			if (bbox_min == bbox_max)
 			{
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, PLANAR, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, PLANAR, axis);
 			}
 			else
 			{
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, START, axis);
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_max, pn, END, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, START, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_max, pn, END, axis);
 			}
 		}
 	}

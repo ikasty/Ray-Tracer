@@ -85,12 +85,12 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			// 해당 primitive의 속성에 따라 split 후보 생성
 			if (bbox.faaBounds[0][axis] == bbox.faaBounds[1][axis])
 			{
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, PLANAR);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, PLANAR, axis);
 			}
 			else
 			{
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, START);
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[1][axis], pn, END);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, START, axis);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[1][axis], pn, END, axis);
 			}
 		}
 		qsort(edge_buffer[axis], nCount, sizeof(BoundEdge), compare_bound);

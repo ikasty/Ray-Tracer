@@ -34,7 +34,7 @@ void init_search_algo(char *algo_name)
 		accel_build = NULL;
 		intersect_search = &naive_intersect_search;
 	}
-	else if (strncmp(algo_name, "kdtree", 6) == 0)
+	else if (strncmp(algo_name, "nlog2n", 6) == 0)
 	{
 		printf("use kdtree nlog^2n algorithm\n");
 		clear_accel = &nlog2n_clear_accel;
@@ -50,9 +50,9 @@ void init_search_algo(char *algo_name)
 	}
 	else
 	{
-		printf("use default(kdtree nlogn) algorithm\n");
+		printf("use default(kdtree nlog2n) algorithm\n");
 		clear_accel = NULL;
-		accel_build = &nlogn_accel_build;
+		accel_build = &nlog2n_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
 
