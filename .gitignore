@@ -242,6 +242,9 @@ FakesAssemblies/
 *.nlog2n
 *.xls
 
+# bak file
+*.bak
+
 # Gemfile.lock
 Gemfile.lock
 
