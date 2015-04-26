@@ -241,6 +241,7 @@ FakesAssemblies/
 *.nlogn
 *.nlog2n
 *.xls
+*.xls#
 
 # bak file
 *.bak

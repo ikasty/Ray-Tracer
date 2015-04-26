@@ -26,6 +26,7 @@ objs.each { |obj|
   sheet.row(i+2).push data.above.to_i
  }
  result[b].each_with_index { |data, i|
+  sheet.row(i+2).push '','','','','' if sheet.row(i+2).size < 1
   sheet.row(i+2).push data.frame
   sheet.row(i+2).push data.depth.to_i
   sheet.row(i+2).push data.cost.to_f
