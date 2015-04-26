@@ -237,6 +237,14 @@ FakesAssemblies/
 *.jpg
 *.jpeg
 
+# Debug Log File
+*.nlogn
+*.nlog2n
+*.xls
+
+# Gemfile.lock
+Gemfile.lock
+
 # gitignore of DEViANCE
 # bullshit trash
 thumbs.db
