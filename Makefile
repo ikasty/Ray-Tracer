@@ -54,7 +54,7 @@ debug: chkdir depend $(OBJS)
 	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
-	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp
+	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp *.nlogn *.nlog2n
 
 test:
 	./$(TARGET) $(option)
