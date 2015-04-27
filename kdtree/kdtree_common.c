@@ -4,11 +4,11 @@
 
 #define PLANAR_TRY_TWICE
 
-void init_bound_edge(BoundEdge* bd, float tt, int pn, int t, int a){
-	bd->t = tt;
-	bd->primNum = pn;
-	bd->e_type = t;
-	bd->axis = a;
+void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type, int axis){
+	boundedge->t = split_t;
+	boundedge->primNum = prim_num;
+	boundedge->e_type = type;
+	boundedge->axis = axis;
 }
 
 void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
