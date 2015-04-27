@@ -5,7 +5,6 @@
 
 #include "kdtree_type.h"
 #include "bbox.h"
-#include "boundedge.h"
 
 #include "../include/debug-msg.h"
 
