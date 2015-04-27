@@ -244,3 +244,15 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# Debug Log File
+*.nlogn
+*.nlog2n
+*.xls
+*.xls#
+
+# bak file
+*.bak
+
+# Gemfile.lock
+Gemfile.lock
