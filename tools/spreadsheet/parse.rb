@@ -55,6 +55,12 @@ def getfile(x)
    data.above = t
    result.push data
   else
+   if str[0][0..4] == "build" then
+    str[0].delete!("\n")
+    t = str[0].split(', ')
+    data = NData.new(-1, t[0], t[1], t[2], t[3])
+    result.unshift data
+   end
   end
  }
 
