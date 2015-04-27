@@ -8,28 +8,26 @@
 
 #include "../include/debug-msg.h"
 
-#define MAX_LEVEL 20
+#define MAX_LEVEL 3
 #define BIN_COUNT 32
 
 // edge 후보를 저장할 버퍼 변수
 static BoundEdge *edge_buffer[3];
 
-static int compare_bound(const void *a, const void *b)
+static int choose_bin(float bounds, float base, float top, float length)
 {
-	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
-
-	if (l->t == r->t)
-		return (l->e_type) < (r->e_type)? 1: -1;
-	else
-		return (l->t) > (r->t)? 1: -1;
-};
+	int i = 0;
+	while ( (bounds > (base += length)) && (i < BIN_COUNT - 1) ) i++;
+	
+	return i;
+}
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
 static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nodeBounds,
 			BBox *allPrimBounds, int *prim_indexes, int total_prim_counts, int depth,
 			int *below_prims, int *above_prims, int badRefines)
-{
+{// TODO: allPrimBounds를 전역 변수로 뺄 것 //TODO: edge_buffer 안 사용하도록 바꿀 것
 	// kdtree의 자식 노드 변수
 	KDAccelNode *below_child, *above_child;
 	// 자식 노드의 boundary box
@@ -49,7 +47,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	};
 
 	int nCount = 0, below_count = 0, above_count = 0;
-	int bestAxis = -1, axis, bestSide;
+	int bestAxis = -1, axis, bestSide = BELOW;
 	float bestSplit = -1.0f;
 	int retries = 0;
 
@@ -71,8 +69,9 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	axis = find_axis_of_maximum_extent(nodeBounds);
 	while (retries < 3)
 	{
-		int nBelow = 0, nAbove = total_prim_counts, nPlanar = 0;
-		float bin_length = (nodeBounds->faaBounds[1][axis] - nodeBounds->faaBounds[0][axis]) / BIN_COUNT;
+		float minBound = nodeBounds->faaBounds[0][axis];
+		float maxBound = nodeBounds->faaBounds[1][axis];
+		float bin_length = (maxBound - minBound) / BIN_COUNT;
 
 		// 카운팅을 위한 event 저장 배열
 		int Levent[BIN_COUNT] = {0,}, Hevent[BIN_COUNT] = {0,};
@@ -81,70 +80,75 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		nCount = 0;
 		for (i = 1; i < BIN_COUNT; i++)
 		{
-			init_bound_edge(&edge_buffer[axis][nCount++], nodeBounds->faaBounds[0][axis] + bin_length * i, 0, 0, axis);
+			init_bound_edge(&edge_buffer[axis][nCount++], minBound + bin_length * i, 0, 0, axis);
 		}
-		//TODO: event 개수 계산할 것
+//PDEBUG("buildTree test 1\n");
+		for (i = 0; i < total_prim_counts; i++)
+		{
+			int prim_num = prim_indexes[i];
+			BBox bbox = allPrimBounds[prim_num];
+			int bin;
+
+			// Low event count
+			bin = choose_bin(bbox.faaBounds[0][axis], minBound, maxBound, bin_length);
+			Levent[bin]++;
+//PDEBUG("buildTree test 1-1\n");
+			// High event count
+			bin = choose_bin(bbox.faaBounds[1][axis], minBound, maxBound, bin_length);
+			if (bin > BIN_COUNT) PAUSE;
+			Hevent[bin]++;
+//PDEBUG("buildTree test 1-2\n");
+		}
+//PDEBUG("buildTree test 2\n");
+		// Low event는 뒤에서부터 누적
+		for (i = BIN_COUNT - 2; i >= 0; i--)
+			Levent[i] += Levent[i + 1];
+
+		// High event는 앞에서부터 누적
+		for (i = 1; i < BIN_COUNT; i++)
+			Hevent[i] += Hevent[i - 1];
 
 		// 베스트를 찾기 위해 모든 코스트를 계산함
-		i = 0;
-		while (i < nCount)
+		for (i = 0; i < nCount; i++) // TODO: nCount -> edge_count로 변경할 것
 		{
 			BoundEdge curPlane = edge_buffer[axis][i];
-			float minBound = nodeBounds->faaBounds[0][curPlane.axis];
-			float maxBound = nodeBounds->faaBounds[1][curPlane.axis];
-			int start_count = 0, end_count = 0, planar_count = 0;
-
-			// 현재 split 후보에 걸치고 있는 primitive의 타입을 체크한다
-			while (	(i < nCount) && (curPlane.t == edge_buffer[axis][i].t) )
-			{
-				if (edge_buffer[axis][i].e_type == START)	start_count++;
-				if (edge_buffer[axis][i].e_type == END)		end_count++;
-				if (edge_buffer[axis][i].e_type == PLANAR)	planar_count++;
-				i++;
-			}
+			int nBelow, nAbove, nPlanar;
+			float cost;
+			int side;
 
 			// split 후보 위에 있는 primitive 개수 갱신
-			nAbove -= (end_count + planar_count);
-			nPlanar = planar_count;
+			nAbove = Hevent[i];
+			nBelow = Levent[i + 1];
+			nPlanar = total_prim_counts - Levent[i + 1] - Hevent[i];
 
-			if (minBound < curPlane.t && curPlane.t < maxBound)
+			// 이 노드 범위 내에 있는 edge를 위한 cost 계산
+			int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
+			float pBelow = 2 * (
+				(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
+			) * invTotalSA;
+			float pAbove = 2 * (
+				(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
+			) * invTotalSA;
+
+			cost = getCost(kdtree, nBelow, nPlanar, nAbove, pBelow, pAbove, &side);
+
+			// 최소 코스트라면 갱신
+			if (cost < bestCost)
 			{
-				float cost;
-				int side;
+				bestAxis = axis;
+				bestSplit = curPlane.t;
+				bestCost = cost;
+				bestSide = side;
 
-				// 이 노드 범위 내에 있는 edge를 위한 cost 계산
-				int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
-				float pBelow = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
-				) * invTotalSA;
-				float pAbove = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
-				) * invTotalSA;
-
-				cost = getCost(kdtree, nBelow, nPlanar, nAbove, pBelow, pAbove, &side);
-
-				// 최소 코스트라면 갱신
-				if (cost < bestCost)
+				DEBUG_ONLY(if (bestCost < 0)
 				{
-					bestAxis = axis;
-					bestSplit = curPlane.t;
-					bestCost = cost;
-					bestSide = side;
-
-					DEBUG_ONLY(if (bestCost < 0)
-					{
-						PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
-							bestCost, nBelow, pBelow, nAbove, pAbove);
-						PAUSE;
-					});
-				}
+					PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
+						bestCost, nBelow, pBelow, nAbove, pAbove);
+					PAUSE;
+				});
 			}
-
-			// split 후보 아래에 있는 primitive 개수 갱신
-			nBelow += (start_count + planar_count);
-			nPlanar = 0;
 		}
-
+//PDEBUG("buildTree test 3\n");
 		// 분할할 만한 적당한 위치가 없으면 축을 바꿔서 재시도
 		if (bestAxis == -1 && retries < 2)
 		{
@@ -168,33 +172,35 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			break;
 		}
 	}
-
+//PDEBUG("buildTree test 4\n");
 	// 분할에 대해 프리미티브를 분류함
-	for (i = 0; i < nCount; i++)
+	for (i = 0; i < total_prim_counts; i++)
 	{
-		BoundEdge *edge = &edge_buffer[bestAxis][i];
+		int prim_num = prim_indexes[i];
+		BBox bbox = allPrimBounds[prim_num];
+		float left = bbox.faaBounds[0][axis], right = bbox.faaBounds[1][axis];
 
 		// split 지점 밑에 있는 start 또는 planar
-		if ( (edge->t < bestSplit) && (edge->e_type == START || edge->e_type == PLANAR) )
+		if ( left < bestSplit )
 		{
-			below_prims[below_count++] = edge->primNum;
+			below_prims[below_count++] = prim_num;
 		}
 		// split 지점에 있는 planar는 side에 따라 분류
-		if ( (edge->t == bestSplit) && (edge->e_type == PLANAR) )
+		if ( (left == bestSplit) && (left == right) )
 		{
 			if (bestSide == BELOW)
-				below_prims[below_count++] = edge->primNum;
+				below_prims[below_count++] = prim_num;
 			else
-				above_prims[above_count++] = edge->primNum;
+				above_prims[above_count++] = prim_num;
 		}
 		// split 지점 위에 있는 end 또는 planar
-		if ( (edge->t > bestSplit) && (edge->e_type == END || edge->e_type == PLANAR))
+		if ( right > bestSplit )
 		{
-			above_prims[above_count++] = edge->primNum;
+			above_prims[above_count++] = prim_num;
 		}
 	}
 
-	PDEBUG("nlog2n buildTree depth %d, cost %f, below %d, above %d\n", MAX_LEVEL - depth, bestCost, below_count, above_count);
+	PDEBUG("binning buildTree depth %d, cost %f, below %d, above %d\n", MAX_LEVEL - depth, bestCost, below_count, above_count);
 
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
@@ -256,7 +262,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	// edge buffer에 필요한 공간 할당
 	for (i = 0; i < 3; i++)
 	{
-		edge_buffer[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2);
+		edge_buffer[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * (BIN_COUNT - 1));
 	}
 
 	// primitive가 저장될 버퍼 할당
@@ -303,7 +309,8 @@ void binning_accel_build(Data *data)
 	initTree(kdtree, data->primitives);
 }
 
-void nlog2n_clear_accel(Data *data)
+// TODO: binning_clear_accel 수정할 것
+void binning_clear_accel(Data *data)
 {
 	int i;
 	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
