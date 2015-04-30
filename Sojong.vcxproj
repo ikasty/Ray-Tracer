@@ -70,7 +70,6 @@
     <ClCompile Include="gen_ray.c" />
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
-    <ClCompile Include="kdtree\boundedge.c" />
     <ClCompile Include="kdtree\kdtree_common.c" />
     <ClCompile Include="kdtree\nlog2n_build.c" />
     <ClCompile Include="kdtree\nlog2n_intersection.c" />
@@ -79,6 +78,7 @@
     <ClCompile Include="naive\naive_shading.c" />
     <ClCompile Include="obj_transform.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="naive\shadow_shading.c" />
     <ClCompile Include="settings.c" />
     <ClCompile Include="shadow_ray.c" />
   </ItemGroup>
@@ -105,6 +105,7 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />
     <ClInclude Include="naive\naive_shading.h" />
+    <ClInclude Include="naive\shadow_shading.h" />
     <ClInclude Include="obj_transform.h" />
     <ClInclude Include="settings.h" />
   </ItemGroup>

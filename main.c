@@ -129,7 +129,8 @@ static void do_algorithm(Data *data, char *input_file)
 
 					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					*pixel = shadow_shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
+					//*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
 					end_clock = clock();
 
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
@@ -224,7 +225,7 @@ long_option:
 	}
 
 	// 기본 알고리즘 선택
-	init_search_algo("");
+	init_search_algo("naive");
 	init_shading_algo("");
 	// -- 명령줄 옵션 처리 끝
 	

@@ -196,7 +196,6 @@ int file_read(FILE* fp, Data *data, float scale)
 	// TODO: vert0, vert1, vert2를 배열로 바꿔보자
 	data->primitives = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
 	data->prim_count = face_count;
-
 	{
 		int i;
 		for (i = 0; i < data->prim_count; i++)

@@ -16,6 +16,8 @@
 // shading algorithms
 // 1. naive
 #  include "naive/naive_shading.h"
+// 1. shadow
+#  include "naive/shadow_shading.h"
 
 // default values
 void (*clear_accel)(Data *data) = NULL;

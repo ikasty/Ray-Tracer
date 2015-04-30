@@ -34,9 +34,11 @@ unsigned int naive_shading(Ray s_ray, Primitive s_tri, Hit __hit)
 		temp_ori[2] = light[2];
 		SUB(Ray,ist_point,temp_ori);
 	
+		//면의 노멀 벡터를 구함
 		SUB(edge1,s_tri.vert1,ist_point);
 		SUB(edge2,s_tri.vert2,ist_point);
 		CROSS(ortho_line,edge1,edge2);
+		
 
 		dot_AB = DOT(Ray, ortho_line);
 		multi_itself(multi_A,Ray);
