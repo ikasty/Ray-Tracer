@@ -113,6 +113,10 @@ int file_read(FILE* fp, Data *data, float scale)
 			vert[vert_count].vect[0] = x * scale;
 			vert[vert_count].vect[1] = y * scale;
 			vert[vert_count].vect[2] = z * scale;
+
+			vert[vert_count].norm[0] = 0;
+			vert[vert_count].norm[1] = 0;
+			vert[vert_count].norm[2] = 0;
 			vert_count++;
 
 			continue;
@@ -217,13 +221,18 @@ int file_read(FILE* fp, Data *data, float scale)
 
 			prim->prim_id = i;
 
+			//normal vector와 비교해서 결과 값을 고치는 코드 추가
+			SUB(temp0, prim->vert1, prim->vert0);
+			SUB(temp1, prim->vert2, prim->vert0);
+			CROSS(temp2, temp0, temp1);
+
+			// vertex와 인접한 면의 normal vector 합산
+			ADD(vert[face[i].v[0] - 1].norm, vert[face[i].v[0] - 1].norm, temp2);
+			ADD(vert[face[i].v[1] - 1].norm, vert[face[i].v[1] - 1].norm, temp2);
+			ADD(vert[face[i].v[2] - 1].norm, vert[face[i].v[2] - 1].norm, temp2);
+
 			if (face[i].vn[0] && norm[ face[i].vn[0] - 1 ].vect[0] != 0)
-			{
-				//normal vector와 비교해서 결과 값을 고치는 코드 추가
-				SUB(temp0, prim->vert1, prim->vert0);
-				SUB(temp1, prim->vert2, prim->vert0);
-				CROSS(temp2, temp0, temp1);
-				
+			{				
 				// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
 				if (DOT(norm[ face[i].vn[0] - 1 ].vect, temp2) <= 0)
 				{
@@ -237,6 +246,14 @@ int file_read(FILE* fp, Data *data, float scale)
 					a+= 1;
 				}
 			}
+		}
+		// 각 버텍스마다 접하는 노멀 벡터 값을 모두 더했으므로, 이 값을 프리미티브에 추가
+		for (i = 0; i < data->prim_count; i++)
+		{
+			Primitive *prim = &data->primitives[i];
+			SUBST(prim->norm0, vert[face[i].v[0] - 1].norm);
+			SUBST(prim->norm1, vert[face[i].v[1] - 1].norm);
+			SUBST(prim->norm2, vert[face[i].v[2] - 1].norm);
 		}
 	}
 

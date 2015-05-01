@@ -39,6 +39,9 @@ typedef struct
 	float vert0[3];
 	float vert1[3];
 	float vert2[3];
+	float norm0[3];
+	float norm1[3];
+	float norm2[3];
 	int prim_id;
 } Primitive;
 
@@ -52,6 +55,7 @@ typedef struct
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
 	Primitive *primitives;
+	float **norm_on_vertex;
 	int prim_count;
 
 	void *accel_struct;

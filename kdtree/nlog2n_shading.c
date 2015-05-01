@@ -72,7 +72,7 @@ unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Da
 			result_of_color = 0;
 		}
 		else{
-			result_of_color = (int)(255 * (ld + ls*0.2));
+			result_of_color = (int)(255 * (ld + ls*0.5));
 		}
 		result_of_color = result_of_color + 25 > 255 ? 255 : result_of_color + 25;
 		out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
