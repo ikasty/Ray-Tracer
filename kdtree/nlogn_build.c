@@ -315,7 +315,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	free(rightEdges);
 }
 
-static void initTree(KDAccelTree *kdtree, Primitive* p)
+static void initTree(KDAccelTree *kdtree)
 {
 	// edge 후보를 저장할 버퍼 변수
 	BoundEdge *edge_buffer;
@@ -324,23 +324,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	int prims_count = kdtree->nPrims;
 
 	int i, nEdges;
-
-	for (i = 0; i < prims_count; i++)
-	{
-		kdtree->primitives[i] = p[i];
-	}
-
-	// 지금 트리가 가진 노드의 개수는 0개입니다.
-	kdtree->nextFreeNodes = 0;
-	kdtree->nAllocednodes = 512;
-	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
-
-	// 최대 깊이를 설정함 
-	if (kdtree->maxDepth <= 0)
-	{
-		//TODO: 올바른 계산값으로 고쳐야함
-		kdtree->maxDepth = 5;
-	}
 
 	// kdtree의 전체 bound 계산 및 각 primitive의 bound를 계산해 놓음
 	primBounds = (BBox *)malloc(sizeof(BBox) * prims_count);
@@ -407,7 +390,12 @@ void nlogn_accel_build(Data *data)
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
-	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
+	memcpy(kdtree->primitives, data->primitives, sizeof(data->primitives[0]) * data->prim_count);
+
+	// 지금 트리가 가진 노드의 개수는 0개입니다.
+	kdtree->nextFreeNodes = 0;
+	kdtree->nAllocednodes = 512;
+	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 	
-	initTree(kdtree, data->primitives);
+	initTree(kdtree);
 }
