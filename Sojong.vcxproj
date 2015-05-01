@@ -72,8 +72,8 @@
     <ClCompile Include="kdtree\bbox.c" />
     <ClCompile Include="kdtree\binning_build.c" />
     <ClCompile Include="kdtree\kdtree_common.c" />
+    <ClCompile Include="kdtree\kdtree_intersect_clear.c" />
     <ClCompile Include="kdtree\nlog2n_build.c" />
-    <ClCompile Include="kdtree\nlog2n_intersection.c" />
     <ClCompile Include="kdtree\nlogn_build.c" />
     <ClCompile Include="naive\naive_intersection.c" />
     <ClCompile Include="naive\naive_shading.c" />
@@ -97,10 +97,10 @@
     <ClInclude Include="kdtree\bbox.h" />
     <ClInclude Include="kdtree\binning_build.h" />
     <ClInclude Include="kdtree\kdtree_common.h" />
+    <ClInclude Include="kdtree\kdtree_intersect_clear.h" />
     <ClInclude Include="kdtree\kdtree_queue.h" />
     <ClInclude Include="kdtree\kdtree_type.h" />
     <ClInclude Include="kdtree\nlog2n_build.h" />
-    <ClInclude Include="kdtree\nlog2n_intersection.h" />
     <ClInclude Include="kdtree\nlogn_build.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />

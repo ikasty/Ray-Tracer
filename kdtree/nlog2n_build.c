@@ -299,22 +299,3 @@ void nlog2n_accel_build(Data *data)
 	
 	initTree(kdtree);
 }
-
-void nlog2n_clear_accel(Data *data)
-{
-	int i;
-	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
-
-	if (kdtree == NULL) return ;
-
-	free(kdtree->primitives);
-
-	for (i = 0; i < kdtree->nextFreeNodes; i++)
-	{
-		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
-		free(node->primitives);
-	}
-
-	free(kdtree->nodes);
-	data->accel_struct = zfree(kdtree);
-}
