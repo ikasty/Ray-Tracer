@@ -6,7 +6,7 @@
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#include "../include/debug-msg.h"
+#include "include/debug-msg.h"
 
 #define PLANAR_TRY_TWICE
 #define MAX_LEVEL 20
