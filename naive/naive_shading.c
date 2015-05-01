@@ -2,9 +2,9 @@
 #include <string.h>
 #include <math.h>
 
-#include "../settings.h"
-#include "../include/msl_math.h"
-#include "../include/type.h"
+#include "settings.h"
+#include "include/msl_math.h"
+#include "include/type.h"
 
 unsigned int naive_shading(Ray s_ray, Primitive s_tri, Hit __hit)
 {

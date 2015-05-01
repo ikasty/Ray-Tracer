@@ -6,7 +6,7 @@
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#include "../include/debug-msg.h"
+#include "include/debug-msg.h"
 
 #define MAX_LEVEL 20
 #define BIN_COUNT 64

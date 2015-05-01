@@ -1,4 +1,4 @@
-#include <string.h>
+﻿#include <string.h>
 #include <float.h>
 #include "kdtree_intersect_clear.h"
 

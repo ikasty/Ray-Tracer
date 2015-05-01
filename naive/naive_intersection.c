@@ -3,9 +3,9 @@
 #include <math.h>
 #include "naive_intersection.h"
 
-#include "../obj_transform.h"
-#include "../settings.h"
-#include "../include/msl_math.h"
+#include "obj_transform.h"
+#include "settings.h"
+#include "include/msl_math.h"
 
 Hit naive_intersect_search(Data *data, Ray *f_ray)
 {
