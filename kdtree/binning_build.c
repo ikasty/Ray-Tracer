@@ -8,11 +8,8 @@
 
 #include "../include/debug-msg.h"
 
-#define MAX_LEVEL 3
-#define BIN_COUNT 32
-
-// edge 후보를 저장할 버퍼 변수
-static BoundEdge *edge_buffer[3];
+#define MAX_LEVEL 20
+#define BIN_COUNT 64
 
 static int choose_bin(float bounds, float base, float top, float length)
 {
@@ -46,8 +43,8 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		nodeBounds->faaBounds[1][2] - nodeBounds->faaBounds[0][2]
 	};
 
-	int nCount = 0, below_count = 0, above_count = 0;
-	int bestAxis = -1, axis, bestSide = BELOW;
+	int below_count = 0, above_count = 0;
+	int bestAxis = -1, axis = -1, bestSide = BELOW;
 	float bestSplit = -1.0f;
 	int retries = 0;
 
@@ -75,14 +72,6 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 
 		// 카운팅을 위한 event 저장 배열
 		int Levent[BIN_COUNT] = {0,}, Hevent[BIN_COUNT] = {0,};
-
-		// (bin 개수 - 1)만큼 edge 생성
-		nCount = 0;
-		for (i = 1; i < BIN_COUNT; i++)
-		{
-			init_bound_edge(&edge_buffer[axis][nCount++], minBound + bin_length * i, 0, 0, axis);
-		}
-//PDEBUG("buildTree test 1\n");
 		for (i = 0; i < total_prim_counts; i++)
 		{
 			int prim_num = prim_indexes[i];
@@ -92,14 +81,12 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			// Low event count
 			bin = choose_bin(bbox.faaBounds[0][axis], minBound, maxBound, bin_length);
 			Levent[bin]++;
-//PDEBUG("buildTree test 1-1\n");
+
 			// High event count
 			bin = choose_bin(bbox.faaBounds[1][axis], minBound, maxBound, bin_length);
-			if (bin > BIN_COUNT) PAUSE;
 			Hevent[bin]++;
-//PDEBUG("buildTree test 1-2\n");
 		}
-//PDEBUG("buildTree test 2\n");
+
 		// Low event는 뒤에서부터 누적
 		for (i = BIN_COUNT - 2; i >= 0; i--)
 			Levent[i] += Levent[i + 1];
@@ -111,8 +98,8 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		// 베스트를 찾기 위해 모든 코스트를 계산함
 		for (i = 0; i < nCount; i++) // TODO: nCount -> edge_count로 변경할 것
 		{
-			BoundEdge curPlane = edge_buffer[axis][i];
-			int nBelow, nAbove, nPlanar;
+			float split_t = minBound + bin_length * i;
+			int nBelow, nAbove, nBoth, nPlanar;
 			float cost;
 			int side;
 
@@ -124,10 +111,10 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			// 이 노드 범위 내에 있는 edge를 위한 cost 계산
 			int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
 			float pBelow = 2 * (
-				(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
+				(d[otherAxis0] * d[otherAxis1]) + (split_t - minBound) * (d[otherAxis0] + d[otherAxis1])
 			) * invTotalSA;
 			float pAbove = 2 * (
-				(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
+				(d[otherAxis0] * d[otherAxis1]) + (maxBound - split_t) * (d[otherAxis0] + d[otherAxis1])
 			) * invTotalSA;
 
 			cost = getCost(kdtree, nBelow, nPlanar, nAbove, pBelow, pAbove, &side);
@@ -136,7 +123,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			if (cost < bestCost)
 			{
 				bestAxis = axis;
-				bestSplit = curPlane.t;
+				bestSplit = split_t;
 				bestCost = cost;
 				bestSide = side;
 
@@ -148,7 +135,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				});
 			}
 		}
-//PDEBUG("buildTree test 3\n");
+
 		// 분할할 만한 적당한 위치가 없으면 축을 바꿔서 재시도
 		if (bestAxis == -1 && retries < 2)
 		{
@@ -172,7 +159,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			break;
 		}
 	}
-//PDEBUG("buildTree test 4\n");
+
 	// 분할에 대해 프리미티브를 분류함
 	for (i = 0; i < total_prim_counts; i++)
 	{
@@ -180,7 +167,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		BBox bbox = allPrimBounds[prim_num];
 		float left = bbox.faaBounds[0][axis], right = bbox.faaBounds[1][axis];
 
-		// split 지점 밑에 있는 start 또는 planar
+		// split 지점 밑에 있는 start
 		if ( left < bestSplit )
 		{
 			below_prims[below_count++] = prim_num;
@@ -259,12 +246,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 		primBounds[i] = b;
 	}
 
-	// edge buffer에 필요한 공간 할당
-	for (i = 0; i < 3; i++)
-	{
-		edge_buffer[i] = (BoundEdge *)malloc(sizeof(BoundEdge) * (BIN_COUNT - 1));
-	}
-
 	// primitive가 저장될 버퍼 할당
 	prims0 = (int *)mzalloc(sizeof(int) * prims_count);
 	prims1 = (int *)mzalloc(sizeof(int) * prims_count * (kdtree->maxDepth + 1));
@@ -282,10 +263,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	
 	// kdtree 구축에 사용한 공간 해제
 	free(primBounds);
-	for (i = 0; i < 3; i++)
-	{
-		free(edge_buffer[i]);
-	}
 	free(prims0);
 	free(prims1);
 	free(prim_indexes);
