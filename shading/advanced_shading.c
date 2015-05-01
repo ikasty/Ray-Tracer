@@ -1,13 +1,13 @@
-#include <stdio.h>
+ï»¿#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
 #include "../settings.h"
 #include "../include/msl_math.h"
 #include "../include/type.h"
-#include "../kdtree/nlog2n_intersection.h"
+#include "../algorithms.h"
 
-unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Data *data)
+unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Data *data)
 {
 	unsigned int out_color = 0;
 	float hit_point[3], edge1[3], edge2[3];
@@ -23,29 +23,29 @@ unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Da
 	USE_CAMERA(cam);
 
 	if (hit.u >= 0 && hit.v >= 0 && hit.u + hit.v <= 1) {
-		// Á¢Á¡À» ±¸ÇÔ
+		// ì ‘ì ì„ êµ¬í•¨
 		for (axis = 0; axis<3; axis++){
 			hit_point[axis] = ray_light_to_point.orig[axis] + (hit.t * ray_light_to_point.dir[axis]);
 		}	
-		// Á¢Á¡¿¡¼­ ±¤¿ø±îÁöÀÇ ±¤¼±À» ±¸ÇÔ
+		// ì ‘ì ì—ì„œ ê´‘ì›ê¹Œì§€ì˜ ê´‘ì„ ì„ êµ¬í•¨
 		SUB(ray_point_to_light, light, hit_point);
 		ray_length = (float)sqrtf(length_sq(ray_point_to_light));
 		scalar_multi(ray_point_to_light, 1 / ray_length);
 
-		// ³ë¸Ö º¤ÅÍ¸¦ ±¸ÇÔ
+		// ë…¸ë©€ ë²¡í„°ë¥¼ êµ¬í•¨
 		SUB(edge1, s_tri.vert1, hit_point);
 		SUB(edge2, s_tri.vert2, hit_point);
 		CROSS(normal_vector, edge1, edge2);
 		normal_length = (float)sqrtf(length_sq(normal_vector));
 		scalar_multi(normal_vector, 1 / normal_length);
 
-		// ³ë¸Ö º¤ÅÍ¿Í ±¤¿ø »çÀÌÀÇ cos°ªÀ» ±¸ÇÔ
+		// ë…¸ë©€ ë²¡í„°ì™€ ê´‘ì› ì‚¬ì´ì˜ cosê°’ì„ êµ¬í•¨
 		ld = DOT(ray_point_to_light, normal_vector);
 		if (ld < 0) ld = 0;
 
-		// Á¢Á¡¿¡¼­ ±¤¿ø±îÁöÀÇ ±¤¼±(º¸Á¤)°ú Á¢Á¡¿¡¼­ ´«±îÁöÀÇ ±¤¼± Ãß°¡
+		// ì ‘ì ì—ì„œ ê´‘ì›ê¹Œì§€ì˜ ê´‘ì„ (ë³´ì •)ê³¼ ì ‘ì ì—ì„œ ëˆˆê¹Œì§€ì˜ ê´‘ì„  ì¶”ê°€
 		for (axis = 0; axis < 3; axis++){
-			// Ç¥¸é¿¡¼­ »ìÂ¦ ¶³¾îÁø °÷À» ±¤¼± Ãâ¹ßÁ¡À¸·Î Àâ½À´Ï´Ù.
+			// í‘œë©´ì—ì„œ ì‚´ì§ ë–¨ì–´ì§„ ê³³ì„ ê´‘ì„  ì¶œë°œì ìœ¼ë¡œ ìž¡ìŠµë‹ˆë‹¤.
 			shadow_ray.orig[axis] = hit_point[axis] + normal_vector[axis]*0.001f;
 			shadow_ray.dir[axis] = light[axis] - shadow_ray.orig[axis];
 			viewer_ray.orig[axis] = hit_point[axis];
@@ -56,7 +56,7 @@ unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Da
 		viewer_ray.min_t = 0;
 		viewer_ray.max_t = MAX_RENDER_DISTANCE;
 
-		// ¹Ý»ç±¤ °è»ê
+		// ë°˜ì‚¬ê´‘ ê³„ì‚°
 		for (axis = 0; axis < 3; axis++){
 			h[axis] = viewer_ray.dir[axis] + shadow_ray.dir[axis];
 		}
@@ -66,8 +66,8 @@ unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Da
 		ls = ls>0 ? ls : 0;
 		ls = powf(ls, SHINESS);
 
-		// ±×¸²ÀÚ Å×½ºÆ® ¹× ¹ÝÂ¦ÀÌ´Â È¿°ú Ãß°¡
-		shadow_hit = nlog2n_intersect_search(data, &shadow_ray);
+		// ê·¸ë¦¼ìž í…ŒìŠ¤íŠ¸ ë° ë°˜ì§ì´ëŠ” íš¨ê³¼ ì¶”ê°€
+		shadow_hit = (*intersect_search)(data, &shadow_ray);
 		if (shadow_hit.t > 0 && shadow_hit.u >= 0 && shadow_hit.v >= 0 && shadow_hit.u + shadow_hit.v <= 1) {
 			result_of_color = 0;
 		}

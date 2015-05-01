@@ -16,6 +16,10 @@ DIR_CHECK += naive
 SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
 DIR_CHECK += kdtree
 
+### shading folder add
+SRCS += $(addprefix shading/, $(shell ls shading | grep c$$))
+DIR_CHECK += shading
+
 RELEASE_DIR = gcc_release
 DEBUG_DIR = gcc_debug
 DEPEND_FILE = depend_file
