@@ -96,7 +96,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			Hevent[i] += Hevent[i - 1];
 
 		// 베스트를 찾기 위해 모든 코스트를 계산함
-		for (i = 0; i < nCount; i++) // TODO: nCount -> edge_count로 변경할 것
+		for (i = 1; i < BIN_COUNT; i++) // TODO: nCount -> edge_count로 변경할 것
 		{
 			float split_t = minBound + bin_length * i;
 			int nBelow, nAbove, nBoth, nPlanar;
