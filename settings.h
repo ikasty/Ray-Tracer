@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"teapot.obj"
+#define DEFAULT_OBJ_FILE		"violin_case.obj"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
@@ -21,6 +21,8 @@
 #define LIGHT_POS_Z				-100.0
 
 #define FRAME_COUNT				10
+
+#define SHINESS					100
 
 // define if use accel option
 //#define ACCEL_OPTION

@@ -7,70 +7,75 @@
 #include "../include/type.h"
 #include "../kdtree/nlog2n_intersection.h"
 
-unsigned int nlog2n_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
+unsigned int nlog2n_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, Data *data)
 {
-	unsigned int Out_color = 0;
-	//float Line_B[3];
-	float hit_point[3], ray[3], normal_vector[3], edge1[3], edge2[3], multi_A[3], multi_B[3];
-	int axis;
-	int result_of_color;
-	//float inv_multi_AB;
-	float dot_AB, abs_A, abs_B, multi_AB, cos_AB;
-	float tuv[3], temp_ori[3];
-	Ray shadow_ray;
+	unsigned int out_color = 0;
+	float hit_point[3], edge1[3], edge2[3];
+	float ray_point_to_light[3], ray_length;
+	float normal_vector[3], normal_length;
+	float h[3], h_length;
+	int axis, result_of_color;
+	float ld, ls;
+	Ray shadow_ray, viewer_ray;
 	Hit shadow_hit;
 
-	// 광원 설정값을 사용함
 	USE_LIGHT(light);
+	USE_CAMERA(cam);
 
-	tuv[0] = __hit.t;
-	tuv[1] = __hit.u;
-	tuv[2] = __hit.v;
-
-	if (tuv[1]>0 && tuv[2]> 0 && tuv[1] + tuv[2] <= 1){
+	if (hit.u >= 0 && hit.v >= 0 && hit.u + hit.v <= 1) {
 		// 접점을 구함
 		for (axis = 0; axis<3; axis++){
-			hit_point[axis] = s_ray.orig[axis] + (tuv[0] * s_ray.dir[axis]);			
+			hit_point[axis] = ray_light_to_point.orig[axis] + (hit.t * ray_light_to_point.dir[axis]);
 		}	
-		//광원 정보를 temp_ori에 적용 및 접점에서 광원까지의 광선을 구함
-		temp_ori[0] = light[0];
-		temp_ori[1] = light[1];
-		temp_ori[2] = light[2];
-		SUB(ray, temp_ori, hit_point);
+		// 접점에서 광원까지의 광선을 구함
+		SUB(ray_point_to_light, light, hit_point);
+		ray_length = (float)sqrtf(length_sq(ray_point_to_light));
+		scalar_multi(ray_point_to_light, 1 / ray_length);
 
-		//면의 노멀 벡터를 구함
+		// 노멀 벡터를 구함
 		SUB(edge1, s_tri.vert1, hit_point);
 		SUB(edge2, s_tri.vert2, hit_point);
 		CROSS(normal_vector, edge1, edge2);
+		normal_length = (float)sqrtf(length_sq(normal_vector));
+		scalar_multi(normal_vector, 1 / normal_length);
 
-		// 면의 노벌 벡터와 광원 사이의 cos값을 구함
-		dot_AB = DOT(ray, normal_vector);
-		multi_itself(multi_A, ray);
-		multi_itself(multi_B, normal_vector);
-		abs_A = (float)sqrtf(abs_line(multi_A));
-		abs_B = (float)sqrtf(abs_line(multi_B));
-		multi_AB = abs_A * abs_B;
-		cos_AB = dot_AB / multi_AB;
-		if (cos_AB < 0) cos_AB = 0;
+		// 노멀 벡터와 광원 사이의 cos값을 구함
+		ld = DOT(ray_point_to_light, normal_vector);
+		if (ld < 0) ld = 0;
 
+		// 접점에서 광원까지의 광선(보정)과 접점에서 눈까지의 광선 추가
 		for (axis = 0; axis < 3; axis++){
-			shadow_ray.orig[axis] = hit_point[axis]+normal_vector[axis]/abs_B*0.001f;
+			// 표면에서 살짝 떨어진 곳을 광선 출발점으로 잡습니다.
+			shadow_ray.orig[axis] = hit_point[axis] + normal_vector[axis]*0.001f;
 			shadow_ray.dir[axis] = light[axis] - shadow_ray.orig[axis];
+			viewer_ray.orig[axis] = hit_point[axis];
+			viewer_ray.dir[axis] = cam->orig[axis] - viewer_ray.orig[axis];
 		}
 		shadow_ray.min_t = 0;
 		shadow_ray.max_t = MAX_RENDER_DISTANCE;
+		viewer_ray.min_t = 0;
+		viewer_ray.max_t = MAX_RENDER_DISTANCE;
 
-		// 그림자 테스트
+		// 반사광 계산
+		for (axis = 0; axis < 3; axis++){
+			h[axis] = viewer_ray.dir[axis] + shadow_ray.dir[axis];
+		}
+		h_length = (float)sqrtf(length_sq(h));
+		scalar_multi(h, 1 / h_length);
+		ls = DOT(normal_vector, h);
+		ls = ls>0 ? ls : 0;
+		ls = powf(ls, SHINESS);
+
+		// 그림자 테스트 및 반짝이는 효과 추가
 		shadow_hit = nlog2n_intersect_search(data, &shadow_ray);
 		if (shadow_hit.t > 0 && shadow_hit.u >= 0 && shadow_hit.v >= 0 && shadow_hit.u + shadow_hit.v <= 1) {
 			result_of_color = 0;
 		}
 		else{
-			result_of_color = (int)(255 * (cos_AB));
+			result_of_color = (int)(255 * (ld + ls*0.2));
 		}
-		result_of_color = result_of_color + 25>255 ? 255 : result_of_color + 25;
-		Out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
+		result_of_color = result_of_color + 25 > 255 ? 255 : result_of_color + 25;
+		out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	}
-
-	return Out_color;
+	return out_color;
 }

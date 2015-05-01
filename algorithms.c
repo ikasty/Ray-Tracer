@@ -54,7 +54,7 @@ void init_search_algo(char *algo_name)
 	{
 		printf("use default(kdtree nlog2n) algorithm\n");
 		clear_accel = NULL;
-		accel_build = &nlog2n_accel_build;
+		accel_build = &nlogn_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
 

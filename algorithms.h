@@ -6,7 +6,7 @@
 extern void (*clear_accel)(Data *data);
 extern void (*accel_build)(Data *data);
 extern Hit (*intersect_search)(Data *data, Ray *ray);
-extern unsigned int (*shading)(Ray s_ray, Primitive s_tri, Hit __hit);
+extern unsigned int (*shading)(Ray s_ray, Primitive s_tri, Hit __hit, Data *data);
 
 void init_search_algo(char *algo_name);
 void init_shading_algo(char *shading_name);
