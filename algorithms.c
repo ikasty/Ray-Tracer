@@ -11,6 +11,8 @@
 #  include "kdtree/nlog2n_intersection.h"
 // 3. kdtree(nlogn)
 #  include "kdtree/nlogn_build.h"
+// 4. binning
+#  include "kdtree/binning_build.h"
 
 /////////////////////////////////////
 // shading algorithms
@@ -46,6 +48,13 @@ void init_search_algo(char *algo_name)
 		printf("use kdtree nlogn algorithm\n");
 		clear_accel = NULL;
 		accel_build = &nlogn_accel_build;
+		intersect_search = &nlog2n_intersect_search;
+	}
+	else if (strncmp(algo_name, "binning", 7) == 0)
+	{
+		printf("use kdtree binning algorighm\n");
+		clear_accel = NULL;
+		accel_build = &binning_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
 	else

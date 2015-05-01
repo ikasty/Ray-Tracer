@@ -70,7 +70,7 @@
     <ClCompile Include="gen_ray.c" />
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
-    <ClCompile Include="kdtree\boundedge.c" />
+    <ClCompile Include="kdtree\binning_build.c" />
     <ClCompile Include="kdtree\kdtree_common.c" />
     <ClCompile Include="kdtree\nlog2n_build.c" />
     <ClCompile Include="kdtree\nlog2n_intersection.c" />
@@ -95,7 +95,7 @@
     <ClInclude Include="include\queue.h" />
     <ClInclude Include="include\type.h" />
     <ClInclude Include="kdtree\bbox.h" />
-    <ClInclude Include="kdtree\boundedge.h" />
+    <ClInclude Include="kdtree\binning_build.h" />
     <ClInclude Include="kdtree\kdtree_common.h" />
     <ClInclude Include="kdtree\kdtree_queue.h" />
     <ClInclude Include="kdtree\kdtree_type.h" />

@@ -1,14 +1,14 @@
-#include <stdlib.h>
+﻿#include <stdlib.h>
 
 #include "kdtree_common.h"
 
 #define PLANAR_TRY_TWICE
 
-void init_bound_edge(BoundEdge* bd, float tt, int pn, int t, int a){
-	bd->t = tt;
-	bd->primNum = pn;
-	bd->e_type = t;
-	bd->axis = a;
+void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type, int axis){
+	boundedge->t = split_t;
+	boundedge->primNum = prim_num;
+	boundedge->e_type = type;
+	boundedge->axis = axis;
 }
 
 void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
@@ -55,7 +55,7 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	nBelow += nPlanar;
 
 	eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-	cost = kdtree->traversalCost;
+	cost = (float)kdtree->traversalCost;
 	cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nBelow -= nPlanar;
@@ -68,7 +68,7 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	nAbove += nPlanar;
 
 	eb = (nBelow == 0 || nAbove == 0) ? kdtree->emptyBonus : 0.0f;
-	above_cost = kdtree->traversalCost;
+	above_cost = (float)kdtree->traversalCost;
 	above_cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nAbove -= nPlanar;
