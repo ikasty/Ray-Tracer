@@ -11,6 +11,11 @@ desktop.ini
 ## Makefile object
 depend_file
 
+## 3D Object files
+*.obj
+*.mtl
+*.jpg
+
 ###########################################################
 ## Ignore for C
 
