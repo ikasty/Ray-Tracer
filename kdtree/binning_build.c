@@ -23,19 +23,17 @@ static int choose_bin(float bounds, float base, float top, float length)
 // 인테리어 노드와 리프노드를 구별해야 한다.
 static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nodeBounds,
 			BBox *allPrimBounds, int *prim_indexes, int total_prim_counts, int depth,
-			int *below_prims, int *above_prims, int badRefines)
-{// TODO: allPrimBounds를 전역 변수로 뺄 것 //TODO: edge_buffer 안 사용하도록 바꿀 것
+			int *below_prims, int *above_prims, int badRefines, float oldCost)
+{// TODO: allPrimBounds를 전역 변수로 뺄 것
 	// kdtree의 자식 노드 변수
 	KDAccelNode *below_child, *above_child;
 	// 자식 노드의 boundary box
 	BBox bbox_below, bbox_above;
 
-	// 제한 cost
-	float oldCost = (float)kdtree->isectCost * total_prim_counts;
 	// total SA의 역수값
 	float invTotalSA = 1.f / get_surface_of_bbox(nodeBounds);
 	// 최적 cost
-	float bestCost = FLT_MAX;
+	float bestCost = oldCost;
 	// diagonal vector
 	float d[3] = {
 		nodeBounds->faaBounds[1][0] - nodeBounds->faaBounds[0][0],
@@ -104,9 +102,14 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			int side;
 
 			// split 후보 위에 있는 primitive 개수 갱신
-			nAbove = Hevent[i];
-			nBelow = Levent[i + 1];
-			nPlanar = total_prim_counts - Levent[i + 1] - Hevent[i];
+			nAbove = Hevent[i - 1];
+			nBelow = Levent[i];
+			nBoth = total_prim_counts - Levent[i] - Hevent[i - 1];
+
+			// 플래너는 나올 수가 없다
+			nPlanar = 0;
+
+			nAbove += nBoth; nBelow += nBoth;
 
 			// 이 노드 범위 내에 있는 edge를 위한 cost 계산
 			int otherAxis0 = (axis + 1) % 3, otherAxis1 = (axis + 2) % 3;
@@ -145,7 +148,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		else
 		{
 			// split이 손해인 경우 체크
-			if (bestCost > oldCost) badRefines++;
+			if (bestCost >= oldCost) badRefines++;
 
 			// split 후보를 찾지 못했거나, split한 결과가 손해라면
 			if (bestAxis == -1 ||
@@ -180,14 +183,14 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			else
 				above_prims[above_count++] = prim_num;
 		}
-		// split 지점 위에 있는 end 또는 planar
+		// split 지점 위에 있는 end
 		if ( right > bestSplit )
 		{
 			above_prims[above_count++] = prim_num;
 		}
 	}
 
-	PDEBUG("binning buildTree depth %d, cost %f, below %d, above %d\n", MAX_LEVEL - depth, bestCost, below_count, above_count);
+	PDEBUG("binning depth %d, cost %f, total %d, below %d, above %d\n", MAX_LEVEL - depth, bestCost, total_prim_counts, below_count, above_count);
 
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
@@ -199,13 +202,13 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	below_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
 	buildTree(kdtree, below_child, &bbox_below,
 		allPrimBounds, below_prims, below_count, depth - 1,
-		below_prims, above_prims + total_prim_counts, badRefines);
+		below_prims, above_prims + total_prim_counts, badRefines, bestCost);
 
 	// 위 노드 탐색
 	above_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
 	buildTree(kdtree, above_child, &bbox_above,
 		allPrimBounds, above_prims, above_count, depth - 1,
-		below_prims, above_prims + total_prim_counts, badRefines);
+		below_prims, above_prims + total_prim_counts, badRefines, bestCost);
 
 	// 현재 노드를 부모 노드로 설정
 	initInterior(current_node, above_child, below_child, bestAxis, bestSplit);
@@ -259,7 +262,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	
 	// kdtree 구축을 위한 재귀문 실행
 	buildTree(kdtree, &kdtree->nodes[0], &kdtree->bounds, primBounds, prim_indexes, kdtree->nPrims,
-		kdtree->maxDepth, prims0, prims1, 0);
+		kdtree->maxDepth, prims0, prims1, 0, FLT_MAX);
 	
 	// kdtree 구축에 사용한 공간 해제
 	free(primBounds);
