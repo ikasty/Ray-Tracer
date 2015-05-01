@@ -69,6 +69,7 @@ static void do_algorithm(Data *data, char *input_file)
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
 	//// -- pre-step phase --
+	PDEBUG("main.c pre-step phase\n");
 
 		// 우선 해당 frame_number에 맞게 object를 회전합니다.
 		if (frame_number)
@@ -86,6 +87,7 @@ static void do_algorithm(Data *data, char *input_file)
 		memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
 
 	//// -- execute phase --
+	PDEBUG("main.c execute phase\n");
 
 		// 만약 가속구조체를 사용한다면 빌드함
 		if (accel_build)
@@ -139,6 +141,7 @@ static void do_algorithm(Data *data, char *input_file)
 		} // index_y
 	
 	//// -- post-step phase --
+	PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
