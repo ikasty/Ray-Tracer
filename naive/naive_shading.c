@@ -6,7 +6,7 @@
 #include "../include/msl_math.h"
 #include "../include/type.h"
 
-unsigned int naive_shading(Ray s_ray, Primitive s_tri, Hit __hit)
+unsigned int naive_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
 {
 	unsigned int Out_color = 0;
 	//float Line_B[3];

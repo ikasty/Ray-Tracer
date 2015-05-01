@@ -7,7 +7,7 @@
 #include "../include/type.h"
 #include "../kdtree/nlog2n_intersection.h"
 
-unsigned int shadow_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
+unsigned int nlog2n_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
 {
 	unsigned int Out_color = 0;
 	//float Line_B[3];
@@ -31,9 +31,7 @@ unsigned int shadow_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
 		// 접점을 구함
 		for (axis = 0; axis<3; axis++){
 			hit_point[axis] = s_ray.orig[axis] + (tuv[0] * s_ray.dir[axis]);			
-		}
-		
-
+		}	
 		//광원 정보를 temp_ori에 적용 및 접점에서 광원까지의 광선을 구함
 		temp_ori[0] = light[0];
 		temp_ori[1] = light[1];
@@ -53,23 +51,24 @@ unsigned int shadow_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data)
 		abs_B = (float)sqrtf(abs_line(multi_B));
 		multi_AB = abs_A * abs_B;
 		cos_AB = dot_AB / multi_AB;
-		//if (cos_AB < 0) cos_AB = 0;
+		if (cos_AB < 0) cos_AB = 0;
 
 		for (axis = 0; axis < 3; axis++){
-			shadow_ray.orig[axis] = hit_point[axis]+normal_vector[axis]/abs_B*0.001;
+			shadow_ray.orig[axis] = hit_point[axis]+normal_vector[axis]/abs_B*0.001f;
 			shadow_ray.dir[axis] = light[axis] - shadow_ray.orig[axis];
 		}
 		shadow_ray.min_t = 0;
 		shadow_ray.max_t = MAX_RENDER_DISTANCE;
 
 		// 그림자 테스트
-		//shadow_hit = nlog2n_intersect_search(data, &shadow_ray);
-		shadow_hit = naive_intersect_search(data, &shadow_ray);
+		shadow_hit = nlog2n_intersect_search(data, &shadow_ray);
 		if (shadow_hit.t > 0 && shadow_hit.u >= 0 && shadow_hit.v >= 0 && shadow_hit.u + shadow_hit.v <= 1) {
-			return 0xff000000;
+			result_of_color = 0;
 		}
-
-		result_of_color = (int)(255 * (cos_AB+1.0)/2);
+		else{
+			result_of_color = (int)(255 * (cos_AB));
+		}
+		result_of_color = result_of_color + 25>255 ? 255 : result_of_color + 25;
 		Out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	}
 

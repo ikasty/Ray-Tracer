@@ -63,7 +63,7 @@
     <ClCompile Include="kdtree\nlogn_build.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="naive\shadow_shading.c">
+    <ClCompile Include="kdtree\nlog2n_shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,7 +140,7 @@
     <ClInclude Include="bitmap_make.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="naive\shadow_shading.h">
+    <ClInclude Include="kdtree\nlog2n_shading.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

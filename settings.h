@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"cutbu.obj"
+#define DEFAULT_OBJ_FILE		"teapot.obj"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
@@ -18,9 +18,9 @@
 
 #define LIGHT_POS_X				100.0
 #define LIGHT_POS_Y				100.0
-#define LIGHT_POS_Z				0.0
+#define LIGHT_POS_Z				-100.0
 
-#define FRAME_COUNT				30
+#define FRAME_COUNT				10
 
 // define if use accel option
 //#define ACCEL_OPTION

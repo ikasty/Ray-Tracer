@@ -16,8 +16,8 @@
 // shading algorithms
 // 1. naive
 #  include "naive/naive_shading.h"
-// 1. shadow
-#  include "naive/shadow_shading.h"
+// 2. nlog2n
+#  include "kdtree/nlog2n_shading.h"
 
 // default values
 void (*clear_accel)(Data *data) = NULL;
@@ -61,11 +61,24 @@ void init_search_algo(char *algo_name)
 	return ;
 }
 
-unsigned int (*shading)(Ray s_ray, Primitive s_tri, Hit __hit) = NULL;
+unsigned int (*shading)(Ray s_ray, Primitive s_tri, Hit __hit, Data *data) = NULL;
 
 void init_shading_algo(char *shading_name)
 {
-	printf("use naive shading\n");
-	shading = &naive_shading;
+	if (strncmp(shading_name, "naive", 5) == 0)
+	{
+		printf("use naive shading\n");
+		shading = &naive_shading;
+	}
+	else if (strncmp(shading_name, "nlog2n", 6) == 0)
+	{
+		printf("use kdtree nlog^2n shading\n");
+		shading = &nlog2n_shading;
+	}
+	else
+	{
+		printf("use default(kdtree nlog2n) shading\n");
+		shading = &nlog2n_shading;
+	}	
 	return ;
 }
