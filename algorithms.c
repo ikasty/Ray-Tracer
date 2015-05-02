@@ -77,7 +77,7 @@ void init_shading_algo(char *shading_name)
 	}
 	else
 	{
-		printf("use default(kdtree advanced) shading\n");
+		printf("use default(advanced) shading\n");
 		shading = &advanced_shading;
 	}	
 	return ;
