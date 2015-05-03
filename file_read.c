@@ -117,6 +117,8 @@ int file_read(FILE* fp, Data *data, float scale)
 			vert[vert_count].norm[0] = 0;
 			vert[vert_count].norm[1] = 0;
 			vert[vert_count].norm[2] = 0;
+			vert[vert_count].norm_count = 0;
+			
 			vert_count++;
 
 			continue;
@@ -201,11 +203,12 @@ int file_read(FILE* fp, Data *data, float scale)
 	data->primitives = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
 	data->prim_count = face_count;
 	{
-		int i;
+		int i, j, k;
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];
 			float temp0[3], temp1[3], temp2[3], temp3[3];
+			float temp2_length;
 
 			prim->vert0[0] = vert[ face[i].v[0] - 1 ].vect[0];
 			prim->vert0[1] = vert[ face[i].v[0] - 1 ].vect[1];
@@ -226,24 +229,41 @@ int file_read(FILE* fp, Data *data, float scale)
 			SUB(temp1, prim->vert2, prim->vert0);
 			CROSS(temp2, temp0, temp1);
 
-			// vertex와 인접한 면의 normal vector 합산
-			ADD(vert[face[i].v[0] - 1].norm, vert[face[i].v[0] - 1].norm, temp2);
-			ADD(vert[face[i].v[1] - 1].norm, vert[face[i].v[1] - 1].norm, temp2);
-			ADD(vert[face[i].v[2] - 1].norm, vert[face[i].v[2] - 1].norm, temp2);
-
 			if (face[i].vn[0] && norm[ face[i].vn[0] - 1 ].vect[0] != 0)
-			{				
+			{	
 				// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
 				if (DOT(norm[ face[i].vn[0] - 1 ].vect, temp2) <= 0)
 				{
 					memcpy(temp3, prim->vert1, sizeof(float)*3);
 					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
 					memcpy(prim->vert2, temp3, sizeof(float)*3);
+
+					//normal vector 수정
+					SUB(temp0, prim->vert1, prim->vert0);
+					SUB(temp1, prim->vert2, prim->vert0);
+					CROSS(temp2, temp0, temp1);					
 				}
-				else
-				{
-					int a = 0;
-					a+= 1;
+			}
+			// 더해 주기 전에 크기를 맞추어야함
+			temp2_length = sqrtf(length_sq(temp2));
+			if (temp2_length > 0){
+				scalar_multi(temp2, 1 / temp2_length);
+			}		
+
+			// vertex와 인접한 면의 normal vector 합산
+			for (j = 0; j < 3; j++){
+				for (k = 0; k < vert[face[i].v[j] - 1].norm_count && k < 10; k++){
+					CROSS(temp3, temp2, vert[face[i].v[j] - 1].near_norm[k]);
+					if (temp3[0] == 0 && temp3[1] == 0 && temp3[2] == 0){
+						break;
+					}
+				}
+				if (k == vert[face[i].v[j] - 1].norm_count && (temp2[0] != 0 || temp2[1] != 0 || temp2[2] != 0)){
+					int count = vert[face[i].v[j] - 1].norm_count;
+					SUBST(vert[face[i].v[j] - 1].near_norm[count], temp2)
+					vert[face[i].v[j] - 1].norm_count++;
+
+					ADD(vert[face[i].v[j] - 1].norm, vert[face[i].v[j] - 1].norm, temp2);
 				}
 			}
 		}

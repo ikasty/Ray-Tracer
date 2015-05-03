@@ -79,6 +79,10 @@ static void do_algorithm(Data *data, char *input_file)
 				get_rotated_vector(data->primitives[i].vert0);
 				get_rotated_vector(data->primitives[i].vert1);
 				get_rotated_vector(data->primitives[i].vert2);
+
+				get_rotated_vector(data->primitives[i].norm0);
+				get_rotated_vector(data->primitives[i].norm1);
+				get_rotated_vector(data->primitives[i].norm2);
 			}
 		}
 
