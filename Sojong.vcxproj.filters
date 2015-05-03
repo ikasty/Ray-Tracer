@@ -48,9 +48,6 @@
     <ClCompile Include="naive\naive_intersection.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="naive\naive_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="include\getopt.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -63,7 +60,10 @@
     <ClCompile Include="kdtree\nlogn_build.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="kdtree\nlog2n_shading.c">
+    <ClCompile Include="shading\advanced_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\naive_shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,9 +116,6 @@
     <ClInclude Include="naive\naive_intersection.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="naive\naive_shading.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="algorithms.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -140,7 +137,10 @@
     <ClInclude Include="bitmap_make.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="kdtree\nlog2n_shading.h">
+    <ClInclude Include="shading\advanced_shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\naive_shading.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

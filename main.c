@@ -190,6 +190,10 @@ long_option:
 			break;
 
 		case 's':
+			init_shading_algo(optarg);
+			break;
+
+		case 'S':
 			scale = (float)atof(optarg);
 			printf("image scale to %f\n", scale);
 			break;
@@ -210,7 +214,8 @@ long_option:
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
-				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
+				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
+				"  -S SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 
