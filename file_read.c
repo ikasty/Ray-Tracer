@@ -248,7 +248,7 @@ int file_read(FILE* fp, Data *data, float scale)
 				CROSS(prim_normal, temp0, temp1);
 
 				// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
-				if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) >= 0)
+				if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
 				{
 					// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
 					float temp[3];
