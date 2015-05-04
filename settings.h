@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"chessobj.obj"
+#define DEFAULT_OBJ_FILE		"aliens_apc.obj"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
@@ -16,9 +16,9 @@
 #define CAMERA_POS_Y			0.0
 #define CAMERA_POS_Z			-400.0
 
-#define LIGHT_POS_X				100.0
-#define LIGHT_POS_Y				100.0
-#define LIGHT_POS_Z				-100.0
+#define LIGHT_POS_X				0.0
+#define LIGHT_POS_Y				0.0
+#define LIGHT_POS_Z				-400.0
 
 #define FRAME_COUNT				10
 
