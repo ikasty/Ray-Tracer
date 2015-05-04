@@ -135,7 +135,7 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 		}	
 		// 접점에서 광원까지의 광선을 구함
 		SUB(ray_point_to_light.dir, light, hit_point);
-		normalize(ray_point_to_light.dir;
+		normalize(ray_point_to_light.dir);
 		ray_point_to_light.min_t = 0;
 		ray_point_to_light.max_t = MAX_RENDER_DISTANCE;
 

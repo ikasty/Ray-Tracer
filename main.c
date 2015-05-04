@@ -8,6 +8,8 @@
 // include search and render algorithm
 #include "algorithms.h"
 
+// shading algorithm
+#include "shading/shading.h"
 
 #include "bitmap_make.h"
 #include "obj_transform.h"
@@ -133,7 +135,7 @@ static void do_algorithm(Data *data, char *input_file)
 
 					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
+					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
 					end_clock = clock();
 
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;

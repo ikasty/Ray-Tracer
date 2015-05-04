@@ -1,7 +1,7 @@
 ﻿#ifndef KDTREE_TYPE_H
 #define KDTREE_TYPE_H
 
-#include "../include/type.h"
+#include "include/type.h"
 #include "kdtree_queue.h"
 
 typedef struct __bbox BBox;

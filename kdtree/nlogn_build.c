@@ -6,7 +6,7 @@
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#include "../include/debug-msg.h"
+#include "include/debug-msg.h"
 
 static int compare_bound(const void *a, const void *b)
 {
