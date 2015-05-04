@@ -92,10 +92,6 @@ void phong_shading(float dest[3], float point[3], Primitive prim)
 		SUB(temp2, inter_p[1], point);
 		temp2_length = sqrtf(length_sq(temp2));
 
-		if (temp_length + temp2_length == 0){
-			printf("???");
-		}
-
 		for (i = 0; i < 3; i++)
 		{
 			dest[i] = (inter_n[0][i] * temp2_length + inter_n[1][i] * temp_length) / (temp_length + temp2_length);

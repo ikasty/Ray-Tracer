@@ -16,7 +16,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 {
 	unsigned int out_color = 0;
 	float hit_point[3];
-	float normal_vector[3], viewer_vector[3];
+	float normal_vector[3], viewer_vector[3], point_to_light_vector[3];
 	float h[3];
 	int axis, result_of_color;
 	float ld, ls, la;
@@ -35,7 +35,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 			hit_point[axis] = ray_screen_to_point.orig[axis] + (hit.t * ray_screen_to_point.dir[axis]);
 			ray_point_to_light.orig[axis] = hit_point[axis];
 		}
-		SUB(ray_point_to_light.dir, light, hit_point);
+		SUB(ray_point_to_light.dir, light, hit_point);	
 		VECTOR_NORMALIZE(ray_point_to_light.dir);
 		ray_point_to_light.min_t = 0;
 		ray_point_to_light.max_t = MAX_RENDER_DISTANCE;
