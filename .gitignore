@@ -13,6 +13,8 @@ depend_file
 
 ## 3D Object files
 *.obj
+# 표준 teapot.obj 파일은 추가함
+!teapot.obj
 *.mtl
 *.jpg
 
@@ -22,7 +24,7 @@ depend_file
 # Object files
 *.o
 *.ko
-*.obj
+# *.obj
 *.elf
 
 # Precompiled Headers
@@ -98,7 +100,7 @@ dlldata.c
 *_i.h
 *.ilk
 *.meta
-*.obj
+# *.obj
 *.pch
 *.pdb
 *.pgc
