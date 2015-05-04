@@ -99,7 +99,7 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 	unsigned int out_color = 0;
 	float hit_point[3], edge1[3], edge2[3];
 	float ray_point_to_light[3], ray_length;
-	float normal_vector[3], normal_vector2[3], normal_length;
+	float normal_vector[3], normal_length;
 	float h[3], h_length;
 	int axis, result_of_color;
 	float ld, ls;
@@ -109,28 +109,30 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 	USE_LIGHT(light);
 	USE_CAMERA(cam);
 
-	if (hit.u >= 0 && hit.v >= 0 && hit.u + hit.v <= 1)
+	if (hit.prim_id > 0)
 	{
 		// 접점을 구함
 		for (axis = 0; axis < 3; axis++)
 		{
 			hit_point[axis] = ray_light_to_point.orig[axis] + (hit.t * ray_light_to_point.dir[axis]);
-		}	
+		}
+
 		// 접점에서 광원까지의 광선을 구함
 		SUB(ray_point_to_light, light, hit_point);
 		ray_length = (float)sqrtf( length_sq(ray_point_to_light) );
 		scalar_multi(ray_point_to_light, 1 / ray_length);
 
+		// 노멀 벡터가 지정되지 않은 경우
 		if (data->primitives[hit.prim_id].norm0[0] == 0 && 
 			data->primitives[hit.prim_id].norm0[1] == 0 &&
 			data->primitives[hit.prim_id].norm0[2] == 0)
 		{
 			SUB(edge1, s_tri.vert1, hit_point);
 			SUB(edge2, s_tri.vert2, hit_point);
-			CROSS(normal_vector2, edge1, edge2);
 			CROSS(normal_vector, edge1, edge2);
-			normal_length = (float)sqrtf(length_sq(normal_vector));
-			if (normal_length > 0){
+			normal_length = (float)sqrtf( length_sq(normal_vector) );
+			if (normal_length > 0)
+			{
 				scalar_multi(normal_vector, 1 / normal_length);
 			}
 		}
@@ -170,15 +172,13 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 		h_length = (float)sqrtf( length_sq(h) );
 		scalar_multi(h, 1 / h_length);
 		ls = DOT(normal_vector, h);
-		ls = (ls>0) ? ls : 0;
+		ls = (ls > 0) ? ls : 0;
 		ls = powf(ls, SHINESS);
 
 		// 그림자 테스트 및 반짝이는 효과 추가
 		// 자신의 면에 부딫히는건 판단하지 않음
 		shadow_hit = (*intersect_search)(data, &shadow_ray);
-		if ((shadow_hit.t > 0) && (shadow_hit.u >= 0) && (shadow_hit.v >= 0) &&
-			(shadow_hit.u + shadow_hit.v <= 1) &&
-			(shadow_hit.prim_id != hit.prim_id))
+		if ((shadow_hit.prim_id > 0) && (shadow_hit.prim_id != hit.prim_id))
 		{
 			result_of_color = 0;
 		}

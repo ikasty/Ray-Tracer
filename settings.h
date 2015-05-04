@@ -3,7 +3,7 @@
 
 #include "include/type.h"
 
-#define DEFAULT_OBJ_FILE		"chessobj.obj"
+#define DEFAULT_OBJ_FILE		"teapot.obj"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
