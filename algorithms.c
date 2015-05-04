@@ -16,8 +16,6 @@
 // shading algorithms
 // 1. naive
 #  include "shading/naive_shading.h"
-// 2. nlog2n
-#  include "shading/advanced_shading.h"
 
 // default values
 void (*clear_accel)(Data *data) = NULL;
@@ -70,15 +68,10 @@ void init_shading_algo(char *shading_name)
 		printf("use naive shading\n");
 		shading = &naive_shading;
 	}
-	else if (strncmp(shading_name, "advanced", 8) == 0)
-	{
-		printf("use advanced shading\n");
-		shading = &advanced_shading;
-	}
 	else
 	{
-		printf("use default(advanced) shading\n");
-		shading = &advanced_shading;
+		printf("use default(naive) shading\n");
+		shading = &naive_shading;
 	}	
 	return ;
 }
