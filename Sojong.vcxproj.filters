@@ -95,9 +95,6 @@
     <ClInclude Include="include\msl_math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree\bbox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -147,6 +144,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="shading\shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\type.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

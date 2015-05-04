@@ -8,18 +8,10 @@
 
 void phong_shading(float dest[3], float point[3], Primitive prim)
 {
-	float na[3], nb[3];
-	int axis;
-	float *p1 = NULL, *p2 = NULL, *p3 = NULL;
-	float *n1 = NULL, *n2 = NULL, *n3 = NULL;
-
-	float xs = point[0];
-	float ys = point[1];
-	float xa, xb;
-	
-	// 결과 normal 초기화
-	for (axis = 0; axis < 3; axis++)
-		dest[axis] = 0;
+	float inter_n[3][3], inter_p[3][3];
+	float temp[3], temp2[3], temp_length, temp2_length;
+	int i, j, inter_count = 0;
+	float d[3][3], p[3][3], n[3][3];
 
 	// 꼭지점 위에 위치했다면 그냥 해당 꼭지점의 normal 반환
 	if (is_two_point_equal(point, prim.vert0))
@@ -37,58 +29,77 @@ void phong_shading(float dest[3], float point[3], Primitive prim)
 		SUBST(dest, prim.norm2);
 		return;
 	}
-	
-	// 그 외의 경우 다양한 조건을 고려하여 점 선정
-	if ((prim.vert0[1] - point[1])*(point[1] - prim.vert1[1]) >= 0 && prim.vert0[1] != prim.vert1[1]) 
-	{
-		if ((prim.vert0[1] - point[1]) * (point[1] - prim.vert2[1]) >= 0 &&
-			(prim.vert0[1] != prim.vert2[1]) &&
-			(prim.vert0[1] != point[1]))
-		{
-			p1 = prim.vert0;
-			n1 = prim.norm0;
-			p2 = prim.vert1;
-			n2 = prim.norm1;
-		}
-		else if ((prim.vert1[1] - point[1]) * (point[1] - prim.vert2[1]) >= 0 &&
-			(prim.vert1[1] != prim.vert2[1]) &&
-			(prim.vert1[1] != point[1]))
-		{
-			p1 = prim.vert1;
-			n1 = prim.norm1;
-			p2 = prim.vert0;
-			n2 = prim.norm0;
-		}
-		p3 = prim.vert2;
-		n3 = prim.norm2;
-	}
-	else if ((prim.vert2[1] != prim.vert0[1]) &&
-		(prim.vert2[1] != prim.vert1[1]) &&
-		(prim.vert2[1] != point[1]))
-	{
-		p1 = prim.vert2;
-		n1 = prim.norm2;
-		p2 = prim.vert0;
-		n2 = prim.norm0;
-		p3 = prim.vert1;
-		n3 = prim.norm1;
+
+	SUBST(p[0], prim.vert0);
+	SUBST(p[1], prim.vert1);
+	SUBST(p[2], prim.vert2);
+	SUBST(n[0], prim.norm0);
+	SUBST(n[1], prim.norm1);
+	SUBST(n[2], prim.norm2);
+	for (i = 0; i < 3; i++){
+		// 노말 벡터 초기화
+		dest[i] = 0;
+		// 방향 계산
+		SUB(d[i], p[(i + 1) % 3], p[i]);
+		// normalize;
+		VECTOR_NORMALIZE(n[i]);
 	}
 
-	// 적당한 점을 선정하지 못할 경우 그냥 return
-	if (p1 == NULL || p2 == NULL || p3 == NULL)
-		return;
-	if (p1[1] == p2[1] || p1[1] == p3[1])
-		return;
-	
-	xa = (p1[0] - p2[0])*(ys - p2[1]) / (p1[1] - p2[1]) + p2[0];
-	xb = (p1[0] - p3[0])*(ys - p3[1]) / (p1[1] - p3[1]) + p3[0];
-	if (xa == xb)
-		return;
+	// 접점을 지나면서 xz 평면에 수평한 평면과, 각 edge와의 접점을 구함.
+	for (i = 0; i < 3; i++){
+		float u = -1;
+		int flag = 0;
 
-	for (axis = 0; axis < 3; axis++)
-	{
-		na[axis] = (n1[axis] * (ys - p2[1]) + n2[axis] * (p1[1] - ys)) / (p1[1] - p2[1]);
-		nb[axis] = (n1[axis] * (ys - p3[1]) + n3[axis] * (p1[1] - ys)) / (p1[1] - p3[1]);
-		dest[axis] = (na[axis] * (xs - xb) + nb[axis] * (xa - xs)) / (xa - xb);
+		// P + u*D = inter_p 가 될 수 있도록 u를 구함.
+		if (d[i][1] != 0){
+			u = (point[1] - p[i][1]) / d[i][1];
+			if (0 <= u && u <= 1){
+				flag = 1;
+			}
+		}
+		else if (fabsf(point[1] - p[i][1]) < 0.001){
+			flag = 1;
+		}
+
+		// 적당한 u가 구해졌다면 접점을 확정지음
+		if (flag && u != -1){
+			for (j = 0; j < 3; j++){
+				inter_p[inter_count][j] = p[i][j] + d[i][j] * u;
+				inter_n[inter_count][j] = (1 - u)*n[i][j] + u*n[(i + 1) % 3][j];
+			}
+			VECTOR_NORMALIZE(inter_n[inter_count]);
+			inter_count++;
+		}
+		// edge가 평면 위에 있으면 두 edge의 끝 점을 접점으로 잡고 연산을 끝냄
+		else if (flag && u == -1){
+			for (j = 0; j < 3; j++){
+				inter_p[0][j] = p[i][j];
+				inter_n[0][j] = n[i][j];
+				inter_p[1][j] = p[(i + 1) % 3][j];
+				inter_n[1][j] = n[(i + 1) % 3][j];
+			}
+			VECTOR_NORMALIZE(inter_n[0]);
+			VECTOR_NORMALIZE(inter_n[1]);
+			inter_count = 2;
+			break;
+		}
+	}
+
+	// 접점이 2개 나와야 정상임
+	if (inter_count == 2){
+		SUB(temp, inter_p[0], point);
+		temp_length = sqrtf(length_sq(temp));
+		SUB(temp2, inter_p[1], point);
+		temp2_length = sqrtf(length_sq(temp2));
+
+		if (temp_length + temp2_length == 0){
+			printf("???");
+		}
+
+		for (i = 0; i < 3; i++)
+		{
+			dest[i] = (inter_n[0][i] * temp2_length + inter_n[1][i] * temp_length) / (temp_length + temp2_length);
+		}
+		VECTOR_NORMALIZE(dest);
 	}
 }

@@ -37,6 +37,10 @@
 	(dest)[2]=src[2];
 #define is_two_point_equal(p1, p2) (((p1)[0] == (p2)[0] && (p1)[1] == (p2)[1] && (p1)[2] == (p2)[2])? 1: 0)
 	
+#define VECTOR_NORMALIZE(vector) {								\
+	float ray_length = (float)sqrtf(length_sq(vector));			\
+	if (ray_length > 0) scalar_multi(vector, 1 / ray_length);	}
+
 #define PI 3.14159265f
 
 
