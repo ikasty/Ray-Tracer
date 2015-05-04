@@ -70,7 +70,7 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 		return ist_hit;
 
 	t = DOT(edge2, qvec) * inv_det;
-	if (t > ray->max_t)
+	if (t > ray->max_t || t <= 0 || t < ray->min_t)
 		return ist_hit;
 
 	ist_hit.t = ray->max_t = t;

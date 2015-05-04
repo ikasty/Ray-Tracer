@@ -8,6 +8,9 @@
 // include search and render algorithm
 #include "algorithms.h"
 
+// shading algorithm
+#include "shading/shading.h"
+
 #include "bitmap_make.h"
 #include "obj_transform.h"
 #include "settings.h"
@@ -79,6 +82,10 @@ static void do_algorithm(Data *data, char *input_file)
 				get_rotated_vector(data->primitives[i].vert0);
 				get_rotated_vector(data->primitives[i].vert1);
 				get_rotated_vector(data->primitives[i].vert2);
+
+				get_rotated_vector(data->primitives[i].norm0);
+				get_rotated_vector(data->primitives[i].norm1);
+				get_rotated_vector(data->primitives[i].norm2);
 			}
 		}
 
@@ -130,7 +137,7 @@ static void do_algorithm(Data *data, char *input_file)
 
 					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
 					end_clock = clock();
 
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
@@ -165,7 +172,7 @@ int main(int argc, char *argv[])
 
 	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:s:")) != -1)
+	while ((c = getopt(argc, argv, "hc:a:f:s:S:")) != -1)
 	{
 long_option:
 		switch (c)
@@ -188,6 +195,10 @@ long_option:
 			break;
 
 		case 's':
+			init_shading_algo(optarg);
+			break;
+
+		case 'S':
 			scale = (float)atof(optarg);
 			printf("image scale to %f\n", scale);
 			break;
@@ -208,7 +219,8 @@ long_option:
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
-				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
+				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
+				"  -S SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 

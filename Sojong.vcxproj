@@ -39,7 +39,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDIr);</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -78,11 +81,12 @@
     <ClCompile Include="kdtree\nlog2n_build.c" />
     <ClCompile Include="kdtree\nlogn_build.c" />
     <ClCompile Include="naive\naive_intersection.c" />
-    <ClCompile Include="naive\naive_shading.c" />
     <ClCompile Include="obj_transform.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="settings.c" />
-    <ClCompile Include="shadow_ray.c" />
+    <ClCompile Include="shading\naive_shading.c" />
+    <ClCompile Include="shading\phong_shading.c" />
+    <ClCompile Include="shading\shading.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.h" />
@@ -106,9 +110,11 @@
     <ClInclude Include="kdtree\nlogn_build.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />
-    <ClInclude Include="naive\naive_shading.h" />
     <ClInclude Include="obj_transform.h" />
     <ClInclude Include="settings.h" />
+    <ClInclude Include="shading\naive_shading.h" />
+    <ClInclude Include="shading\phong_shading.h" />
+    <ClInclude Include="shading\shading.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

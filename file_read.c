@@ -8,6 +8,9 @@
 
 #include "include/debug-msg.h"
 
+enum {
+	X, Y, Z
+};
 
 static void resize_if_full(void **array, int curr, int *capacity, int size)
 {
@@ -75,7 +78,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 	// normal vector info
 	int norm_count = 0, norm_capacity = 0;
-	Vertex *norm = NULL;
+	Normal *norm = NULL;
 
 	char buf_orig[100];
 
@@ -110,23 +113,23 @@ int file_read(FILE* fp, Data *data, float scale)
 			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
 
 			// 우리는 w값을 사용하지 않음
-			vert[vert_count].vect[0] = x * scale;
-			vert[vert_count].vect[1] = y * scale;
-			vert[vert_count].vect[2] = z * scale;
+			vert[vert_count].vect[X] = x * scale;
+			vert[vert_count].vect[Y] = y * scale;
+			vert[vert_count].vect[Z] = z * scale;
 			vert_count++;
 
 			continue;
 		}
 		else if (strcmp(op, "vn") == 0){
-			float x, y, z, w = 1.0;
+			float i, j, k;
 
 			resize_if_full( (void**)&norm, norm_count, &norm_capacity, sizeof(norm[0]) );
 			
-			sscanf(buf, "%f %f %f %f", &x, &y, &z, &w);
+			sscanf(buf, "%f %f %f", &i, &j, &k);
 
-			norm[norm_count].vect[0] = x;
-			norm[norm_count].vect[1] = y;
-			norm[norm_count].vect[2] = z;
+			norm[norm_count].norm[X] = i;
+			norm[norm_count].norm[Y] = j;
+			norm[norm_count].norm[Z] = k;
 			norm_count++;
 
 			continue;
@@ -157,10 +160,11 @@ int file_read(FILE* fp, Data *data, float scale)
 				if (vn < 0) vn += norm_count + 1;
 
 				// vn값이 없으면 v랑 같은 인덱스를 사용함
-				if (!vn && v <= norm_count) vn = v;
+				//if (!vn && v <= norm_count) vn = v;
 
 				// 결과에 대입함
 				result[0][cnt] = v;
+				result[1][cnt] = vt;
 				result[2][cnt] = vn;
 
 				if (cnt < 2)
@@ -196,47 +200,68 @@ int file_read(FILE* fp, Data *data, float scale)
 	// TODO: vert0, vert1, vert2를 배열로 바꿔보자
 	data->primitives = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
 	data->prim_count = face_count;
-
 	{
 		int i;
 		for (i = 0; i < data->prim_count; i++)
 		{
 			Primitive *prim = &data->primitives[i];
-			float temp0[3], temp1[3], temp2[3], temp3[3];
 
-			prim->vert0[0] = vert[ face[i].v[0] - 1 ].vect[0];
-			prim->vert0[1] = vert[ face[i].v[0] - 1 ].vect[1];
-			prim->vert0[2] = vert[ face[i].v[0] - 1 ].vect[2];
+			#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
+			#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
 
-			prim->vert1[0] = vert[ face[i].v[1] - 1 ].vect[0];
-			prim->vert1[1] = vert[ face[i].v[1] - 1 ].vect[1];
-			prim->vert1[2] = vert[ face[i].v[1] - 1 ].vect[2];
+			prim->vert0[X] = vert[ FACE_VERT(0) ].vect[X];
+			prim->vert0[Y] = vert[ FACE_VERT(0) ].vect[Y];
+			prim->vert0[Z] = vert[ FACE_VERT(0) ].vect[Z];
+
+			prim->vert1[X] = vert[ FACE_VERT(1) ].vect[X];
+			prim->vert1[Y] = vert[ FACE_VERT(1) ].vect[Y];
+			prim->vert1[Z] = vert[ FACE_VERT(1) ].vect[Z];
 			
-			prim->vert2[0] = vert[ face[i].v[2] - 1 ].vect[0];
-			prim->vert2[1] = vert[ face[i].v[2] - 1 ].vect[1];
-			prim->vert2[2] = vert[ face[i].v[2] - 1 ].vect[2];
+			prim->vert2[X] = vert[ FACE_VERT(2) ].vect[X];
+			prim->vert2[Y] = vert[ FACE_VERT(2) ].vect[Y];
+			prim->vert2[Z] = vert[ FACE_VERT(2) ].vect[Z];
 
 			prim->prim_id = i;
 
-			if (face[i].vn[0] && norm[ face[i].vn[0] - 1 ].vect[0] != 0)
+			// normal vector가 지정되 있다면
+			if (FACE_NORM(0) >= 0)
 			{
-				//normal vector와 비교해서 결과 값을 고치는 코드 추가
+				float temp0[3], temp1[3];
+				float prim_normal[3];
+
+				prim->norm0[X] = norm[ FACE_NORM(0) ].norm[X];
+				prim->norm0[Y] = norm[ FACE_NORM(0) ].norm[Y];
+				prim->norm0[Z] = norm[ FACE_NORM(0) ].norm[Z];
+
+				prim->norm1[X] = norm[ FACE_NORM(1) ].norm[X];
+				prim->norm1[Y] = norm[ FACE_NORM(1) ].norm[Y];
+				prim->norm1[Z] = norm[ FACE_NORM(1) ].norm[Z];
+				
+				prim->norm2[X] = norm[ FACE_NORM(2) ].norm[X];
+				prim->norm2[Y] = norm[ FACE_NORM(2) ].norm[Y];
+				prim->norm2[Z] = norm[ FACE_NORM(2) ].norm[Z];
+
+				prim->use_normal = 1;
+
+				// primitive의 시계방향-반시계방향 체크
+				// 1. primitive의 normal vector를 구하고
 				SUB(temp0, prim->vert1, prim->vert0);
 				SUB(temp1, prim->vert2, prim->vert0);
-				CROSS(temp2, temp0, temp1);
-				
-				// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
-				if (DOT(norm[ face[i].vn[0] - 1 ].vect, temp2) <= 0)
+				CROSS(prim_normal, temp0, temp1);
+
+				// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
+				if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
 				{
-					memcpy(temp3, prim->vert1, sizeof(float)*3);
+					// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
+					float temp[3];
+					memcpy(temp, prim->vert1, sizeof(float)*3);
 					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
-					memcpy(prim->vert2, temp3, sizeof(float)*3);
+					memcpy(prim->vert2, temp, sizeof(float)*3);
+					memcpy(temp, prim->norm1, sizeof(float) * 3);
+					memcpy(prim->norm1, prim->norm2, sizeof(float) * 3);
+					memcpy(prim->norm2, temp, sizeof(float) * 3);
 				}
-				else
-				{
-					int a = 0;
-					a+= 1;
-				}
+
 			}
 		}
 	}

@@ -24,9 +24,6 @@
     <ClCompile Include="gen_ray.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="shadow_ray.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="file_read.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
     <ClCompile Include="naive\naive_intersection.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="naive\naive_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="include\getopt.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -64,6 +58,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="kdtree\kdtree_intersect_clear.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\naive_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\phong_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,9 +95,6 @@
     <ClInclude Include="include\msl_math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree\bbox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -108,9 +108,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="naive\naive_intersection.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="naive\naive_shading.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="algorithms.h">
@@ -138,6 +135,18 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="kdtree\kdtree_intersect_clear.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\naive_shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\phong_shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\type.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
