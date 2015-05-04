@@ -12,20 +12,22 @@
 #include "include/type.h"
 #include "algorithms.h"
 
+#define VECTOR_NORMALIZE(vector) {								\
+	float ray_length = (float)sqrtf(length_sq(vector));			\
+	if (ray_length > 0) scalar_multi(vector, 1 / ray_length);	}
+
 unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 {
 	unsigned int out_color = 0;
 	float hit_point[3];
-	float ray_point_to_light[3], ray_length;
-	float normal_vector[3], normal_length;
-	float h[3], h_length;
+	float ray_point_to_light[3], normal_vector[3];
+	float h[3];
 	int axis, result_of_color;
 	float ld, ls, la;
 	Ray shadow_ray, viewer_ray;
 	Hit shadow_hit;
 
 	USE_LIGHT(light);
-	USE_CAMERA(cam);
 
 	la = 25;
 
@@ -39,8 +41,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 
 		// 접점에서 광원까지의 광선을 구함
 		SUB(ray_point_to_light, light, hit_point);
-		ray_length = (float)sqrtf(length_sq(ray_point_to_light));
-		if (ray_length > 0) scalar_multi(ray_point_to_light, 1 / ray_length);
+		VECTOR_NORMALIZE(ray_point_to_light);
 
 		// 노멀 벡터가 없거나 노멀 벡터 함수가 지정되지 않은 경우
 		if (primitive.use_normal == 0 || normal_shade == NULL)
@@ -51,9 +52,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 		{
 			(*normal_shade)(normal_vector, hit_point, primitive);
 		}
-
-		normal_length = (float)sqrtf( length_sq(normal_vector) );
-		if (normal_length > 0) scalar_multi(normal_vector, 1 / normal_length);
+		VECTOR_NORMALIZE(normal_vector);
 
 		// 노멀 벡터와 광원 사이의 cos값을 구함
 		ld = DOT(ray_point_to_light, normal_vector);
@@ -76,8 +75,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 		{
 			h[axis] = viewer_ray.dir[axis] + shadow_ray.dir[axis];
 		}
-		h_length = (float)sqrtf(length_sq(h));
-		scalar_multi(h, 1 / h_length);
+		VECTOR_NORMALIZE(h);
 		
 		ls = DOT(normal_vector, h);
 		if (ls < 0) ls = 0;
