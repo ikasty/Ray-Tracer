@@ -241,6 +241,8 @@ int file_read(FILE* fp, Data *data, float scale)
 				prim->norm2[Y] = norm[ FACE_NORM(2) ].norm[Y];
 				prim->norm2[Z] = norm[ FACE_NORM(2) ].norm[Z];
 
+				prim->use_normal = 1;
+
 				// primitive의 시계방향-반시계방향 체크
 				// 1. primitive의 normal vector를 구하고
 				SUB(temp0, prim->vert1, prim->vert0);

@@ -41,6 +41,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDIr);</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -80,8 +83,9 @@
     <ClCompile Include="obj_transform.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="settings.c" />
-    <ClCompile Include="shading\advanced_shading.c" />
     <ClCompile Include="shading\naive_shading.c" />
+    <ClCompile Include="shading\phong_shading.c" />
+    <ClCompile Include="shading\shading.c" />
     <ClCompile Include="shadow_ray.c" />
   </ItemGroup>
   <ItemGroup>
@@ -108,8 +112,9 @@
     <ClInclude Include="naive\naive_intersection.h" />
     <ClInclude Include="obj_transform.h" />
     <ClInclude Include="settings.h" />
-    <ClInclude Include="shading\advanced_shading.h" />
     <ClInclude Include="shading\naive_shading.h" />
+    <ClInclude Include="shading\phong_shading.h" />
+    <ClInclude Include="shading\shading.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
