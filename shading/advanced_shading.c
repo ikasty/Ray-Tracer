@@ -2,12 +2,13 @@
 #include <string.h>
 #include <math.h>
 
-#include "../settings.h"
-#include "../include/msl_math.h"
-#include "../include/type.h"
-#include "../algorithms.h"
+#include "settings.h"
+#include "include/msl_math.h"
+#include "include/type.h"
+#include "algorithms.h"
 
-void get_interpo_norm(float dest[3], float point[3], Primitive prim){
+void get_interpo_norm(float dest[3], float point[3], Primitive prim)
+{
 	float na[3], nb[3];
 	int axis;
 	float *p1 = NULL, *p2 = NULL, *p3 = NULL;
@@ -41,15 +42,19 @@ void get_interpo_norm(float dest[3], float point[3], Primitive prim){
 	// 그 외의 경우 다양한 조건을 고려하여 점 선정
 	if ((prim.vert0[1] - point[1])*(point[1] - prim.vert1[1]) >= 0 && prim.vert0[1] != prim.vert1[1]) 
 	{
-		if ((prim.vert0[1] - point[1])*(point[1] - prim.vert2[1]) >= 0 
-			&& prim.vert0[1] != prim.vert2[1] && prim.vert0[1] != point[1]){
+		if ((prim.vert0[1] - point[1]) * (point[1] - prim.vert2[1]) >= 0 &&
+			(prim.vert0[1] != prim.vert2[1]) &&
+			(prim.vert0[1] != point[1]))
+		{
 			p1 = prim.vert0;
 			n1 = prim.norm0;
 			p2 = prim.vert1;
 			n2 = prim.norm1;
 		}
-		else if ((prim.vert1[1] - point[1])*(point[1] - prim.vert2[1]) >= 0 
-			&& prim.vert1[1] != prim.vert2[1] && prim.vert1[1] != point[1]){
+		else if ((prim.vert1[1] - point[1]) * (point[1] - prim.vert2[1]) >= 0 &&
+			(prim.vert1[1] != prim.vert2[1]) &&
+			(prim.vert1[1] != point[1]))
+		{
 			p1 = prim.vert1;
 			n1 = prim.norm1;
 			p2 = prim.vert0;
@@ -58,8 +63,9 @@ void get_interpo_norm(float dest[3], float point[3], Primitive prim){
 		p3 = prim.vert2;
 		n3 = prim.norm2;
 	}
-	else if (prim.vert2[1] != prim.vert0[1] && prim.vert2[1] != prim.vert1[1] 
-		&& prim.vert2[1] != point[1])
+	else if ((prim.vert2[1] != prim.vert0[1]) &&
+		(prim.vert2[1] != prim.vert1[1]) &&
+		(prim.vert2[1] != point[1]))
 	{
 		p1 = prim.vert2;
 		n1 = prim.norm2;
@@ -67,7 +73,8 @@ void get_interpo_norm(float dest[3], float point[3], Primitive prim){
 		n2 = prim.norm0;
 		p3 = prim.vert1;
 		n3 = prim.norm1;
-	}	
+	}
+
 	// 적당한 점을 선정하지 못할 경우 그냥 return
 	if (p1 == NULL || p2 == NULL || p3 == NULL)
 		return;
@@ -102,19 +109,22 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 	USE_LIGHT(light);
 	USE_CAMERA(cam);
 
-	if (hit.u >= 0 && hit.v >= 0 && hit.u + hit.v <= 1) {
+	if (hit.u >= 0 && hit.v >= 0 && hit.u + hit.v <= 1)
+	{
 		// 접점을 구함
-		for (axis = 0; axis<3; axis++){
+		for (axis = 0; axis < 3; axis++)
+		{
 			hit_point[axis] = ray_light_to_point.orig[axis] + (hit.t * ray_light_to_point.dir[axis]);
 		}	
 		// 접점에서 광원까지의 광선을 구함
 		SUB(ray_point_to_light, light, hit_point);
-		ray_length = (float)sqrtf(length_sq(ray_point_to_light));
+		ray_length = (float)sqrtf( length_sq(ray_point_to_light) );
 		scalar_multi(ray_point_to_light, 1 / ray_length);
 
 		if (data->primitives[hit.prim_id].norm0[0] == 0 && 
 			data->primitives[hit.prim_id].norm0[1] == 0 &&
-			data->primitives[hit.prim_id].norm0[2] == 0){
+			data->primitives[hit.prim_id].norm0[2] == 0)
+		{
 			SUB(edge1, s_tri.vert1, hit_point);
 			SUB(edge2, s_tri.vert2, hit_point);
 			CROSS(normal_vector2, edge1, edge2);
@@ -124,26 +134,24 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 				scalar_multi(normal_vector, 1 / normal_length);
 			}
 		}
-		else {
+		else
+		{
 			get_interpo_norm(normal_vector, hit_point, data->primitives[hit.prim_id]);
-			normal_length = (float)sqrtf(length_sq(normal_vector));
-			if (normal_length > 0){
+			normal_length = (float)sqrtf( length_sq(normal_vector) );
+			if (normal_length > 0)
+			{
 				scalar_multi(normal_vector, 1 / normal_length);
 			}
 		}				
 
-		// ��� ���Ϳ� ���� ������ cos���� ����
+		// 노멀 벡터와 광원 사이의 cos값을 구함
 		ld = DOT(ray_point_to_light, normal_vector);
 		if (ld < 0) ld = 0;
 
-		if (ld != ld){
-			//printf("\n(%f, %f): %f %f %f \n", hit_point[0], hit_point[1], normal_vector[0], normal_vector[1], normal_vector[2]);
-			printf("\n%f\n", ld);
-		}
-
-		// �������� ���������� ����(����)�� �������� �������� ���� �߰�
-		for (axis = 0; axis < 3; axis++){
-			// ǥ�鿡�� ��¦ ������ ���� ���� ��������� ����ϴ�.
+		// 접점에서 광원까지의 광선(보정)과 접점에서 눈까지의 광선 추가
+		for (axis = 0; axis < 3; axis++)
+		{
+			// 표면에서 살짝 떨어진 곳을 광선 출발점으로 잡습니다.
 			shadow_ray.orig[axis] = hit_point[axis];
 			shadow_ray.dir[axis] = light[axis] - shadow_ray.orig[axis];
 			viewer_ray.orig[axis] = hit_point[axis];
@@ -155,26 +163,30 @@ unsigned int advanced_shading(Ray ray_light_to_point, Primitive s_tri, Hit hit, 
 		viewer_ray.max_t = MAX_RENDER_DISTANCE;
 
 		// 반사광 계산
-		for (axis = 0; axis < 3; axis++){
+		for (axis = 0; axis < 3; axis++)
+		{
 			h[axis] = viewer_ray.dir[axis] + shadow_ray.dir[axis];
 		}
-		h_length = (float)sqrtf(length_sq(h));
+		h_length = (float)sqrtf( length_sq(h) );
 		scalar_multi(h, 1 / h_length);
 		ls = DOT(normal_vector, h);
-		ls = ls>0 ? ls : 0;
+		ls = (ls>0) ? ls : 0;
 		ls = powf(ls, SHINESS);
 
 		// 그림자 테스트 및 반짝이는 효과 추가
 		// 자신의 면에 부딫히는건 판단하지 않음
 		shadow_hit = (*intersect_search)(data, &shadow_ray);
-		if (shadow_hit.t > 0 && shadow_hit.u >= 0 && shadow_hit.v >= 0 && shadow_hit.u + shadow_hit.v <= 1 
-			&& shadow_hit.prim_id != hit.prim_id) {
+		if ((shadow_hit.t > 0) && (shadow_hit.u >= 0) && (shadow_hit.v >= 0) &&
+			(shadow_hit.u + shadow_hit.v <= 1) &&
+			(shadow_hit.prim_id != hit.prim_id))
+		{
 			result_of_color = 0;
 		}
-		else{
+		else
+		{
 			result_of_color = (int)(255 * (ld + ls*0.5));
 		}
-		result_of_color = result_of_color + 25 > 255 ? 255 : result_of_color + 25;
+		result_of_color = (result_of_color + 25 > 255) ? 255 : (result_of_color + 25);
 		out_color = 0xff000000 | result_of_color << 16 | result_of_color << 8 | result_of_color;
 	}
 	return out_color;
