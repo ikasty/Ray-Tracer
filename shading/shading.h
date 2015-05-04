@@ -1,3 +1,5 @@
+#include "include/type.h"
+
 #ifndef SHADING_H
 #define SHADING_H
 

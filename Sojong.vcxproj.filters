@@ -60,10 +60,13 @@
     <ClCompile Include="kdtree\nlogn_build.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="shading\advanced_shading.c">
+    <ClCompile Include="shading\naive_shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="shading\naive_shading.c">
+    <ClCompile Include="shading\phong_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -137,10 +140,13 @@
     <ClInclude Include="bitmap_make.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="shading\advanced_shading.h">
+    <ClInclude Include="shading\naive_shading.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="shading\naive_shading.h">
+    <ClInclude Include="shading\phong_shading.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\shading.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

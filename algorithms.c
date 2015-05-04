@@ -70,10 +70,15 @@ void init_shading_algo(char *shading_name)
 		printf("use naive shading\n");
 		normal_shade = &naive_shading;
 	}
+	else if (strncmp(shading_name, "phong", 5) == 0)
+	{
+		printf("use phong shading\n");
+		normal_shade = &phong_shading;
+	}
 	else
 	{
-		printf("use default(naive) shading\n");
-		normal_shade = &naive_shading;
+		printf("use default(phong) shading\n");
+		normal_shade = &phong_shading;
 	}	
 	return ;
 }

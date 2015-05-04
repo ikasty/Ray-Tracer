@@ -24,11 +24,6 @@
 
 #define SHINESS					300
 
-// define if use accel option
-//#define ACCEL_OPTION
-// define if program get accel option
-//#define ACCEL_USE_ASK
-
 ///////////////////////////////////////////////
 // option structs
 // usage: USE_CAMERA(cam); cam->orig[0];

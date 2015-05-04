@@ -1,6 +1,6 @@
-﻿#ifndef SHADOW_SHADING_H
-#define SHADOW_SHADING_H
+﻿#ifndef PHONG_SHADING_H
+#define PHONG_SHADING_H
 
-unsigned int advanced_shading(Ray s_ray, Primitive s_tri, Hit __hit, Data *data);
+void phong_shading(float dest[3], float point[3], Primitive prim);
 
 #endif

@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 
 	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:s:")) != -1)
+	while ((c = getopt(argc, argv, "hc:a:f:s:S:")) != -1)
 	{
 long_option:
 		switch (c)
