@@ -1,4 +1,4 @@
-#include <float.h>
+ï»¿#include <float.h>
 #include <stdlib.h>
 #include "nlogn_build.h"
 #include "kdtree_common.h"
@@ -14,15 +14,15 @@ static int compare_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
 
-	// 1. t°ªÀ¸·Î Á¤·Ä
+	// 1. tê°’ìœ¼ë¡œ ì •ë ¬
 	if (l->t != r->t)
 		return (l->t) > (r->t) ? 1 : -1;
 
-	// 2. axis·Î Á¤·Ä
+	// 2. axisë¡œ ì •ë ¬
 	if (l->axis != r->axis)
 		return (l->axis) > (r->axis) ? 1 : -1;
 
-	// 3. type·Î Á¤·Ä
+	// 3. typeë¡œ ì •ë ¬
 	return (l->e_type) > (r->e_type) ? 1 : -1;
 }
 
@@ -78,21 +78,21 @@ static void get_prim_nums_for_leaf(int* prims, int nPrimsMax, BoundEdge* edges, 
 	free(checked_prims);
 }
 
-// build tree ÇÔ¼ö´Â tree node¸¶´Ù ºÒ·¯¿ÍÁö¹Ç·Î 
-// ÀÎÅ×¸®¾î ³ëµå¿Í ¸®ÇÁ³ëµå¸¦ ±¸º°ÇØ¾ß ÇÑ´Ù.
+// build tree í•¨ìˆ˜ëŠ” tree nodeë§ˆë‹¤ ë¶ˆëŸ¬ì™€ì§€ë¯€ë¡œ 
+// ì¸í…Œë¦¬ì–´ ë…¸ë“œì™€ ë¦¬í”„ë…¸ë“œë¥¼ êµ¬ë³„í•´ì•¼ í•œë‹¤.
 static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nodeBounds, BBox *prim_bounds, int total_prim_counts, int depth, 
 	BoundEdge *edges, int edges_count, int *extreme_indexes[2][3], int extreme_indexes_count[2][3], float extreme_bounds[2][3], int badRefines)
 {	
-	// kdtreeÀÇ ÀÚ½Ä ³ëµå º¯¼ö
+	// kdtreeì˜ ìì‹ ë…¸ë“œ ë³€ìˆ˜
 	KDAccelNode *below_child, *above_child;
-	// ÀÚ½Ä ³ëµåÀÇ boundary box
+	// ìì‹ ë…¸ë“œì˜ boundary box
 	BBox bbox_below, bbox_above;
 
-	// Á¦ÇÑ cost
+	// ì œí•œ cost
 	float oldCost = (float)kdtree->isectCost * total_prim_counts;
-	// total SAÀÇ ¿ª¼ö°ª
+	// total SAì˜ ì—­ìˆ˜ê°’
 	float invTotalSA = 1.f / get_surface_of_bbox(nodeBounds);
-	// ÃÖÀû cost
+	// ìµœì  cost
 	float bestCost = FLT_MAX;
 	// diagonal vector
 	float d[3] = {
@@ -113,10 +113,10 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	int extreme_count_for_below[2][3];
 	int i, j, k;
 		
-	// ÀÚ½Ä ³ëµå¸¦ À§ÇÑ °ø°£ È®º¸
+	// ìì‹ ë…¸ë“œë¥¼ ìœ„í•œ ê³µê°„ í™•ë³´
 	allocChild(kdtree);
 
-	// Á¾·á Á¶°Ç¿¡ ´Ù´Ù¸£¸é ¸®ÇÁ ³ëµå·Î »ı¼º
+	// ì¢…ë£Œ ì¡°ê±´ì— ë‹¤ë‹¤ë¥´ë©´ ë¦¬í”„ ë…¸ë“œë¡œ ìƒì„±
 	if (total_prim_counts <= kdtree->maxPrims || depth == 0)
 	{
 		primNums = (int*)malloc(total_prim_counts * sizeof(int));
@@ -127,10 +127,10 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	}
 
 	{
-		// bestPlane ÃÊ±âÈ­
+		// bestPlane ì´ˆê¸°í™”
 		bestPlane.axis = -1;
 
-		// Æò¸éÀ¸·Î ³ª´©¾îÁø ¿µ¿ª¿¡ ¼ÓÇÑ prim °³¼ö ÃÊ±âÈ­ 
+		// í‰ë©´ìœ¼ë¡œ ë‚˜ëˆ„ì–´ì§„ ì˜ì—­ì— ì†í•œ prim ê°œìˆ˜ ì´ˆê¸°í™” 
 		for (i = 0; i < 3; i++)
 		{
 			nAbove[i] = total_prim_counts - extreme_indexes_count[0][i];
@@ -138,7 +138,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 			nBelow[i] = extreme_indexes_count[0][i];
 		}
 
-		// edge·Î Æò¸éÀ» ¸¸µé¾î ³ª´³À» ¶§ cost°¡ ÃÖ¼Ò°¡ µÇ´Â Æò¸é ±¸ÇÔ
+		// edgeë¡œ í‰ë©´ì„ ë§Œë“¤ì–´ ë‚˜ëˆ´ì„ ë•Œ costê°€ ìµœì†Œê°€ ë˜ëŠ” í‰ë©´ êµ¬í•¨
 		i = 0;
 		while (i < edges_count)
 		{
@@ -147,7 +147,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 			float maxBound = min(nodeBounds->faaBounds[1][curPlane.axis], extreme_bounds[1][curPlane.axis]);
 			int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
 
-			// ÇöÀç Æò¸é¿¡ ´ê¾Æ ÀÖ´Â edgeµéÀ» ºĞ·ùÇÔ
+			// í˜„ì¬ í‰ë©´ì— ë‹¿ì•„ ìˆëŠ” edgeë“¤ì„ ë¶„ë¥˜í•¨
 			while (i < edges_count && edges[i].axis == curPlane.axis && edges[i].t == curPlane.t)
 			{				
 				switch (edges[i++].e_type)
@@ -166,13 +166,13 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 			nAbove[curPlane.axis] -= (nEndOfCurPlane + nPlanarOfCurPlane);
 			nPlanar[curPlane.axis] = nPlanarOfCurPlane;
 
-			// ÄÚ½ºÆ® °è»ê
+			// ì½”ìŠ¤íŠ¸ ê³„ì‚°
 			if (minBound < curPlane.t && curPlane.t < maxBound)
 			{
 				float cost;
 				int side;
 
-				// ÀÌ ³ëµå ¹üÀ§ ³»¿¡ ÀÖ´Â edge¸¦ À§ÇÑ cost °è»ê
+				// ì´ ë…¸ë“œ ë²”ìœ„ ë‚´ì— ìˆëŠ” edgeë¥¼ ìœ„í•œ cost ê³„ì‚°
 				int otherAxis0 = (curPlane.axis + 1) % 3, otherAxis1 = (curPlane.axis + 2) % 3;
 				float pBelow = 2 * (
 					(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
@@ -187,7 +187,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 
 				cost = getCost(kdtree, nCurB, nCurP, nCurA, pBelow, pAbove, &side);
 
-				// ÃÖ¼Ò ÄÚ½ºÆ®¶ó¸é °»½Å
+				// ìµœì†Œ ì½”ìŠ¤íŠ¸ë¼ë©´ ê°±ì‹ 
 				if (cost < bestCost)
 				{
 					bestPlane = curPlane;
@@ -208,14 +208,14 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 				}
 			}
 
-			// ´ÙÀ½ loop¸¦ À§ÇÑ º¯¼ö Á¶Á¤ 
+			// ë‹¤ìŒ loopë¥¼ ìœ„í•œ ë³€ìˆ˜ ì¡°ì • 
 			nPlanar[curPlane.axis] = 0;
 			nBelow[curPlane.axis] += (nPlanarOfCurPlane + nStartOfCurPlane);			
 		} // while
 	}
 	if (bestCost > oldCost) badRefines++;
 
-	// ºĞÇÒÇÒ ¸¸ÇÑ Àû´çÇÑ À§Ä¡°¡ ¾øÀ¸¸é ¸®ÇÁ ³ëµå »ı¼º
+	// ë¶„í• í•  ë§Œí•œ ì ë‹¹í•œ ìœ„ì¹˜ê°€ ì—†ìœ¼ë©´ ë¦¬í”„ ë…¸ë“œ ìƒì„±
 	if ((bestCost > 4.f * oldCost && total_prim_counts < 16) || bestPlane.axis == -1 || badRefines >= 3)
 	{
 		primNums = (int*)malloc(total_prim_counts * sizeof(int));
@@ -226,8 +226,8 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	}
 
 
-	// above node¿Í below node¿¡ Àü´ŞÇÒ extreme prims¸¦ ¼±º°ÇÔ
-	// ÃÊ±âÈ­
+	// above nodeì™€ below nodeì— ì „ë‹¬í•  extreme primsë¥¼ ì„ ë³„í•¨
+	// ì´ˆê¸°í™”
 	for (i = 0; i < 2; i++)
 	{
 		for (j = 0; j < 3; j++)
@@ -239,7 +239,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 		}
 	}
 
-	// bestPlaneÀ» ¹ÙÅÁÀ¸·Î edges¸¦ left, right µÎ ±×·ìÀ¸·Î ³ª´©´Â °úÁ¤
+	// bestPlaneì„ ë°”íƒ•ìœ¼ë¡œ edgesë¥¼ left, right ë‘ ê·¸ë£¹ìœ¼ë¡œ ë‚˜ëˆ„ëŠ” ê³¼ì •
 	{
 		BoundEdge *leftOnlys, *rightOnlys, *bothLefts, *bothRights;
 		int *location_of_prims;
@@ -251,12 +251,12 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 		bothRights = (BoundEdge *)malloc(edges_count * sizeof(BoundEdge));
 		location_of_prims = (int *)malloc(kdtree->nPrims * sizeof(int));
 
-		// edge¿¡ µû¶ó primitive°¡ ¾î´À ÂÊ¿¡ ¼ÓÇÏ´ÂÁö °áÁ¤		
+		// edgeì— ë”°ë¼ primitiveê°€ ì–´ëŠ ìª½ì— ì†í•˜ëŠ”ì§€ ê²°ì •		
 		for (i = 0; i < kdtree->nPrims; i++){
 			location_of_prims[i] = BOTH;
 		}
 
-		// extrem prims ¼±¹ß
+		// extrem prims ì„ ë°œ
 		for (i = 0; i < 2; i++)
 		{
 			for (j = 0; j < 3; j++)
@@ -268,19 +268,19 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 					float min_bound_of_prim = prim_bounds[prim_index].faaBounds[0][axis];
 					float max_bound_of_prim = prim_bounds[prim_index].faaBounds[1][axis];
 
-					// extreme primÀÌ ºĞÇÒ Æò¸é ¹Ø¿¡ ÀÖ´Â °æ¿ì
+					// extreme primì´ ë¶„í•  í‰ë©´ ë°‘ì— ìˆëŠ” ê²½ìš°
 					if (max_bound_of_prim <= bestPlane.t)
 					{
 						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = prim_index;
 						location_of_prims[prim_index] = BELOW;
 					}
-					// extreme primÀÌ ºĞÇÒ Æò¸é À§¿¡ ÀÖ´Â °æ¿ì
+					// extreme primì´ ë¶„í•  í‰ë©´ ìœ„ì— ìˆëŠ” ê²½ìš°
 					else if (min_bound_of_prim >= bestPlane.t)
 					{
 						extreme_for_above[i][j][extreme_count_for_above[i][j]++] = prim_index;
 						location_of_prims[prim_index] = ABOVE;
 					}
-					// extreme primÀÌ ºĞÇÒ Æò¸é ¾çÂÊ¿¡ ÀÖ´Â °æ¿ì
+					// extreme primì´ ë¶„í•  í‰ë©´ ì–‘ìª½ì— ìˆëŠ” ê²½ìš°
 					else
 					{
 						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = prim_index;
@@ -290,7 +290,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 			}
 		}
 		
-		// ÇöÀç edge¿¡ µû¶ó 
+		// í˜„ì¬ edgeì— ë”°ë¼ 
 		for (i = 0; i < edges_count; i++)
 		{
 			if (edges[i].axis == bestPlane.axis)
@@ -315,7 +315,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 			}
 		}
 
-		// Áß°£ ¹è¿­¿¡ ºĞ·ùÇÑ edge¸¦ ´ãÀ½
+		// ì¤‘ê°„ ë°°ì—´ì— ë¶„ë¥˜í•œ edgeë¥¼ ë‹´ìŒ
 		for (i = 0; i < edges_count; i++)
 		{
 			switch (location_of_prims[edges[i].primNum])
@@ -351,11 +351,11 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 				break;
 			}
 		}
-		// both left, right ¹è¿­ Á¤·ÄÇÔ O(¡în(log¡în))
+		// both left, right ë°°ì—´ ì •ë ¬í•¨ O(âˆšn(logâˆšn))
 		qsort(bothLefts, nBL, sizeof(BoundEdge), compare_bound);
 		qsort(bothRights, nBR, sizeof(BoundEdge), compare_bound);
 
-		// ¹è¿­µéÀ» ÇÕÇÔ
+		// ë°°ì—´ë“¤ì„ í•©í•¨
 		nLeftEdges = nLO + nBL;
 		nRightEdges = nRO + nBR;
 		leftEdges = (BoundEdge*)malloc(nLeftEdges * sizeof(BoundEdge));
@@ -372,7 +372,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 
 	PDEBUG("nlogn build_tree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
 
-	// Àç±ÍÀûÀ¸·Î ÀÚ½Ä ³ëµå ÃÊ±âÈ­
+	// ì¬ê·€ì ìœ¼ë¡œ ìì‹ ë…¸ë“œ ì´ˆê¸°í™”
 	bbox_below = *nodeBounds;
 	bbox_above = *nodeBounds;
 	bbox_below.faaBounds[0][bestPlane.axis] = bestPlane.t;
@@ -402,52 +402,52 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 
 static void initTree(KDAccelTree *kdtree, Primitive* p)
 {
-	// °æ°è ÈÄº¸ ¹è¿­À» ÀúÀåÇÒ  º¯¼ö
+	// ê²½ê³„ í›„ë³´ ë°°ì—´ì„ ì €ì¥í•   ë³€ìˆ˜
 	BoundEdge *edges;
 	int edges_count;
 	int *extreme_indexes[2][3];
 	int extreme_indexes_count[2][3];
 	float extreme_bounds[2][3];
-	// primitive °³¼ö
+	// primitive ê°œìˆ˜
 	int prims_count = kdtree->nPrims;
-	// primitiveÀÇ bound ¹è¿­À» ÀúÀåÇÒ º¯¼ö
+	// primitiveì˜ bound ë°°ì—´ì„ ì €ì¥í•  ë³€ìˆ˜
 	BBox *prim_bounds;
-	// primitiveÀÇ index ¹è¿­À» ÀúÀåÇÒ º¯¼ö
+	// primitiveì˜ index ë°°ì—´ì„ ì €ì¥í•  ë³€ìˆ˜
 	int *prim_indexes;
 	int i;
 
-	// Æ®¸®¿¡ ³ëµå 512°³ ÇÒ´ç ¹× ºñ¾îÀÖ´Â ³ëµå ¹øÈ£ ¼³Á¤
+	// íŠ¸ë¦¬ì— ë…¸ë“œ 512ê°œ í• ë‹¹ ë° ë¹„ì–´ìˆëŠ” ë…¸ë“œ ë²ˆí˜¸ ì„¤ì •
 	kdtree->nextFreeNodes = 0;
 	kdtree->nAllocednodes = 512;
 	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 
-	// Æ®¸®ÀÇ ÃÖ´ë ±íÀÌ¸¦ ¼³Á¤ÇÔ 
+	// íŠ¸ë¦¬ì˜ ìµœëŒ€ ê¹Šì´ë¥¼ ì„¤ì •í•¨ 
 	if (kdtree->maxDepth <= 0)
 	{
-		//TODO: ¿Ã¹Ù¸¥ °è»ê°ªÀ¸·Î °íÃÄ¾ßÇÔ
+		//TODO: ì˜¬ë°”ë¥¸ ê³„ì‚°ê°’ìœ¼ë¡œ ê³ ì³ì•¼í•¨
 		kdtree->maxDepth = 5;
 	}
 
-	// prim_indexes(³ëµå¿¡ µé¾îÀÖ´Â ÇÁ¸®¹ÌÆ¼ºêÀÇ ÀÎµ¦½º ¸ğÀ½) ÃÊ±âÈ­ 
+	// prim_indexes(ë…¸ë“œì— ë“¤ì–´ìˆëŠ” í”„ë¦¬ë¯¸í‹°ë¸Œì˜ ì¸ë±ìŠ¤ ëª¨ìŒ) ì´ˆê¸°í™” 
 	prim_indexes = (int *)malloc(sizeof(int) * prims_count);
 	for (i = 0; i < prims_count; i++){
 		prim_indexes[i] = i;
 	}
 
-	// kdtreeÀÇ ÀüÃ¼ bound °è»ê ¹× °¢ primitiveÀÇ bound¸¦ °è»ê
+	// kdtreeì˜ ì „ì²´ bound ê³„ì‚° ë° ê° primitiveì˜ boundë¥¼ ê³„ì‚°
 	prim_bounds = (BBox *)malloc(sizeof(BBox) * prims_count);
 	kdtree->bounds = make_bbox_by_triangle(kdtree->primitives[0]);
 
 	for (i = 0; i < prims_count; i++)
 	{
 		BBox b = make_bbox_by_triangle(kdtree->primitives[i]);
-		// ÀüÃ¼ bound Å©±â Áõ°¡
+		// ì „ì²´ bound í¬ê¸° ì¦ê°€
 		kdtree->bounds = union_bbox_and_bbox(kdtree->bounds, b);
-		// primitive bound ÀúÀå
+		// primitive bound ì €ì¥
 		prim_bounds[i] = b;
 	}	
 
-	// °æ°è ¹è¿­À» ÀúÀå, Á¤·Ä
+	// ê²½ê³„ ë°°ì—´ì„ ì €ì¥, ì •ë ¬
 	edges = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
 	edges_count = 0;
 	for (i = 0; i < 3; i++){
@@ -489,11 +489,11 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	}
 	qsort(edges, edges_count, sizeof(BoundEdge), compare_bound);	
 
-	// kdtree ±¸ÃàÀ» À§ÇÑ Àç±Í¹® ½ÇÇà
+	// kdtree êµ¬ì¶•ì„ ìœ„í•œ ì¬ê·€ë¬¸ ì‹¤í–‰
 	build_tree(kdtree, &kdtree->nodes[0], &kdtree->bounds, prim_bounds, kdtree->nPrims, kdtree->maxDepth, 
 		edges, edges_count, extreme_indexes, extreme_indexes_count, extreme_bounds, 0);
 
-	// kdtree ±¸Ãà¿¡ »ç¿ëÇÑ °ø°£ ÇØÁ¦
+	// kdtree êµ¬ì¶•ì— ì‚¬ìš©í•œ ê³µê°„ í•´ì œ
 	free(prim_indexes);
 	free(prim_bounds);
 	free(edges);

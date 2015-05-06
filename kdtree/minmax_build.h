@@ -1,4 +1,4 @@
-#ifndef MINMAX_BUILD_H
+﻿#ifndef MINMAX_BUILD_H
 #define MINMAX_BUILD_H
 
 #include "kdtree_type.h"
