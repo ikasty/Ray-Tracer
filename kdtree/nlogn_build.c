@@ -319,24 +319,17 @@ static void initTree(KDAccelTree *kdtree)
 	// edge 후보를 저장할 버퍼 변수
 	BoundEdge *edge_buffer;
 	BBox *primBounds;
-	int *prim_indexes;
 	int prims_count = kdtree->nPrims;
-
 	int i, nEdges;
 
 	// kdtree의 전체 bound 계산 및 각 primitive의 bound를 계산해 놓음
 	primBounds = (BBox *)malloc(sizeof(BBox) * prims_count);
+	kdtree->bounds = make_bbox_by_triangle(kdtree->primitives[0]);
 	for (i = 0; i < prims_count; i++)
 	{
 		BBox b = make_bbox_by_triangle(kdtree->primitives[i]);
 		kdtree->bounds = union_bbox_and_bbox(kdtree->bounds, b);
 		primBounds[i] = b;
-	}
-
-	// kdtree 구축을 prim_indexes(노드에 들어있는 프리미티브의 인덱스 모음) 초기화 
-	prim_indexes = (int *)malloc(sizeof(int) * prims_count);
-	for (i = 0; i < prims_count; i++){
-		prim_indexes[i] = i;
 	}
 
 	// edge_buffer 공간 할당
@@ -346,8 +339,7 @@ static void initTree(KDAccelTree *kdtree)
 	nEdges = 0;
 	for (i = 0; i < prims_count; i++)
 	{
-		int pn = prim_indexes[i];
-		BBox bbox = primBounds[pn];
+		BBox bbox = primBounds[i];
 		int axis;
 
 		for (axis = 0; axis < 3; axis++)
@@ -356,12 +348,12 @@ static void initTree(KDAccelTree *kdtree)
 
 			if (bbox_min == bbox_max)
 			{
-				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, PLANAR, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, i, PLANAR, axis);
 			}
 			else
 			{
-				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, START, axis);
-				init_bound_edge(&edge_buffer[nEdges++], bbox_max, pn, END, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, i, START, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_max, i, END, axis);
 			}
 		}
 	}
@@ -373,7 +365,6 @@ static void initTree(KDAccelTree *kdtree)
 	// kdtree 구축에 사용한 공간 해제
 	free(primBounds);
 	free(edge_buffer);
-	free(prim_indexes);
 }
 
 void nlogn_accel_build(Data *data)
