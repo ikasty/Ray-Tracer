@@ -69,6 +69,9 @@
     <ClCompile Include="shading\shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="kdtree\minmax_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_read.h">

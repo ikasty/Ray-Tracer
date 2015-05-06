@@ -78,6 +78,7 @@
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
     <ClCompile Include="kdtree\kdtree_common.c" />
+    <ClCompile Include="kdtree\minmax_build.c" />
     <ClCompile Include="kdtree\nlog2n_build.c" />
     <ClCompile Include="kdtree\nlog2n_intersection.c" />
     <ClCompile Include="kdtree\nlogn_build.c" />

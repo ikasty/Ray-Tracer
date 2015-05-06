@@ -12,9 +12,9 @@
 #define Y_SCREEN_SIZE			240
 #define CAMERA_DISTANCE			100
 
-#define CAMERA_POS_X			0.0
+#define CAMERA_POS_X			-50.0
 #define CAMERA_POS_Y			0.0
-#define CAMERA_POS_Z			-400.0
+#define CAMERA_POS_Z			-300.0
 
 #define LIGHT_POS_X				000.0
 #define LIGHT_POS_Y				000.0
