@@ -108,6 +108,7 @@
     <ClInclude Include="kdtree\kdtree_common.h" />
     <ClInclude Include="kdtree\kdtree_queue.h" />
     <ClInclude Include="kdtree\kdtree_type.h" />
+    <ClInclude Include="kdtree\minmax_build.h" />
     <ClInclude Include="kdtree\nlog2n_build.h" />
     <ClInclude Include="kdtree\nlog2n_intersection.h" />
     <ClInclude Include="kdtree\nlogn_build.h" />

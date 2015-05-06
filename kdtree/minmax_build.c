@@ -72,7 +72,7 @@ static void get_prim_nums_for_leaf(int* prims, int nPrimsMax, BoundEdge* edges, 
 					prims[nPrims++] = index_of_prim;
 					checked_prims[index_of_prim] = 1;
 				}
-			}			
+			}
 		}
 	}
 	free(checked_prims);
@@ -111,9 +111,8 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	int extreme_count_for_above[2][3];
 	int *extreme_for_below[2][3];
 	int extreme_count_for_below[2][3];
-
 	int i, j, k;
-
+		
 	// 자식 노드를 위한 공간 확보
 	allocChild(kdtree);
 
@@ -134,12 +133,10 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 		// 평면으로 나누어진 영역에 속한 prim 개수 초기화 
 		for (i = 0; i < 3; i++)
 		{
-			nAbove[i] = total_prim_counts;
+			nAbove[i] = total_prim_counts - extreme_indexes_count[0][i];
 			nPlanar[i] = 0;
 			nBelow[i] = extreme_indexes_count[0][i];
 		}
-
-		// TODO: cost 계산할 때 extreme prims를 포함해야됨
 
 		// edge로 평면을 만들어 나눴을 때 cost가 최소가 되는 평면 구함
 		i = 0;
@@ -152,13 +149,19 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 
 			// 현재 평면에 닿아 있는 edge들을 분류함
 			while (i < edges_count && edges[i].axis == curPlane.axis && edges[i].t == curPlane.t)
-			{
+			{				
 				switch (edges[i++].e_type)
 				{
-				case END:		nEndOfCurPlane++;		break;
-				case PLANAR: 	nPlanarOfCurPlane++; 	break;
-				case START: 	nStartOfCurPlane++; 	break;
-				}
+				case END:		
+					nEndOfCurPlane++;
+					break;
+				case PLANAR:
+					nPlanarOfCurPlane++;					
+					break;
+				case START: 	
+					nStartOfCurPlane++;
+					break;
+				}				
 			}
 			nAbove[curPlane.axis] -= (nEndOfCurPlane + nPlanarOfCurPlane);
 			nPlanar[curPlane.axis] = nPlanarOfCurPlane;
@@ -207,7 +210,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 
 			// 다음 loop를 위한 변수 조정 
 			nPlanar[curPlane.axis] = 0;
-			nBelow[curPlane.axis] += (nPlanarOfCurPlane + nStartOfCurPlane);
+			nBelow[curPlane.axis] += (nPlanarOfCurPlane + nStartOfCurPlane);			
 		} // while
 	}
 	if (bestCost > oldCost) badRefines++;
@@ -220,6 +223,20 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 		initLeaf(kdtree, current_node, primNums, total_prim_counts);
 		free(primNums);
 		return;
+	}
+
+
+	// above node와 below node에 전달할 extreme prims를 선별함
+	// 초기화
+	for (i = 0; i < 2; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			extreme_for_above[i][j] = (int *)malloc(extreme_indexes_count[i][j] * sizeof(int));
+			extreme_count_for_above[i][j] = 0;
+			extreme_for_below[i][j] = (int *)malloc(extreme_indexes_count[i][j] * sizeof(int));
+			extreme_count_for_below[i][j] = 0;
+		}
 	}
 
 	// bestPlane을 바탕으로 edges를 left, right 두 그룹으로 나누는 과정
@@ -238,6 +255,41 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 		for (i = 0; i < kdtree->nPrims; i++){
 			location_of_prims[i] = BOTH;
 		}
+
+		// extrem prims 선발
+		for (i = 0; i < 2; i++)
+		{
+			for (j = 0; j < 3; j++)
+			{
+				for (k = 0; k < extreme_indexes_count[i][j]; k++)
+				{
+					int axis = bestPlane.axis;
+					int prim_index = extreme_indexes[i][j][k];
+					float min_bound_of_prim = prim_bounds[prim_index].faaBounds[0][axis];
+					float max_bound_of_prim = prim_bounds[prim_index].faaBounds[1][axis];
+
+					// extreme prim이 분할 평면 밑에 있는 경우
+					if (max_bound_of_prim <= bestPlane.t)
+					{
+						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = prim_index;
+						location_of_prims[prim_index] = BELOW;
+					}
+					// extreme prim이 분할 평면 위에 있는 경우
+					else if (min_bound_of_prim >= bestPlane.t)
+					{
+						extreme_for_above[i][j][extreme_count_for_above[i][j]++] = prim_index;
+						location_of_prims[prim_index] = ABOVE;
+					}
+					// extreme prim이 분할 평면 양쪽에 있는 경우
+					else
+					{
+						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = prim_index;
+						extreme_for_above[i][j][extreme_count_for_above[i][j]++] = prim_index;
+					}
+				}
+			}
+		}
+		
 		// 현재 edge에 따라 
 		for (i = 0; i < edges_count; i++)
 		{
@@ -260,50 +312,6 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 						location_of_prims[edges[i].primNum] = ABOVE;
 					break;
 				}
-			}
-		}
-		
-		// above node와 below node에 전달할 extreme prims를 선별함
-		// 초기화
-		for (i = 0; i < 2; i++)
-		{
-			for (j = 0; j < 3; j++)
-			{
-				extreme_for_above[i][j] = (int *)malloc(extreme_indexes_count[i][j] * sizeof(int));
-				extreme_count_for_above[i][j] = 0;
-				extreme_for_below[i][j] = (int *)malloc(extreme_indexes_count[i][j] * sizeof(int));
-				extreme_count_for_below[i][j] = 0;
-			}
-		}
-		// extrem prims 선발
-		for (i = 0; i < 2; i++)
-		{
-			for (j = 0; j < 3; j++)
-			{
-				for (k = 0; k < extreme_indexes_count[i][j]; k++)
-				{
-					int axis = bestPlane.axis;
-					int prim_index = extreme_indexes[i][j][k];
-					float min_bound_of_prim = prim_bounds[prim_index].faaBounds[0][axis];
-					float max_bound_of_prim = prim_bounds[prim_index].faaBounds[1][axis];
-
-					// extreme prim이 분할 평면 밑에 있는 경우
-					if (max_bound_of_prim < bestPlane.t)
-					{
-						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = extreme_indexes[i][j][k];
-					}
-					// extreme prim이 분할 평면 위에 있는 경우
-					else if (min_bound_of_prim > bestPlane.t)
-					{
-						extreme_for_above[i][j][extreme_count_for_above[i][j]++] = extreme_indexes[i][j][k];
-					}
-					// extreme prim이 분할 평면 양쪽에 있는 경우
-					else 
-					{
-						extreme_for_below[i][j][extreme_count_for_below[i][j]++] = extreme_indexes[i][j][k];
-						extreme_for_above[i][j][extreme_count_for_above[i][j]++] = extreme_indexes[i][j][k];
-					}
-				}				
 			}
 		}
 
@@ -420,12 +428,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 		kdtree->maxDepth = 5;
 	}
 
-	/*// 받아온 primitive 목록 저장
-	for (i = 0; i < prims_count; i++)
-	{
-		kdtree->primitives[i] = p[i];
-	}*/	
-
 	// prim_indexes(노드에 들어있는 프리미티브의 인덱스 모음) 초기화 
 	prim_indexes = (int *)malloc(sizeof(int) * prims_count);
 	for (i = 0; i < prims_count; i++){
@@ -434,6 +436,8 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 
 	// kdtree의 전체 bound 계산 및 각 primitive의 bound를 계산
 	prim_bounds = (BBox *)malloc(sizeof(BBox) * prims_count);
+	kdtree->bounds = make_bbox_by_triangle(kdtree->primitives[0]);
+
 	for (i = 0; i < prims_count; i++)
 	{
 		BBox b = make_bbox_by_triangle(kdtree->primitives[i]);
@@ -451,8 +455,8 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 		extreme_indexes[1][i] = (int *)malloc(sizeof(int) * prims_count);
 		extreme_indexes_count[0][i] = 0;
 		extreme_indexes_count[1][i] = 0;
-		extreme_bounds[0][i] = kdtree->bounds.faaBounds[1][i] * PERCENT;
-		extreme_bounds[1][i] = kdtree->bounds.faaBounds[1][i] * (1 - PERCENT);
+		extreme_bounds[0][i] = (kdtree->bounds.faaBounds[1][i] - kdtree->bounds.faaBounds[0][i]) * PERCENT + kdtree->bounds.faaBounds[0][i];
+		extreme_bounds[1][i] = (kdtree->bounds.faaBounds[1][i] - kdtree->bounds.faaBounds[0][i]) * (1 - PERCENT) + kdtree->bounds.faaBounds[0][i];
 	}
 	
 	for (i = 0; i < prims_count; i++)
@@ -464,11 +468,11 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 		{
 			float bbox_min = bbox.faaBounds[0][axis], bbox_max = bbox.faaBounds[1][axis];
 
-			if (bbox_max < extreme_bounds[0][i])
+			if (bbox_max <= extreme_bounds[0][axis])
 			{
 				extreme_indexes[0][axis][extreme_indexes_count[0][axis]++] = i;
 			}				
-			else if (bbox_min > extreme_bounds[1][i])
+			else if (bbox_min >= extreme_bounds[1][axis])
 			{
 				extreme_indexes[1][axis][extreme_indexes_count[1][axis]++] = i;
 			}
@@ -496,7 +500,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	for (i = 0; i < 3; i++){
 		free(extreme_indexes[0][i]);
 		free(extreme_indexes[1][i]);
-	}	
+	}
 }
 
 void minmax_accel_build(Data *data)
@@ -512,7 +516,7 @@ void minmax_accel_build(Data *data)
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
-	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
+	memcpy(kdtree->primitives, data->primitives, sizeof(Primitive)*data->prim_count);
 
 	initTree(kdtree, data->primitives);
 }

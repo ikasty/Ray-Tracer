@@ -11,6 +11,8 @@
 #  include "kdtree/nlog2n_intersection.h"
 // 3. kdtree(nlogn)
 #  include "kdtree/nlogn_build.h"
+// 4. kdtree(minmax)
+#  include "kdtree/minmax_build.h"
 
 /////////////////////////////////////
 // shading algorithms
@@ -50,11 +52,18 @@ void init_search_algo(char *algo_name)
 		accel_build = &nlogn_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
+	else if (strncmp(algo_name, "minmax", 6) == 0)
+	{
+		printf("use kdtree minmax algorithm\n");
+		clear_accel = NULL;
+		accel_build = &minmax_accel_build;
+		intersect_search = &nlog2n_intersect_search;
+	}
 	else
 	{
 		printf("use default(kdtree nlog2n) algorithm\n");
 		clear_accel = NULL;
-		accel_build = &nlogn_accel_build;
+		accel_build = &minmax_accel_build;
 		intersect_search = &nlog2n_intersect_search;
 	}
 
