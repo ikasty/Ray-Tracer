@@ -10,6 +10,9 @@
 
 #define PERCENT 0.2
 
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+
 static int compare_bound(const void *a, const void *b)
 {
 	BoundEdge *l = (BoundEdge *)a, *r = (BoundEdge *)b;
