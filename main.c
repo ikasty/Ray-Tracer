@@ -1,37 +1,4 @@
-﻿
-/*
-Copyright (c) 2015, Daeyoun Kang(mail.ikasty@gmail.com),
-                    HyungKwan Park(rpdladps@gmail.com),
-                    Ingyu Kim(goracom0@gmail.com),
-                    Jungmin Kim(kukakhan@gmail.com)
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies, 
-either expressed or implied, of the FreeBSD Project.
-*/
-
-#define _CRT_SECURE_NO_WARNINGS
+﻿#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <string.h>
@@ -41,6 +8,8 @@ either expressed or implied, of the FreeBSD Project.
 // include search and render algorithm
 #include "algorithms.h"
 
+// shading algorithm
+#include "shading/shading.h"
 
 #include "bitmap_make.h"
 #include "obj_transform.h"
@@ -95,12 +64,14 @@ static void do_algorithm(Data *data, char *input_file)
 	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
 
 	USE_SCREEN(screen);
+	//USE_CAMERA(camera);
 
 	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
 
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
 	//// -- pre-step phase --
+	PDEBUG("main.c pre-step phase\n");
 
 		// 우선 해당 frame_number에 맞게 object를 회전합니다.
 		if (frame_number)
@@ -111,6 +82,10 @@ static void do_algorithm(Data *data, char *input_file)
 				get_rotated_vector(data->primitives[i].vert0);
 				get_rotated_vector(data->primitives[i].vert1);
 				get_rotated_vector(data->primitives[i].vert2);
+
+				get_rotated_vector(data->primitives[i].norm0);
+				get_rotated_vector(data->primitives[i].norm1);
+				get_rotated_vector(data->primitives[i].norm2);
 			}
 		}
 
@@ -118,14 +93,14 @@ static void do_algorithm(Data *data, char *input_file)
 		memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
 
 	//// -- execute phase --
-
-		// 기존 구조체 해제
-		if (clear_accel)
-			(*clear_accel)(data);
+	PDEBUG("main.c execute phase\n");
 
 		// 만약 가속구조체를 사용한다면 빌드함
 		if (accel_build)
 		{
+			// 기존 구조체 해제
+			if (clear_accel) (*clear_accel)(data);
+
 			start_clock = clock();
 			(*accel_build)(data);
 			end_clock = clock();
@@ -162,7 +137,7 @@ static void do_algorithm(Data *data, char *input_file)
 
 					// 교차된 Primitive가 있다면 렌더링함
 					start_clock = clock();
-					*pixel = (*shading)(f_ray, data->primitives[ist_hit.prim_id], ist_hit);
+					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
 					end_clock = clock();
 
 					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
@@ -172,6 +147,7 @@ static void do_algorithm(Data *data, char *input_file)
 		} // index_y
 	
 	//// -- post-step phase --
+	PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
 		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
@@ -194,9 +170,9 @@ int main(int argc, char *argv[])
 
 	USE_SCREEN(screen);
 
-	// -- 명령줄 옵션 처리 --
+	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:s:")) != -1)
+	while ((c = getopt(argc, argv, "hc:a:f:s:S:")) != -1)
 	{
 long_option:
 		switch (c)
@@ -219,6 +195,10 @@ long_option:
 			break;
 
 		case 's':
+			init_shading_algo(optarg);
+			break;
+
+		case 'S':
 			scale = (float)atof(optarg);
 			printf("image scale to %f\n", scale);
 			break;
@@ -238,8 +218,9 @@ long_option:
 				"Usage: ./RayTracing.exe [options] [filename]\n"
 				"Options:\n"
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
-				"  -a ALGORITHM_NAME\t\t\t"				"Set search algorithm.\n"
-				"  -s SCALE\t\t\t\t"					"Set scale factor\n"
+				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
+				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
+				"  -S SCALE\t\t\t\t"					"Set scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 
@@ -259,15 +240,14 @@ long_option:
 	// 기본 알고리즘 선택
 	init_search_algo("");
 	init_shading_algo("");
-	// -- 명령줄 옵션 처리 끝 --
+	// -- 명령줄 옵션 처리 끝
 	
 	// 파일 열기
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
 
-	// scale 정보에 따라 화면 크기 조절
-	screen->xsize *= (int)scale;
-	screen->ysize *= (int)scale;
+	screen->xsize = (int)(screen->xsize * scale);
+	screen->ysize = (int)(screen->ysize * scale);
 
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));

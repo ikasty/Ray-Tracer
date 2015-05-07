@@ -34,6 +34,6 @@ either expressed or implied, of the FreeBSD Project.
 #ifndef KDTREE_QUEUE_H
 #define KDTREE_QUEUE_H
 
-#include "../include/queue.h"
+#include "include/queue.h"
 
 #endif

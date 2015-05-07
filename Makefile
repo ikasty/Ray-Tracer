@@ -2,6 +2,9 @@ CC = gcc
 CCLIB = -lm -msse2 -mfpmath=sse
 TARGET = RayTracing.exe
 
+### include current folder (for headers)
+CFLAGS = -I ./
+
 SRCS := $(shell ls | grep c$$)
 
 ### include folder add
@@ -15,6 +18,10 @@ DIR_CHECK += naive
 ### kdtree folder add
 SRCS += $(addprefix kdtree/, $(shell ls kdtree | grep c$$))
 DIR_CHECK += kdtree
+
+### shading folder add
+SRCS += $(addprefix shading/, $(shell ls shading | grep c$$))
+DIR_CHECK += shading
 
 RELEASE_DIR = gcc_release
 DEBUG_DIR = gcc_debug
@@ -44,17 +51,17 @@ all:
 	@echo "=========================="
 
 $(OBJS_DIR)/%.o : %.c
-	$(CC) $(CCOPT) -c $< -o $@ $(CCLIB)
+	$(CC) $(CFLAGS) $(CCOPT) -c $< -o $@ $(CCLIB)
 
 
 release: chkdir depend $(OBJS)
-	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
+	$(CC) $(CFLAGS) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 debug: chkdir depend $(OBJS)
-	$(CC) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
+	$(CC) $(CFLAGS) $(CCOPT) $(OBJS) -o $(TARGET) $(CCLIB)
 
 clean:
-	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp
+	@rm -rf $(DEPEND_FILE) $(DEBUG_DIR) $(RELEASE_DIR) $(TARGET) *.bmp *.nlogn *.nlog2n Debug Release
 
 test:
 	./$(TARGET) $(option)
@@ -68,7 +75,7 @@ chkdir:
 depend: chkdir
 	@rm -f $(DEPEND_FILE)
 	@for FILE in $(SRCS:%.c=%); do \
-		$(CC) -MM -MT $(OBJS_DIR)/$$FILE.o $$FILE.c >> $(DEPEND_FILE); \
+		$(CC) $(CFLAGS) -MM -MT $(OBJS_DIR)/$$FILE.o $$FILE.c >> $(DEPEND_FILE); \
 	done
 
 -include $(DEPEND_FILE)

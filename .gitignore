@@ -11,13 +11,20 @@ desktop.ini
 ## Makefile object
 depend_file
 
+## 3D Object files
+*.obj
+# 표준 teapot.obj 파일은 추가함
+!teapot.obj
+*.mtl
+*.jpg
+
 ###########################################################
 ## Ignore for C
 
 # Object files
 *.o
 *.ko
-*.obj
+# *.obj
 *.elf
 
 # Precompiled Headers
@@ -93,7 +100,7 @@ dlldata.c
 *_i.h
 *.ilk
 *.meta
-*.obj
+# *.obj
 *.pch
 *.pdb
 *.pgc
@@ -244,3 +251,15 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+# Debug Log File
+*.nlogn
+*.nlog2n
+*.xls
+*.xls#
+
+# bak file
+*.bak
+
+# Gemfile.lock
+Gemfile.lock

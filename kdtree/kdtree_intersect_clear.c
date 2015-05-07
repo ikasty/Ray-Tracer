@@ -33,7 +33,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <string.h>
 #include <float.h>
-#include "nlog2n_intersection.h"
+#include "kdtree_intersect_clear.h"
 
 #include "kdtree_type.h"
 #include "kdtree_queue.h"
@@ -70,7 +70,7 @@ static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
 /**
  * kdtreeTraversal.c.old의 void Intersect 함수에서 가져옴
  */
-Hit nlog2n_intersect_search(Data *data, Ray *ray)
+Hit kdtree_intersect_search(Data *data, Ray *ray)
 {
 	KDAccelTree *accel_tree = (KDAccelTree *)data->accel_struct;
 	KDAccelNode *node;
@@ -141,3 +141,23 @@ Hit nlog2n_intersect_search(Data *data, Ray *ray)
 
 	return min_hit;
 }
+
+void kdtree_clear_accel(Data *data)
+{
+	int i;
+	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
+
+	if (kdtree == NULL) return ;
+
+	free(kdtree->primitives);
+
+	for (i = 0; i < kdtree->nextFreeNodes; i++)
+	{
+		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
+		free(node->primitives);
+	}
+
+	free(kdtree->nodes);
+	data->accel_struct = zfree(kdtree);
+}
+

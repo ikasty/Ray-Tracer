@@ -38,7 +38,12 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -70,17 +75,19 @@
     <ClCompile Include="gen_ray.c" />
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
-    <ClCompile Include="kdtree\boundedge.c" />
+    <ClCompile Include="kdtree\binning_build.c" />
     <ClCompile Include="kdtree\kdtree_common.c" />
+    <ClCompile Include="kdtree\kdtree_intersect_clear.c" />
+    <ClCompile Include="kdtree\minmax_build.c" />
     <ClCompile Include="kdtree\nlog2n_build.c" />
-    <ClCompile Include="kdtree\nlog2n_intersection.c" />
     <ClCompile Include="kdtree\nlogn_build.c" />
     <ClCompile Include="naive\naive_intersection.c" />
-    <ClCompile Include="naive\naive_shading.c" />
     <ClCompile Include="obj_transform.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="settings.c" />
-    <ClCompile Include="shadow_ray.c" />
+    <ClCompile Include="shading\naive_shading.c" />
+    <ClCompile Include="shading\phong_shading.c" />
+    <ClCompile Include="shading\shading.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.h" />
@@ -95,18 +102,21 @@
     <ClInclude Include="include\queue.h" />
     <ClInclude Include="include\type.h" />
     <ClInclude Include="kdtree\bbox.h" />
-    <ClInclude Include="kdtree\boundedge.h" />
+    <ClInclude Include="kdtree\binning_build.h" />
     <ClInclude Include="kdtree\kdtree_common.h" />
+    <ClInclude Include="kdtree\kdtree_intersect_clear.h" />
     <ClInclude Include="kdtree\kdtree_queue.h" />
     <ClInclude Include="kdtree\kdtree_type.h" />
+    <ClInclude Include="kdtree\minmax_build.h" />
     <ClInclude Include="kdtree\nlog2n_build.h" />
-    <ClInclude Include="kdtree\nlog2n_intersection.h" />
     <ClInclude Include="kdtree\nlogn_build.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />
-    <ClInclude Include="naive\naive_shading.h" />
     <ClInclude Include="obj_transform.h" />
     <ClInclude Include="settings.h" />
+    <ClInclude Include="shading\naive_shading.h" />
+    <ClInclude Include="shading\phong_shading.h" />
+    <ClInclude Include="shading\shading.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -37,18 +37,28 @@ either expressed or implied, of the FreeBSD Project.
 
 ////////////////////////////////////////
 // search algorithms
-// 1. naive
+// 1. NAIVE
+// * naive algorithm
 #  include "naive/naive_intersection.h"
-// 2. kdtree(nlog^2n)
+
+// 2. KDTREE
+// * kdtree_clear_accel, kdtree_intersect_search
+#  include "kdtree/kdtree_intersect_clear.h"
+// * nlog^2n algorithm
 #  include "kdtree/nlog2n_build.h"
-#  include "kdtree/nlog2n_intersection.h"
-// 3. kdtree(nlogn)
+// * nlogn algorithm
 #  include "kdtree/nlogn_build.h"
+// * binning algorithm
+#  include "kdtree/binning_build.h"
+// * kdtree(minmax)
+#  include "kdtree/minmax_build.h"
 
 /////////////////////////////////////
 // shading algorithms
 // 1. naive
-#  include "naive/naive_shading.h"
+#  include "shading/naive_shading.h"
+// 2. phong shading
+#  include "shading/phong_shading.h"
 
 // default values
 void (*clear_accel)(Data *data) = NULL;
@@ -70,33 +80,60 @@ void init_search_algo(char *algo_name)
 	else if (strncmp(algo_name, "nlog2n", 6) == 0)
 	{
 		printf("use kdtree nlog^2n algorithm\n");
-		clear_accel = &nlog2n_clear_accel;
+		clear_accel = &kdtree_clear_accel;
 		accel_build = &nlog2n_accel_build;
-		intersect_search = &nlog2n_intersect_search;
+		intersect_search = &kdtree_intersect_search;
 	}
 	else if (strncmp(algo_name, "nlogn", 5) == 0)
 	{
 		printf("use kdtree nlogn algorithm\n");
-		clear_accel = NULL;
+		clear_accel = &kdtree_clear_accel;
 		accel_build = &nlogn_accel_build;
-		intersect_search = &nlog2n_intersect_search;
+		intersect_search = &kdtree_intersect_search;
+	}
+	else if (strncmp(algo_name, "binning", 7) == 0)
+	{
+		printf("use kdtree binning algorighm\n");
+		clear_accel = &kdtree_clear_accel;
+		accel_build = &binning_accel_build;
+		intersect_search = &kdtree_intersect_search;
+	}
+	else if (strncmp(algo_name, "minmax", 6) == 0)
+	{
+		printf("use kdtree minmax algorithm\n");
+		clear_accel = &kdtree_clear_accel;
+		accel_build = &minmax_accel_build;
+		intersect_search = &kdtree_intersect_search;
 	}
 	else
 	{
 		printf("use default(kdtree nlogn) algorithm\n");
-		clear_accel = NULL;
+		clear_accel = &kdtree_clear_accel;
 		accel_build = &nlogn_accel_build;
-		intersect_search = &nlog2n_intersect_search;
+		intersect_search = &kdtree_intersect_search;
 	}
 
 	return ;
 }
 
-unsigned int (*shading)(Ray s_ray, Primitive s_tri, Hit __hit) = NULL;
+void (*normal_shade)(float normal_vector[3], float hit_point[3], Primitive s_tri) = NULL;
 
 void init_shading_algo(char *shading_name)
 {
-	printf("use naive shading\n");
-	shading = &naive_shading;
+	if (strncmp(shading_name, "naive", 5) == 0)
+	{
+		printf("use naive shading\n");
+		normal_shade = &naive_shading;
+	}
+	else if (strncmp(shading_name, "phong", 5) == 0)
+	{
+		printf("use phong shading\n");
+		normal_shade = &phong_shading;
+	}
+	else
+	{
+		printf("use default(phong) shading\n");
+		normal_shade = &phong_shading;
+	}	
 	return ;
 }

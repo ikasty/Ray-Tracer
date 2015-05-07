@@ -51,15 +51,12 @@ either expressed or implied, of the FreeBSD Project.
 #define CAMERA_POS_Z			-400.0
 
 #define LIGHT_POS_X				100.0
-#define LIGHT_POS_Y				300.0
-#define LIGHT_POS_Z				10.0
+#define LIGHT_POS_Y				100.0
+#define LIGHT_POS_Z				-100.0
 
 #define FRAME_COUNT				10
 
-// define if use accel option
-//#define ACCEL_OPTION
-// define if program get accel option
-#define ACCEL_USE_ASK
+#define SHINESS					300
 
 ///////////////////////////////////////////////
 // option structs

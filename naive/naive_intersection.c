@@ -36,9 +36,9 @@ either expressed or implied, of the FreeBSD Project.
 #include <math.h>
 #include "naive_intersection.h"
 
-#include "../obj_transform.h"
-#include "../settings.h"
-#include "../include/msl_math.h"
+#include "obj_transform.h"
+#include "settings.h"
+#include "include/msl_math.h"
 
 Hit naive_intersect_search(Data *data, Ray *f_ray)
 {
@@ -103,7 +103,7 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 		return ist_hit;
 
 	t = DOT(edge2, qvec) * inv_det;
-	if (t > ray->max_t)
+	if (t > ray->max_t || t <= 0 || t < ray->min_t)
 		return ist_hit;
 
 	ist_hit.t = ray->max_t = t;

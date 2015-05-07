@@ -41,9 +41,8 @@ either expressed or implied, of the FreeBSD Project.
 
 #include "kdtree_type.h"
 #include "bbox.h"
-#include "boundedge.h"
 
-#include "../include/debug-msg.h"
+#include "include/debug-msg.h"
 
 #define PLANAR_TRY_TWICE
 #define MAX_LEVEL 20
@@ -121,12 +120,12 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			// 해당 primitive의 속성에 따라 split 후보 생성
 			if (bbox.faaBounds[0][axis] == bbox.faaBounds[1][axis])
 			{
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, PLANAR);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, PLANAR, axis);
 			}
 			else
 			{
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, START);
-				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[1][axis], pn, END);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[0][axis], pn, START, axis);
+				init_bound_edge(&edge_buffer[axis][nCount++], bbox.faaBounds[1][axis], pn, END, axis);
 			}
 		}
 		qsort(edge_buffer[axis], nCount, sizeof(BoundEdge), compare_bound);
@@ -264,7 +263,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	initInterior(current_node, above_child, below_child, bestAxis, bestSplit);
 }
 
-static void initTree(KDAccelTree *kdtree, Primitive* p)
+static void initTree(KDAccelTree *kdtree)
 {
 	/* int icost, int tcost, float ebonus, int maxp, int md */
 	BBox *primBounds;
@@ -272,23 +271,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	int prims_count = kdtree->nPrims;
 
 	int i;
-
-	for (i = 0; i < prims_count; i++)
-	{
-		kdtree->primitives[i] = p[i];
-	}
-
-	// 지금 트리가 가진 노드의 개수는 0개입니다.	
-	kdtree->nextFreeNodes = 0;
-	kdtree->nAllocednodes = 512;
-	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
-
-	// 최대 깊이를 설정함 
-	if (kdtree->maxDepth <= 0)
-	{
-		//TODO: 올바른 계산값으로 고쳐야함
-		kdtree->maxDepth = 5;
-	}
 
 	// kdtree의 전체 bound 계산 및 각 primitive의 bound를 계산해 놓음
 	primBounds = (BBox *)malloc(sizeof(BBox) * prims_count);
@@ -344,26 +326,12 @@ void nlog2n_accel_build(Data *data)
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
-	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
+	memcpy(kdtree->primitives, data->primitives, sizeof(data->primitives[0]) * data->prim_count);
+
+	// 지금 트리가 가진 노드의 개수는 0개입니다.
+	kdtree->nextFreeNodes = 0;
+	kdtree->nAllocednodes = 512;
+	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 	
-	initTree(kdtree, data->primitives);
-}
-
-void nlog2n_clear_accel(Data *data)
-{
-	int i;
-	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
-
-	if (kdtree == NULL) return ;
-
-	free(kdtree->primitives);
-
-	for (i = 0; i < kdtree->nextFreeNodes; i++)
-	{
-		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
-		free(node->primitives);
-	}
-
-	free(kdtree->nodes);
-	data->accel_struct = zfree(kdtree);
+	initTree(kdtree);
 }

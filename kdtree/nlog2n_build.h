@@ -37,6 +37,5 @@ either expressed or implied, of the FreeBSD Project.
 #include "kdtree_type.h"
 
 void nlog2n_accel_build(Data *data);
-void nlog2n_clear_accel(Data *data);
 
 #endif

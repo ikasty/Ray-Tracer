@@ -1,49 +1,12 @@
-﻿
-/*
-Original source code from pbrt (https://github.com/mmp/pbrt-v2)
-
-Copyright (c) 1998-2012 Matt Pharr and Greg Humphreys.
-Copyright (c) 2015, Daeyoun Kang(mail.ikasty@gmail.com),
-                    HyungKwan Park(rpdladps@gmail.com),
-                    Ingyu Kim(goracom0@gmail.com),
-                    Jungmin Kim(kukakhan@gmail.com)
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies, 
-either expressed or implied, of the FreeBSD Project.
-*/
-
-#include <float.h>
+﻿#include <float.h>
 #include <stdlib.h>
 #include "nlogn_build.h"
 #include "kdtree_common.h"
 
 #include "kdtree_type.h"
 #include "bbox.h"
-#include "boundedge.h"
 
-#include "../include/debug-msg.h"
+#include "include/debug-msg.h"
 
 static int compare_bound(const void *a, const void *b)
 {
@@ -294,7 +257,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				else if(edge_buffer[i].e_type == START)
 				{
 					BoundEdge newEnd;
-					init_nlogn_bound_edge(&newEnd, bestPlane.t, edge_buffer[i].primNum, END, bestPlane.axis);
+					init_bound_edge(&newEnd, bestPlane.t, edge_buffer[i].primNum, END, bestPlane.axis);
 					
 					bothLefts[nBL++] = edge_buffer[i];
 					bothLefts[nBL++] = newEnd;
@@ -302,7 +265,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 				else if(edge_buffer[i].e_type == END)
 				{
 					BoundEdge newStart;
-					init_nlogn_bound_edge(&newStart, bestPlane.t, edge_buffer[i].primNum, START, bestPlane.axis);
+					init_bound_edge(&newStart, bestPlane.t, edge_buffer[i].primNum, START, bestPlane.axis);
 
 					bothRights[nBR++] = newStart;
 					bothRights[nBR++] = edge_buffer[i];
@@ -352,7 +315,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	free(rightEdges);
 }
 
-static void initTree(KDAccelTree *kdtree, Primitive* p)
+static void initTree(KDAccelTree *kdtree)
 {
 	// edge 후보를 저장할 버퍼 변수
 	BoundEdge *edge_buffer;
@@ -361,23 +324,6 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	int prims_count = kdtree->nPrims;
 
 	int i, nEdges;
-
-	for (i = 0; i < prims_count; i++)
-	{
-		kdtree->primitives[i] = p[i];
-	}
-
-	// 지금 트리가 가진 노드의 개수는 0개입니다.
-	kdtree->nextFreeNodes = 0;
-	kdtree->nAllocednodes = 512;
-	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
-
-	// 최대 깊이를 설정함 
-	if (kdtree->maxDepth <= 0)
-	{
-		//TODO: 올바른 계산값으로 고쳐야함
-		kdtree->maxDepth = 5;
-	}
 
 	// kdtree의 전체 bound 계산 및 각 primitive의 bound를 계산해 놓음
 	primBounds = (BBox *)malloc(sizeof(BBox) * prims_count);
@@ -411,12 +357,12 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 
 			if (bbox_min == bbox_max)
 			{
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, PLANAR, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, PLANAR, axis);
 			}
 			else
 			{
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, START, axis);
-				init_nlogn_bound_edge(&edge_buffer[nEdges++], bbox_max, pn, END, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_min, pn, START, axis);
+				init_bound_edge(&edge_buffer[nEdges++], bbox_max, pn, END, axis);
 			}
 		}
 	}
@@ -444,7 +390,12 @@ void nlogn_accel_build(Data *data)
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
-	memcpy(kdtree->primitives, data->primitives, sizeof(*kdtree->primitives));
+	memcpy(kdtree->primitives, data->primitives, sizeof(data->primitives[0]) * data->prim_count);
+
+	// 지금 트리가 가진 노드의 개수는 0개입니다.
+	kdtree->nextFreeNodes = 0;
+	kdtree->nAllocednodes = 512;
+	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 	
-	initTree(kdtree, data->primitives);
+	initTree(kdtree);
 }

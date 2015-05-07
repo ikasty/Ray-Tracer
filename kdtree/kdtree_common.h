@@ -36,6 +36,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include "kdtree_type.h"
 
+void init_bound_edge(BoundEdge* bd, float tt, int pn, int t, int a);
 void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np);
 void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s);
 void allocChild(KDAccelTree *kdtree);

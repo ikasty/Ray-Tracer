@@ -34,7 +34,7 @@ either expressed or implied, of the FreeBSD Project.
 #ifndef KDTREE_TYPE_H
 #define KDTREE_TYPE_H
 
-#include "../include/type.h"
+#include "include/type.h"
 #include "kdtree_queue.h"
 
 typedef struct __bbox BBox;
@@ -88,17 +88,15 @@ struct __acceltree
 // cost를 계산할 candidate가 된다.
 typedef struct{
 	// 삼각형의 start인지 end인지 저장 
-	int e_type;
-	
-	// 이 평면에 다다르기까지의 t
+	int e_type;	
+	// 평면의 축과 값
+	int axis;
 	float t;
 	// ???
 	float other_t;
-	// 소속 prim num 개수
-	int primNum;
+	// edge가 속해있는 prim의 번호
+	int primNum;	
 	
-	// 축 정보
-	int axis;
 } BoundEdge;
 
 #endif
