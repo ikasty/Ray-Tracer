@@ -1,6 +1,7 @@
 
 /*
-Copyright (c) 2015, Daeyoun Kang(mail.ikasty@gmail.com),
+Copyright (c) 2015, Minwoo Lee(hellomw@msl.yonsei.ac.kr)
+          Daeyoun Kang(mail.ikasty@gmail.com),
                     HyungKwan Park(rpdladps@gmail.com),
                     Ingyu Kim(goracom0@gmail.com),
                     Jungmin Kim(kukakhan@gmail.com)
@@ -30,7 +31,6 @@ The views and conclusions contained in the software and documentation are those
 of the authors and should not be interpreted as representing official policies, 
 either expressed or implied, of the FreeBSD Project.
 */
-
 
 #ifndef SETTINGS_H
 #define SETTINGS_H

@@ -1,9 +1,13 @@
 ﻿
 /*
-Copyright (c) 2015, Daeyoun Kang(mail.ikasty@gmail.com),
-                    HyungKwan Park(rpdladps@gmail.com),
-                    Ingyu Kim(goracom0@gmail.com),
-                    Jungmin Kim(kukakhan@gmail.com)
+Original source code from pbrt (https://github.com/mmp/pbrt-v2)
+
+Copyright (c) 1998-2012 Matt Pharr and Greg Humphreys.
+Copyright (c) 2015, Minwoo Lee(hellomw@msl.yonsei.ac.kr)
+					Daeyoun Kang(mail.ikasty@gmail.com),
+					HyungKwan Park(rpdladps@gmail.com),
+					Ingyu Kim(goracom0@gmail.com),
+					Jungmin Kim(kukakhan@gmail.com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
