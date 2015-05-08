@@ -105,87 +105,86 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		return;
 	}
 	
+	// bestPlane 초기화
+	bestPlane.axis = -1;
+
+	// 평면으로 나누어진 영역에 속한 prim 개수 초기화 
+	for (i = 0; i < 3; i++)
 	{
-		// bestPlane 초기화
-		bestPlane.axis = -1;
-
-		// 평면으로 나누어진 영역에 속한 prim 개수 초기화 
-		for (i = 0; i < 3; i++)
-		{
-			nAbove[i] = total_prim_counts;
-			nPlanar[i] = 0;
-			nBelow[i] = 0;
-		}
-
-		// edge로 평면을 만들어 나눴을 때 cost가 최소가 되는 평면 구함
-		i = 0;
-		while (i < nEdges)
-		{
-			BoundEdge curPlane = edge_buffer[i];
-			float minBound = nodeBounds->faaBounds[0][curPlane.axis];
-			float maxBound = nodeBounds->faaBounds[1][curPlane.axis];
-			int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
-
-			// 현재 평면에 닿아 있는 edge들을 분류함
-			while (i < nEdges && edge_buffer[i].axis == curPlane.axis && edge_buffer[i].t == curPlane.t)
-			{
-				switch (edge_buffer[i++].e_type)
-				{
-				case END:	nEndOfCurPlane++;	break;
-				case PLANAR: 	nPlanarOfCurPlane++; 	break;
-				case START: 	nStartOfCurPlane++; 	break;
-				}
-			}
-			nAbove[curPlane.axis] -= (nEndOfCurPlane + nPlanarOfCurPlane);
-			nPlanar[curPlane.axis] = nPlanarOfCurPlane;
-
-			// 코스트 계산
-			if (minBound < curPlane.t && curPlane.t < maxBound)
-			{
-				float cost;
-				int side;
-
-				// 이 노드 범위 내에 있는 edge를 위한 cost 계산
-				int otherAxis0 = (curPlane.axis + 1) % 3, otherAxis1 = (curPlane.axis + 2) % 3;
-				float pBelow = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
-				) * invTotalSA;
-				float pAbove = 2 * (
-					(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
-				) * invTotalSA;
-
-				int nCurB = nBelow[curPlane.axis];
-				int nCurA = nAbove[curPlane.axis];
-				int nCurP = nPlanar[curPlane.axis];
-
-				cost = getCost(kdtree, nCurB, nCurP, nCurA, pBelow, pAbove, &side);
-
-				// 최소 코스트라면 갱신
-				if (cost < bestCost)
-				{
-					bestPlane = curPlane;
-					bestCost = cost;
-					bestSide = side;
-					bestNBelow = nCurB;
-					bestNAbove = nCurA;
-
-					if (side == BELOW)	bestNBelow += nCurP;
-					else			bestNAbove += nCurP;
-
-					DEBUG_ONLY(if (bestCost < 0)
-					{
-						PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
-							bestCost, nCurB, pBelow, nCurA, pAbove);
-						PAUSE;
-					});
-				}
-			}			
-
-			// 다음 loop를 위한 변수 조정 
-			nPlanar[curPlane.axis] = 0;
-			nBelow[curPlane.axis] += (nPlanarOfCurPlane + nStartOfCurPlane);
-		} // while
+		nAbove[i] = total_prim_counts;
+		nPlanar[i] = 0;
+		nBelow[i] = 0;
 	}
+
+	// edge로 평면을 만들어 나눴을 때 cost가 최소가 되는 평면 구함
+	i = 0;
+	while (i < nEdges)
+	{
+		BoundEdge curPlane = edge_buffer[i];
+		float minBound = nodeBounds->faaBounds[0][curPlane.axis];
+		float maxBound = nodeBounds->faaBounds[1][curPlane.axis];
+		int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
+
+		// 현재 평면에 닿아 있는 edge들을 분류함
+		while (i < nEdges && edge_buffer[i].axis == curPlane.axis && edge_buffer[i].t == curPlane.t)
+		{
+			switch (edge_buffer[i++].e_type)
+			{
+			case END:		nEndOfCurPlane++;		break;
+			case PLANAR: 	nPlanarOfCurPlane++; 	break;
+			case START: 	nStartOfCurPlane++; 	break;
+			}
+		}
+		nAbove[curPlane.axis] -= (nEndOfCurPlane + nPlanarOfCurPlane);
+		nPlanar[curPlane.axis] = nPlanarOfCurPlane;
+
+		// 코스트 계산
+		if (minBound < curPlane.t && curPlane.t < maxBound)
+		{
+			float cost;
+			int side;
+
+			// 이 노드 범위 내에 있는 edge를 위한 cost 계산
+			int otherAxis0 = (curPlane.axis + 1) % 3, otherAxis1 = (curPlane.axis + 2) % 3;
+			float pBelow = 2 * (
+				(d[otherAxis0] * d[otherAxis1]) + (curPlane.t - minBound) * (d[otherAxis0] + d[otherAxis1])
+			) * invTotalSA;
+			float pAbove = 2 * (
+				(d[otherAxis0] * d[otherAxis1]) + (maxBound - curPlane.t) * (d[otherAxis0] + d[otherAxis1])
+			) * invTotalSA;
+
+			int nCurB = nBelow[curPlane.axis];
+			int nCurA = nAbove[curPlane.axis];
+			int nCurP = nPlanar[curPlane.axis];
+
+			cost = getCost(kdtree, nCurB, nCurP, nCurA, pBelow, pAbove, &side);
+
+			// 최소 코스트라면 갱신
+			if (cost < bestCost)
+			{
+				bestPlane = curPlane;
+				bestCost = cost;
+				bestSide = side;
+				bestNBelow = nCurB;
+				bestNAbove = nCurA;
+
+				if (side == BELOW)	bestNBelow += nCurP;
+				else				bestNAbove += nCurP;
+
+				DEBUG_ONLY(if (bestCost < 0)
+				{
+					PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
+						bestCost, nCurB, pBelow, nCurA, pAbove);
+					PAUSE;
+				});
+			}
+		}			
+
+		// 다음 loop를 위한 변수 조정 
+		nPlanar[curPlane.axis] = 0;
+		nBelow[curPlane.axis] += (nPlanarOfCurPlane + nStartOfCurPlane);
+	} // while
+
 	if (bestCost > oldCost) badRefines++;
 
 	// 분할할 만한 적당한 위치가 없으면 리프 노드 생성
