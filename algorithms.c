@@ -19,6 +19,8 @@
 #  include "kdtree/binning_build.h"
 // * kdtree(minmax)
 #  include "kdtree/minmax_build.h"
+// * nlogn exclusion algorithm
+#  include "kdtree/exclusion_build.h"
 
 /////////////////////////////////////
 // shading algorithms
@@ -70,6 +72,13 @@ void init_search_algo(char *algo_name)
 		printf("use kdtree minmax algorithm\n");
 		clear_accel = &kdtree_clear_accel;
 		accel_build = &minmax_accel_build;
+		intersect_search = &kdtree_intersect_search;
+	}
+	else if (strncmp(algo_name, "exclusion", 9) == 0)
+	{
+		printf("use kdtree nlogn exclusion algorithm\n");
+		clear_accel = &kdtree_clear_accel;
+		accel_build = &exclusion_accel_build;
 		intersect_search = &kdtree_intersect_search;
 	}
 	else
