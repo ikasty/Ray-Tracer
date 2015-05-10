@@ -80,6 +80,10 @@ int file_read(FILE* fp, Data *data, float scale)
 	int norm_count = 0, norm_capacity = 0;
 	Normal *norm = NULL;
 
+	// texture info
+	int tex_count = 0, tex_capacity = 0;
+	Texture *tex = NULL;
+
 	char buf_orig[100];
 
 	if (fp == NULL)
@@ -134,6 +138,21 @@ int file_read(FILE* fp, Data *data, float scale)
 
 			continue;
 		}
+		// 텍스쳐 정보
+		else if (strcmp(op, "vt") == 0){
+			float i, j, k;
+
+			resize_if_full((void**)&tex, tex_count, &tex_capacity, sizeof(tex[0]));
+
+			sscanf(buf, "%f %f %f", &i, &j, &k);
+
+			tex[tex_count].tex[X] = i;
+			tex[tex_count].tex[Y] = j;
+			tex[tex_count].tex[Z] = k;
+			tex_count++;
+
+			continue;
+		}
 		// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
 		// 꼭지점의 ID는 위에서부터 1입니다.
 		else if (strcmp(op, "f") == 0)
@@ -157,6 +176,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 				// relative accessing 지원
 				if (v < 0) v += vert_count + 1;
+				if (vt < 0) vt += tex_count + 1;
 				if (vn < 0) vn += norm_count + 1;
 
 				// vn값이 없으면 v랑 같은 인덱스를 사용함
@@ -178,6 +198,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 					// 삼각형 데이터 넣기
 					memcpy(face[face_count].v,  result[0], sizeof(result[0]));
+					memcpy(face[face_count].vt, result[1], sizeof(result[1]));
 					memcpy(face[face_count].vn, result[2], sizeof(result[2]));
 					face_count++;
 
@@ -208,6 +229,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 			#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
 			#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
+			#define FACE_TEX(pnt) (face[i].vt[pnt] - 1)
 
 			prim->vert0[X] = vert[ FACE_VERT(0) ].vect[X];
 			prim->vert0[Y] = vert[ FACE_VERT(0) ].vect[Y];
@@ -222,6 +244,25 @@ int file_read(FILE* fp, Data *data, float scale)
 			prim->vert2[Z] = vert[ FACE_VERT(2) ].vect[Z];
 
 			prim->prim_id = i;
+
+
+			// texture coordi가 지정되 있다면
+			if (FACE_TEX(0) >= 0)
+			{
+				prim->tex0[X] = tex[FACE_TEX(0)].tex[X];
+				prim->tex0[Y] = tex[FACE_TEX(0)].tex[Y];
+				prim->tex0[Z] = tex[FACE_TEX(0)].tex[Z];
+
+				prim->tex1[X] = tex[FACE_TEX(1)].tex[X];
+				prim->tex1[Y] = tex[FACE_TEX(1)].tex[Y];
+				prim->tex1[Z] = tex[FACE_TEX(1)].tex[Z];
+
+				prim->tex2[X] = tex[FACE_TEX(2)].tex[X];
+				prim->tex2[Y] = tex[FACE_TEX(2)].tex[Y];
+				prim->tex2[Z] = tex[FACE_TEX(2)].tex[Z];
+
+				prim->use_texture = 1;
+			}
 
 			// normal vector가 지정되 있다면
 			if (FACE_NORM(0) >= 0)
@@ -260,6 +301,9 @@ int file_read(FILE* fp, Data *data, float scale)
 					memcpy(temp, prim->norm1, sizeof(float) * 3);
 					memcpy(prim->norm1, prim->norm2, sizeof(float) * 3);
 					memcpy(prim->norm2, temp, sizeof(float) * 3);
+					memcpy(temp, prim->tex1, sizeof(float) * 3);
+					memcpy(prim->tex1, prim->tex2, sizeof(float) * 3);
+					memcpy(prim->tex2, temp, sizeof(float) * 3);
 				}
 
 			}
