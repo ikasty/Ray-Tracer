@@ -62,29 +62,86 @@ static void face_read(char *buf, int *v, int *vt, int *vn)
 	*vn = data[2];
 }
 
+// vertex info
+int vert_count = 0, vert_capacity = 0;
+Vertex *vert = NULL;
+
+// face info
+int face_count = 0, face_capacity = 0;
+Triangle *face = NULL;
+
+// normal vector info
+int norm_count = 0, norm_capacity = 0;
+Normal *norm = NULL;
+
+Primitive *prims = NULL;
+
+static void makePrim()
+{
+	int i, j;
+
+	if (face_count <= 0) return ;
+
+	// data에 primitives 배열 채워넣기
+	prims = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
+	for (i = 0; i < face_count; i++)
+	{
+		Primitive *prim = &prims[i];
+
+		#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
+		#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
+
+		// vertice 정보 복사
+		for (j = 0; j < 3; j++) COPYTO(prim->vert[j], vert[ FACE_VERT(j) ].vect);
+		prim->prim_id = i;
+
+		// normal vector가 지정되 있다면
+		if (use_norm_data)
+		{
+			float prim_normal[3];
+
+			// normal vector 정보 복사
+			for (j = 0; j < 3; j++) COPYTO(prim->norm[j], norm[ FACE_NORM(j) ].norm);
+			prim->use_normal = 1;
+
+			// primitive의 시계방향-반시계방향 체크
+			{
+				// 1. primitive의 normal vector를 구하고
+				float temp0[3], temp1[3];
+
+				SUB(temp0, prim->vert[1], prim->vert[0]);
+				SUB(temp1, prim->vert[2], prim->vert[0]);
+				CROSS(prim_normal, temp0, temp1);
+			}
+
+			// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
+			if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
+			{
+				// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
+				float temp[3];
+				memcpy(temp, prim->vert[1], sizeof(float)*3);
+				memcpy(prim->vert[1], prim->vert[2], sizeof(float)*3);
+				memcpy(prim->vert[2], temp, sizeof(float)*3);
+				memcpy(temp, prim->norm[1], sizeof(float) * 3);
+				memcpy(prim->norm[1], prim->norm[2], sizeof(float) * 3);
+				memcpy(prim->norm[2], temp, sizeof(float) * 3);
+			}
+
+		}
+	}
+}
+
 /**
  * obj 파일을 읽는 함수입니다.
  * 파일 문법은 http://paulbourke.net/dataformats/obj/ 를 참고하세요.
  */
 int file_read(FILE* fp, Data *data, float scale)
 {
-	// vertex info
-	int vert_count = 0, vert_capacity = 0;
-	Vertex *vert = NULL;
-
-	// face info
-	int face_count = 0, face_capacity = 0;
-	Triangle *face = NULL;
-
-	// normal vector info
-	int norm_count = 0, norm_capacity = 0;
-	Normal *norm = NULL;
-
 	char buf_orig[100];
 
 	if (fp == NULL)
 	{
-		printf("CRITICAL: NO OBJ FILE!\n");
+		printf("file_read.c CRITICAL: NO OBJ FILE!\n");
 		return -1;
 	}
 
@@ -196,75 +253,9 @@ int file_read(FILE* fp, Data *data, float scale)
 
 	PDEBUG("file_read.c: file read successfully finished!\n");
 
-	// data에 primitives 배열 채워넣기
-	// TODO: vert0, vert1, vert2를 배열로 바꿔보자
-	data->primitives = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
+	makePrim();
+	data->primitives = prims;
 	data->prim_count = face_count;
-	{
-		int i;
-		for (i = 0; i < data->prim_count; i++)
-		{
-			Primitive *prim = &data->primitives[i];
-
-			#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
-			#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
-
-			prim->vert0[X] = vert[ FACE_VERT(0) ].vect[X];
-			prim->vert0[Y] = vert[ FACE_VERT(0) ].vect[Y];
-			prim->vert0[Z] = vert[ FACE_VERT(0) ].vect[Z];
-
-			prim->vert1[X] = vert[ FACE_VERT(1) ].vect[X];
-			prim->vert1[Y] = vert[ FACE_VERT(1) ].vect[Y];
-			prim->vert1[Z] = vert[ FACE_VERT(1) ].vect[Z];
-			
-			prim->vert2[X] = vert[ FACE_VERT(2) ].vect[X];
-			prim->vert2[Y] = vert[ FACE_VERT(2) ].vect[Y];
-			prim->vert2[Z] = vert[ FACE_VERT(2) ].vect[Z];
-
-			prim->prim_id = i;
-
-			// normal vector가 지정되 있다면
-			if (FACE_NORM(0) >= 0)
-			{
-				float temp0[3], temp1[3];
-				float prim_normal[3];
-
-				prim->norm0[X] = norm[ FACE_NORM(0) ].norm[X];
-				prim->norm0[Y] = norm[ FACE_NORM(0) ].norm[Y];
-				prim->norm0[Z] = norm[ FACE_NORM(0) ].norm[Z];
-
-				prim->norm1[X] = norm[ FACE_NORM(1) ].norm[X];
-				prim->norm1[Y] = norm[ FACE_NORM(1) ].norm[Y];
-				prim->norm1[Z] = norm[ FACE_NORM(1) ].norm[Z];
-				
-				prim->norm2[X] = norm[ FACE_NORM(2) ].norm[X];
-				prim->norm2[Y] = norm[ FACE_NORM(2) ].norm[Y];
-				prim->norm2[Z] = norm[ FACE_NORM(2) ].norm[Z];
-
-				prim->use_normal = 1;
-
-				// primitive의 시계방향-반시계방향 체크
-				// 1. primitive의 normal vector를 구하고
-				SUB(temp0, prim->vert1, prim->vert0);
-				SUB(temp1, prim->vert2, prim->vert0);
-				CROSS(prim_normal, temp0, temp1);
-
-				// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
-				if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
-				{
-					// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
-					float temp[3];
-					memcpy(temp, prim->vert1, sizeof(float)*3);
-					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
-					memcpy(prim->vert2, temp, sizeof(float)*3);
-					memcpy(temp, prim->norm1, sizeof(float) * 3);
-					memcpy(prim->norm1, prim->norm2, sizeof(float) * 3);
-					memcpy(prim->norm2, temp, sizeof(float) * 3);
-				}
-
-			}
-		}
-	}
 
 	PDEBUG("file_read.c: %d primitives created\n", data->prim_count);
 

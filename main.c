@@ -76,16 +76,14 @@ static void do_algorithm(Data *data, char *input_file)
 		// 우선 해당 frame_number에 맞게 object를 회전합니다.
 		if (frame_number)
 		{
-			int i;
+			int i, j;
 			for (i = 0; i < data->prim_count; i++)
 			{
-				get_rotated_vector(data->primitives[i].vert0);
-				get_rotated_vector(data->primitives[i].vert1);
-				get_rotated_vector(data->primitives[i].vert2);
-
-				get_rotated_vector(data->primitives[i].norm0);
-				get_rotated_vector(data->primitives[i].norm1);
-				get_rotated_vector(data->primitives[i].norm2);
+				for (j = 0; j < 3; j++)
+				{
+					get_rotated_vector(data->primitives[i].vert[j]);
+					get_rotated_vector(data->primitives[i].norm[j]);
+				}
 			}
 		}
 

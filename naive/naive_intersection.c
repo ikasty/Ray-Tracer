@@ -40,11 +40,11 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 	Hit ist_hit;
 	memset(&ist_hit, 0, sizeof(ist_hit));
 
-	// ray.orig + t * ray.dir = (1 - u - v) * vert0 + u * vert1 + v * vert2
+	// ray.orig + t * ray.dir = (1 - u - v) * vert[0] + u * vert[1] + v * vert[2]
 
 	// 점 vert0을 공유하고 있는 삼각형의 두 vector를 구한다
-	SUB(edge1, prim.vert1, prim.vert0);
-	SUB(edge2, prim.vert2, prim.vert0);
+	SUB(edge1, prim.vert[1], prim.vert[0]);
+	SUB(edge2, prim.vert[2], prim.vert[0]);
 	
 	CROSS(pvec, ray->dir, edge2);
 
@@ -57,7 +57,7 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 	inv_det = 1.0f / det;
 
 	// ray의 원점에서 점 vert0까지의 거리를 구한다
-	SUB(tvec, ray->orig, prim.vert0);
+	SUB(tvec, ray->orig, prim.vert[0]);
 
 	u = DOT(tvec, pvec) * inv_det;
 	if (u < 0.0 || u > 1.0)
