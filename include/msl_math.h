@@ -46,3 +46,6 @@
 #define PI 3.14159265f
 
 #define next_axis(axis) ((axis + 1) % 3)
+
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))

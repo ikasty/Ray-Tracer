@@ -40,7 +40,7 @@ typedef struct
 	float vert[3][3];
 
 	float norm[3][3];
-
+ int use_normal;
 	float text[3][3];
 	int use_texture;
 } Primitive;
@@ -52,6 +52,12 @@ typedef struct
 
 } Hit;
 
+typedef struct {
+	int width;
+	int height;
+	unsigned char **rgb_buffer;
+} Image;
+
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
 	Primitive *primitives;
@@ -59,7 +65,6 @@ typedef struct {
 	int prim_count;
 
 	void *accel_struct;
-
+	Image texture;
 } Data;
-
 #endif
