@@ -1,47 +1,12 @@
-﻿
-/*
-Original source code from pbrt (https://github.com/mmp/pbrt-v2)
-
-Copyright (c) 1998-2012 Matt Pharr and Greg Humphreys.
-Copyright (c) 2015, Minwoo Lee(hellomw@msl.yonsei.ac.kr)
-					Daeyoun Kang(mail.ikasty@gmail.com),
-					HyungKwan Park(rpdladps@gmail.com),
-					Ingyu Kim(goracom0@gmail.com),
-					Jungmin Kim(kukakhan@gmail.com)
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this
-   list of conditions and the following disclaimer. 
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation
-   and/or other materials provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those
-of the authors and should not be interpreted as representing official policies, 
-either expressed or implied, of the FreeBSD Project.
-*/
-
-#include <float.h>
+﻿#include <float.h>
 #include <stdlib.h>
-#include "nlogn_build.h"
+#include "exclusion_build.h"
 #include "kdtree_common.h"
 
 #include "kdtree_type.h"
 #include "bbox.h"
+
+#define PERCENT 0.3
 
 #include "include/debug-msg.h"
 
@@ -119,6 +84,12 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		nodeBounds->faaBounds[1][1] - nodeBounds->faaBounds[0][1],
 		nodeBounds->faaBounds[1][2] - nodeBounds->faaBounds[0][2]
 	};
+	// exclusion 범위
+	float exclusion[3][2] = {
+		{nodeBounds->faaBounds[0][0] + d[0] * PERCENT, nodeBounds->faaBounds[1][0] - d[0] * PERCENT},
+		{nodeBounds->faaBounds[0][1] + d[1] * PERCENT, nodeBounds->faaBounds[1][1] - d[1] * PERCENT},
+		{nodeBounds->faaBounds[0][2] + d[2] * PERCENT, nodeBounds->faaBounds[1][2] - d[2] * PERCENT}
+	};
 
 	int bestNAbove = 0, bestNBelow = 0, bestSide = BELOW;
 	int nBelow[3], nPlanar[3], nAbove[3];
@@ -158,8 +129,8 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	while (i < nEdges)
 	{
 		BoundEdge curPlane = edge_buffer[i];
-		float minBound = nodeBounds->faaBounds[0][curPlane.axis];
-		float maxBound = nodeBounds->faaBounds[1][curPlane.axis];
+		float minBound = exclusion[curPlane.axis][0];
+		float maxBound = exclusion[curPlane.axis][1];
 		int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
 
 		// 현재 평면에 닿아 있는 edge들을 분류함
@@ -329,7 +300,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 		free(locationsOfPrims);
 	}
 
-	PDEBUG("nlogn buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
+	PDEBUG("exclusion buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
 
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
@@ -413,7 +384,7 @@ static void initTree(KDAccelTree *kdtree)
 	free(prim_indexes);
 }
 
-void nlogn_accel_build(Data *data)
+void exclusion_accel_build(Data *data)
 {
 	KDAccelTree *kdtree = (KDAccelTree *)mzalloc(sizeof(KDAccelTree));
 	data->accel_struct = (void *)kdtree;
