@@ -96,7 +96,7 @@ static void makePrim()
 		prim->prim_id = i;
 
 		// normal vector가 지정되 있다면
-		if (use_norm_data)
+		if (1)
 		{
 			float prim_normal[3];
 
