@@ -17,7 +17,7 @@ static void resize_if_full(void **array, int curr, int *capacity, int size)
 	if (*capacity == 0)
 	{
 		*capacity = 100;
-		*array = malloc(size * (*capacity));
+		*array = mzalloc(size * (*capacity));
 	}
 	else if (curr == *capacity)
 	{
@@ -74,50 +74,60 @@ Triangle *face = NULL;
 int norm_count = 0, norm_capacity = 0;
 Normal *norm = NULL;
 
+// group info
+int current_group_cnt = 0;
 Primitive *prims = NULL;
 
-static void makePrim()
+static void makePrim(int use_norm_data)
 {
 	int i, j;
 
 	if (face_count <= 0) return ;
 
 	// data에 primitives 배열 채워넣기
-	prims = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
-	for (i = 0; i < face_count; i++)
+	if (prims == NULL)
+	{
+		prims = (Primitive *)mzalloc(sizeof(Primitive) * face_count);
+	}
+	else
+	{
+		prims = (Primitive *)realloc(prims, sizeof(Primitive) * face_count);
+	}
+
+	#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
+	#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
+
+	for (i = current_group_cnt; i < face_count; i++)
 	{
 		Primitive *prim = &prims[i];
+		float prim_normal[3];
 
-		#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
-		#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
+		// 현재 prim id 설정
+		prim->prim_id = i;
 
 		// vertice 정보 복사
 		for (j = 0; j < 3; j++) COPYTO(prim->vert[j], vert[ FACE_VERT(j) ].vect);
-		prim->prim_id = i;
+
+		// primitive의 normal vector를 구한다
+		{
+			float temp0[3], temp1[3];
+
+			SUB(temp0, prim->vert[1], prim->vert[0]);
+			SUB(temp1, prim->vert[2], prim->vert[0]);
+			CROSS(prim_normal, temp0, temp1);
+		}
 
 		// normal vector가 지정되 있다면
 		if (1)
 		{
-			float prim_normal[3];
-
 			// normal vector 정보 복사
 			for (j = 0; j < 3; j++) COPYTO(prim->norm[j], norm[ FACE_NORM(j) ].norm);
-			prim->use_normal = 1;
 
-			// primitive의 시계방향-반시계방향 체크
+			// TODO: 방향 바꾸기는 더 이상 필요가 없을 듯하다
+			// 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면
+			if (DOT(prim->norm[0], prim_normal) <= 0)
 			{
-				// 1. primitive의 normal vector를 구하고
-				float temp0[3], temp1[3];
-
-				SUB(temp0, prim->vert[1], prim->vert[0]);
-				SUB(temp1, prim->vert[2], prim->vert[0]);
-				CROSS(prim_normal, temp0, temp1);
-			}
-
-			// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
-			if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
-			{
-				// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
+				// 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
 				float temp[3];
 				memcpy(temp, prim->vert[1], sizeof(float)*3);
 				memcpy(prim->vert[1], prim->vert[2], sizeof(float)*3);
@@ -126,9 +136,47 @@ static void makePrim()
 				memcpy(prim->norm[1], prim->norm[2], sizeof(float) * 3);
 				memcpy(prim->norm[2], temp, sizeof(float) * 3);
 			}
-
+		}
+		// normal vector 데이터가 없다면 face normal의 평균값들을 이용해서 만들어야 한다
+		else
+		{
+			// normalize한 벡터값을 vertice의 fake_norm에 더한다.
+			VECTOR_NORMALIZE(prim_normal);
+			for (j = 0; j < 3; j++) ADD(vert[ FACE_VERT(j) ].fake_norm, vert[ FACE_VERT(j) ].fake_norm, prim_normal);
 		}
 	}
+
+	// normal vector 데이터를 다 저장했다면 빠른 종료
+	if (use_norm_data)
+	{
+		current_group_cnt = face_count;
+		return ;
+	}
+	// normal vector가 없었다면
+	else
+	{
+		// 인접한 primitive의 normal vector의 평균값을 그 vertice에서의 normal vector로 함
+		for (i = current_group_cnt; i < face_count; i++)
+		{
+			Primitive *prim = &prims[i];
+
+			for (j = 0; j < 3; j++)
+			{
+				COPYTO(prim->norm[j], vert[ FACE_VERT(j) ].fake_norm);
+				VECTOR_NORMALIZE(prim->norm[j]);
+			}
+		}
+
+		// vertice reset
+		for (i = current_group_cnt; i < face_count; i++)
+		{
+			float zero[3] = {0,};
+
+			for (j = 0; j < 3; j++) COPYTO(vert[ FACE_VERT(j) ].fake_norm, zero);
+		}
+	}
+
+	current_group_cnt = face_count;
 }
 
 /**
@@ -138,6 +186,7 @@ static void makePrim()
 int file_read(FILE* fp, Data *data, float scale)
 {
 	char buf_orig[100];
+	int use_norm_data = 1;
 
 	if (fp == NULL)
 	{
@@ -216,8 +265,8 @@ int file_read(FILE* fp, Data *data, float scale)
 				if (v < 0) v += vert_count + 1;
 				if (vn < 0) vn += norm_count + 1;
 
-				// vn값이 없으면 v랑 같은 인덱스를 사용함
-				//if (!vn && v <= norm_count) vn = v;
+				// normal data 사용 여부 체크
+				if (!vn) use_norm_data = 0;
 
 				// 결과에 대입함
 				result[0][cnt] = v;
@@ -245,15 +294,21 @@ int file_read(FILE* fp, Data *data, float scale)
 				}
 			} // while
 		} // op "f"
+		else if (strcmp(op, "g") == 0)
+		{
+			// 원래는 그룹명을 읽어서, 같은 그룹은 같이 처리해야 하지만 여기서는 그냥 무시한다
+			makePrim(use_norm_data);
+			use_norm_data = 1;
+		}
 		else
 		{
 			//PDEBUG("unknown operation %s read!\n", op);
 		}
 	}
 
-	PDEBUG("file_read.c: file read successfully finished!\n");
+	// 마지막 그룹 처리
+	if (current_group_cnt != face_count) makePrim(use_norm_data);
 
-	makePrim();
 	data->primitives = prims;
 	data->prim_count = face_count;
 
@@ -261,6 +316,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 	free(vert);
 	free(face);
+	free(norm);
 
 	return 0;
 }

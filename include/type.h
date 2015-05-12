@@ -40,7 +40,6 @@ typedef struct
 	float vert[3][3];
 
 	float norm[3][3];
-	int use_normal;
 
 	float text[3][3];
 	int use_texture;

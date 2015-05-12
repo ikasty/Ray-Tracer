@@ -40,8 +40,8 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 		ray_point_to_light.min_t = 0;
 		ray_point_to_light.max_t = MAX_RENDER_DISTANCE;
 
-		// 노멀 벡터가 없거나 노멀 벡터 함수가 지정되지 않은 경우
-		if (primitive.use_normal == 0 || normal_shade == NULL)
+		// 노멀 벡터 함수가 지정되지 않은 경우
+		if (normal_shade == NULL)
 		{
 			naive_shading(normal_vector, hit_point, primitive);
 		}
