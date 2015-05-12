@@ -198,7 +198,7 @@ long_option:
 
 		case 'S':
 			scale = (float)atof(optarg);
-			printf("image scale to %f\n", scale);
+			printf("object scale to %f\n", scale);
 			break;
 
 		case 'f':
@@ -218,7 +218,7 @@ long_option:
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
 				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
-				"  -S SCALE\t\t\t\t"					"Set scale factor\n"
+				"  -S SCALE\t\t\t\t"					"Set object scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 
@@ -243,9 +243,6 @@ long_option:
 	// 파일 열기
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
-
-	screen->xsize = (int)(screen->xsize * scale);
-	screen->ysize = (int)(screen->ysize * scale);
 
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));
