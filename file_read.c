@@ -105,9 +105,6 @@ static void makePrim(int use_norm_data)
 		// 현재 prim id 설정
 		prim->prim_id = i;
 
-		// DEPRECATED
-		prim->use_normal = 1;
-
 		// vertice 정보 복사
 		for (j = 0; j < 3; j++) COPYTO(prim->vert[j], vert[ FACE_VERT(j) ].vect);
 
@@ -299,6 +296,7 @@ int file_read(FILE* fp, Data *data, float scale)
 		} // op "f"
 		else if (strcmp(op, "g") == 0)
 		{
+			// 원래는 그룹명을 읽어서, 같은 그룹은 같이 처리해야 하지만 여기서는 그냥 무시한다
 			makePrim(use_norm_data);
 			use_norm_data = 1;
 		}
