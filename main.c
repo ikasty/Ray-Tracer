@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include "main.h"
 
 // include search and render algorithm
@@ -13,6 +12,7 @@
 
 #include "bitmap_make.h"
 #include "obj_transform.h"
+#include "timecheck.h"
 #include "settings.h"
 
 #include "include/getopt.h"
@@ -22,7 +22,7 @@
 PDEBUG_INIT();
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
-static void print_percent(int frame_number, float percent, double build_clock, double search_clock, double render_clock)
+static void print_percent(int frame_number, float percent)
 {
 	int i;
 	USE_SCREEN(screen);
@@ -32,20 +32,26 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 		if (__PDEBUG_ENABLED) printf("\n");
 		__PDEBUG_ENABLED = 0;
 	});
-	
+
 	printf("\rframe %02d/%02d: [", frame_number, screen->frame_count);
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
-	//printf("] %05.2f%% %.3fs build, %.3fs search", percent, build_clock, search_clock);
-	printf("] build %.2fs, search %.2fs, render %.2fs", build_clock, search_clock, render_clock);
+	printf("] %06.3f%%, total %.3fs", percent, get_total_clock());
 	if (percent == 100.0f)
 	{
 		printf("\n");
-		printf("build %.3fs, search %.3fs, render %.3fs, total %.3fs\n",
-			build_clock, search_clock, render_clock,
-			build_clock + search_clock + render_clock);
+		printf(	" acc. object build\t"	"%.3fs\n"
+				" acc. object search\t"	"%.3fs\n"
+				" intersect check\t"	"%.3fs\n"
+				" render\t\t\t"			"%.3fs\n"
+				" total\t\t\t"			"%.3fs\n",
+			get_build_clock(),
+			get_search_clock(),
+			intersect_clock,
+			get_render_clock(),
+			get_total_clock());
 	}
 	fflush(stdout);
 }
@@ -58,13 +64,8 @@ static void do_algorithm(Data *data, char *input_file)
 	int			index_x, index_y;			// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
 	int			frame_number;				// 현재 이미지 frame 번호
 
-	clock_t		start_clock, end_clock;		// 수행 시간 계산용 clock_t 변수
-	double		build_clock = 0.0;			// 가속체 구성 시간 누적 변수
-	double		search_clock = 0.0;			// 탐색 시간 누적 변수
-	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
-
 	USE_SCREEN(screen);
-	//USE_CAMERA(camera);
+	USE_TIMECHECK();
 
 	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
 
@@ -99,12 +100,11 @@ static void do_algorithm(Data *data, char *input_file)
 			// 기존 구조체 해제
 			if (clear_accel) (*clear_accel)(data);
 
-			start_clock = clock();
+			TIMECHECK_START();
 			(*accel_build)(data);
-			end_clock = clock();
+			TIMECHECK_END(build_clock);
 
 			PDEBUG("accel_build finished\n");
-			build_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		}
 
 		// 각 픽셀별로 교차검사를 수행합니다.
@@ -112,21 +112,19 @@ static void do_algorithm(Data *data, char *input_file)
 		{
 			float percent;
 
-			// 진행 상태 출력
-			percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
-			print_percent(frame_number, percent, build_clock, search_clock, render_clock);
-
 			for (index_x = 0; index_x < screen->xsize; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
 				Hit ist_hit;
 
-				// 현재 광선에서 교차검사를 수행함
-				start_clock = clock();
-				ist_hit = (*intersect_search)(data, &f_ray);
-				end_clock = clock();
+				// 진행 상태 출력
+				percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
+				print_percent(frame_number, percent);
 
-				search_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+				// 현재 광선에서 교차검사를 수행함
+				TIMECHECK_START();
+				ist_hit = (*intersect_search)(data, &f_ray);
+				TIMECHECK_END(search_clock);
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				if (ist_hit.t > 0)
@@ -134,11 +132,9 @@ static void do_algorithm(Data *data, char *input_file)
 					int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
 
 					// 교차된 Primitive가 있다면 렌더링함
-					start_clock = clock();
+					TIMECHECK_START();
 					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
-					end_clock = clock();
-
-					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+					TIMECHECK_END(render_clock);
 				}
 			}
 
@@ -154,7 +150,7 @@ static void do_algorithm(Data *data, char *input_file)
 		OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
 	} // index_x
 
-	print_percent(frame_number, 100.0f, build_clock, search_clock, render_clock);
+	print_percent(frame_number, 100.0f);
 
 	free(screen_buffer);
 }

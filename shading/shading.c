@@ -7,6 +7,7 @@
 // naive shading은 항상 필요함
 #include "naive_shading.h"
 
+#include "timecheck.h"
 #include "settings.h"
 #include "include/msl_math.h"
 #include "include/type.h"
@@ -24,6 +25,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 	Hit shadow_hit;
 
 	USE_LIGHT(light);
+	USE_TIMECHECK();
 
 	la = 25;
 
@@ -75,7 +77,10 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 
 		// 그림자 테스트 및 반짝이는 효과 추가
 		// 자신의 면에 부딫히는건 판단하지 않음
+		TIMECHECK_START();
 		shadow_hit = (*intersect_search)(data, &ray_point_to_light);
+		TIMECHECK_END(shadow_search_clock);
+
 		if ((shadow_hit.t > 0) && (shadow_hit.prim_id != hit.prim_id))
 		{
 			result_of_color = 0;

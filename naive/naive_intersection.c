@@ -3,6 +3,7 @@
 #include <math.h>
 #include "naive_intersection.h"
 
+#include "timecheck.h"
 #include "obj_transform.h"
 #include "settings.h"
 #include "include/msl_math.h"
@@ -13,6 +14,8 @@ Hit naive_intersect_search(Data *data, Ray *f_ray)
 	Hit min_hit;
 	int prim_id;
 
+	USE_TIMECHECK();
+
 	memset(&min_hit, 0, sizeof(min_hit));
 
 	// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
@@ -20,7 +23,10 @@ Hit naive_intersect_search(Data *data, Ray *f_ray)
 	for (prim_id = 0; prim_id < prim_count; prim_id++)
 	{
 		Hit ist_hit;
+
+		TIMECHECK_START();
 		ist_hit = intersect_triangle(f_ray, data->primitives[prim_id]);
+		TIMECHECK_END(intersect_clock);
 
 		if (ist_hit.t > 0 && (ist_hit.t<min_hit.t || min_hit.t == 0))
 		{

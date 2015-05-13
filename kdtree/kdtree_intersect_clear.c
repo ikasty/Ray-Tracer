@@ -4,6 +4,7 @@
 
 #include "kdtree_type.h"
 #include "kdtree_queue.h"
+#include "timecheck.h"
 
 static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
 {
@@ -45,6 +46,8 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	
 	float tmin, tmax;
 
+	USE_TIMECHECK();
+
 	Hit min_hit;
 	memset(&min_hit, 0, sizeof(min_hit));
 	
@@ -67,7 +70,10 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 			int i;
 			for (i = 0; i < node->primitive_count; i++)
 			{
+				TIMECHECK_START();
 				Hit hit = intersect_triangle(ray, node->primitives[i]);
+				TIMECHECK_END(intersect_clock);
+
 				if (hit.t > 0 && (hit.t < min_hit.t || min_hit.t == 0)) memcpy(&min_hit, &hit, sizeof(hit));
 			}
 
