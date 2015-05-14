@@ -52,7 +52,7 @@ static int jpeg_read(Data *data, char *jpeg_name){
 }
 
 int image_read(Data *data, char *image_name){
- int (*func)(Data*, char*)i = NULL;
+ int (*func)(Data*, char*) = NULL;
  const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
