@@ -17,7 +17,7 @@ void rgb_buffer_calloc(Data *data, int row, int col)
 	}
 }
 
-static void jpeg_read(Data *data, char *jpeg_name){
+static int jpeg_read(Data *data, char *jpeg_name){
 	FILE *jpeg_file;
 	unsigned int width, height;
 	struct jpeg_decompress_struct jpeg_info;
@@ -49,7 +49,7 @@ static void jpeg_read(Data *data, char *jpeg_name){
 	fclose(jpeg_file);
 }
 
-void image_read(Data *data, char *image_name){
+int image_read(Data *data, char *image_name){
 	const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
@@ -61,4 +61,7 @@ void image_read(Data *data, char *image_name){
 	{
 		jpeg_read(data, image_name);
 	}
+
+ // 정상적으로 수행되었을 때 0을 리턴 
+ return 0;
 }
