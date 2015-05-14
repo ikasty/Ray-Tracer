@@ -1,5 +1,5 @@
 CC = gcc
-CCLIB = -lm -msse2 -mfpmath=sse
+CCLIB = -lm -msse2 -mfpmath=sse -L ./lib/amd64/linux/ -ljpeg
 TARGET = RayTracing.exe
 
 ### include current folder (for headers)
