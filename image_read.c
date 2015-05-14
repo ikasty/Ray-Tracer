@@ -27,7 +27,7 @@ static int jpeg_read(Data *data, char *jpeg_name){
 	jpeg_file = fopen(jpeg_name, "rb");
 	if (jpeg_file == NULL){
 		data->texture.rgb_buffer = NULL;
-		return;
+		return -1;
 	}
 	jpeg_create_decompress(&jpeg_info);
 	jpeg_stdio_src(&jpeg_info, jpeg_file);
@@ -47,21 +47,26 @@ static int jpeg_read(Data *data, char *jpeg_name){
 	data->texture.width = width;
 	data->texture.height = height;
 	fclose(jpeg_file);
+
+ return 0;
 }
 
 int image_read(Data *data, char *image_name){
-	const char *ext = strrchr(image_name, '.');
+ int (*func)(Data*, char*)i = NULL;
+ const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
+ // - 확장자가 없으면 처리하지 않음
 	if (!ext || ext == image_name)
 	{
 		return;
 	}
+ // - *.jpg, *.jpeg
 	if (strcmp(ext, "jpg") || strcmp(ext, "jpeg"))
 	{
-		jpeg_read(data, image_name);
+		func = jpeg_read;
 	}
 
- // 정상적으로 수행되었을 때 0을 리턴 
- return 0;
+ // 확장자에 따른 방법으로 처리 수행 
+ return func(data, image_name);
 }
