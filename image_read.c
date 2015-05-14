@@ -59,7 +59,7 @@ int image_read(Data *data, char *image_name){
  // - 확장자가 없으면 처리하지 않음
 	if (!ext || ext == image_name)
 	{
-		return;
+		return -1;
 	}
  // - *.jpg, *.jpeg
 	if (strcmp(ext, "jpg") || strcmp(ext, "jpeg"))
