@@ -1,8 +1,6 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "include/jpeglib.h"
-#include "include/type.h"
+﻿// image_read.c
+#include "image_read.h"
+
 
 void rgb_buffer_calloc(Data *data, int row, int col)
 {
