@@ -4,6 +4,9 @@
 #include "include/type.h"
 #include "kdtree_queue.h"
 
+#define min(X,Y) ((X) < (Y) ? (X) : (Y))
+#define max(X,Y) ((X) < (Y) ? (Y) : (X))
+
 typedef struct __bbox BBox;
 typedef struct __acceltree KDAccelTree;
 typedef struct __accelnode KDAccelNode;
