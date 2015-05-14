@@ -263,3 +263,6 @@ FakesAssemblies/
 
 # Gemfile.lock
 Gemfile.lock
+
+# vim swap file
+*.swp
