@@ -7,6 +7,6 @@
 #include "include/jpeglib.h"
 #include "include/type.h"
 
-void image_read(Data *data, char *image_name);
+int image_read(Data *data, char *image_name);
 
 #endif
