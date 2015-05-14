@@ -1,5 +1,11 @@
-﻿#ifndef READ_JPEG_FILE_H
-#define READ_JPEG_FILE_H
+﻿#ifndef IMAGE_READ_H
+#define IMAGE_READ_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "include/jpeglib.h"
+#include "include/type.h"
 
 void image_read(Data *data, char *image_name);
 
