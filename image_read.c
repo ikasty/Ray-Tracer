@@ -1,22 +1,6 @@
 ﻿// image_read.c
 #include "image_read.h"
 
-
-void rgb_buffer_calloc(Data *data, int row, int col)
-{
-	int i;
-
-	data->texture.rgb_buffer = (unsigned char **)calloc(row, sizeof(unsigned char *));
-	if (!data->texture.rgb_buffer)
-		exit(1);
-	for (i = 0; i < row; i++)
-	{
-		data->texture.rgb_buffer[i] = (unsigned char *)calloc(col, sizeof(unsigned char));
-		if (!data->texture.rgb_buffer[i])
-			exit(1);
-	}
-}
-
 static int jpeg_read(Data *data, char *jpeg_name, int flags){
 	FILE *jpeg_file;
 	unsigned int width, height;
@@ -51,6 +35,7 @@ static int jpeg_read(Data *data, char *jpeg_name, int flags){
  return 0;
 }
 
+// 이미지 파일을 읽어서 포맷에 맞게 처리하는 함수
 int image_read(Data *data, char *image_name, int flags){
  int (*func)(Data*, char*, int*) = NULL;
  const char *ext = strrchr(image_name, '.');
