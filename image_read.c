@@ -17,7 +17,7 @@ void rgb_buffer_calloc(Data *data, int row, int col)
 	}
 }
 
-static int jpeg_read(Data *data, char *jpeg_name){
+static int jpeg_read(Data *data, char *jpeg_name, int flags){
 	FILE *jpeg_file;
 	unsigned int width, height;
 	struct jpeg_decompress_struct jpeg_info;
@@ -51,8 +51,8 @@ static int jpeg_read(Data *data, char *jpeg_name){
  return 0;
 }
 
-int image_read(Data *data, char *image_name){
- int (*func)(Data*, char*) = NULL;
+int image_read(Data *data, char *image_name, int flags){
+ int (*func)(Data*, char*, int*) = NULL;
  const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
@@ -68,5 +68,6 @@ int image_read(Data *data, char *image_name){
 	}
 
  // 확장자에 따른 방법으로 처리 수행 
- return func(data, image_name);
+ // * flags 미구현
+ return func(data, image_name, IMAGE_NO_FLAGS);
 }
