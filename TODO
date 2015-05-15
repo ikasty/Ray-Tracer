@@ -1,2 +1,3 @@
 * zlib, libjpeg, libpng, giflib, pstdint.h 라이센스 추가해야함
 * giflib을 Windows에서 사용할 때 문제가되면  $PATH/stdint.h 를 ./include/pstdint.h로 변경해야함
+* bitmap_make 를 image_read에서 호환되게 작성 후 삭제
