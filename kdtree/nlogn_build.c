@@ -91,7 +91,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 	int nBelow[3], nPlanar[3], nAbove[3];
 	BoundEdge bestPlane = {0};
 	BoundEdge *belowEdges, *aboveEdges;
-	int nBelowEdges, nAboveEdges;
+	int nBelowEdges = 0, nAboveEdges = 0;
 	int *primNums;
 
 	int i;
@@ -405,4 +405,6 @@ void nlogn_accel_build(Data *data)
 	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 	
 	initTree(kdtree);
+
+	DEBUG_ONLY(leaf_info_print());
 }

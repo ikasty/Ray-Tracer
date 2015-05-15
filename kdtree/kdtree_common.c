@@ -1,6 +1,19 @@
 ﻿#include <stdlib.h>
 
 #include "kdtree_common.h"
+#include "include/debug-msg.h"
+
+DEBUG_ONLY(
+int leaf_count = 0;
+int leaf_prim_count = 0;
+int leaf_max_prim_count = 0;
+
+void leaf_info_print()
+{
+	PDEBUG("\n%d leaf created, total %d prims, max %d prims exists\n", leaf_count, leaf_prim_count, leaf_max_prim_count);
+}
+
+);
 
 void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type, int axis){
 	boundedge->t = split_t;
@@ -21,6 +34,12 @@ void initLeaf(KDAccelTree *kdtree, int node_idx, int *prim_indexes, int np)
 	{
 		node->primitives[i] = kdtree->primitives[prim_indexes[i]];
 	}
+
+	DEBUG_ONLY(
+		leaf_count++;
+		leaf_prim_count += np;
+		if (leaf_max_prim_count < np) leaf_max_prim_count = np;
+	);
 }
 
 void initInterior(KDAccelTree *kdtree, int node_idx, int below_child_idx, int above_child_idx, int axis, float s)
