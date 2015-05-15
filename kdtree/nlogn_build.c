@@ -130,7 +130,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 		int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
 
 		// 현재 평면에 닿아 있는 edge들을 분류함
-		while (i < nEdges && edge_buffer[i].axis == curPlane.axis && edge_buffer[i].t == curPlane.t)
+		while ( (i < nEdges) && (edge_buffer[i].axis == curPlane.axis) && (edge_buffer[i].t == curPlane.t) )
 		{
 			switch (edge_buffer[i++].e_type)
 			{
@@ -175,7 +175,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 				if (side == BELOW)	bestNBelow += nCurP;
 				else				bestNAbove += nCurP;
 
-				DEBUG_ONLY(if (bestCost < 0)
+				DEBUG_ONLY(if (bestCost < 0 || nBelow < 0 || nAbove < 0)
 				{
 					PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
 						bestCost, nCurB, pBelow, nCurA, pAbove);
@@ -281,16 +281,16 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 		qsort(both_for_below, nBB, sizeof(BoundEdge), compare_bound);
 		qsort(both_for_above, nBA, sizeof(BoundEdge), compare_bound);
 
-		// edge_buffer 재활용
-		belowEdges = &edge_buffer[0];
-		aboveEdges = &edge_buffer[nBelowEdges];
+		// below와 above의 edge candidate 개수 계산
+		nBelowEdges = nB + nBB;
+		nAboveEdges = nA + nBA;
 
 		// 배열들을 합함
-		nBelowEdges	= nB + nBB;
-		nAboveEdges	= nA + nBA;
+		belowEdges = (BoundEdge *)malloc(sizeof(BoundEdge) * nBelowEdges);
+		aboveEdges = (BoundEdge *)malloc(sizeof(BoundEdge) * nAboveEdges);
 		merge_bound(belowEdges, below_onlys, both_for_below, nB, nBB);
 		merge_bound(aboveEdges, above_onlys, both_for_above, nA, nBA);
-	}
+	};
 
 	PDEBUG("nlogn buildTree depth %d, cost %f, below %d, above %d\n", kdtree->maxDepth - depth, bestCost, nBelowEdges, nAboveEdges);
 
@@ -307,6 +307,9 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 	buildTree(kdtree, above_child_idx, &bbox_above, bestNAbove, depth - 1, aboveEdges, nAboveEdges, badRefines);
 
 	initInterior(kdtree, current_node_idx, above_child_idx, below_child_idx, bestPlane.axis, bestPlane.t);
+
+	free(belowEdges);
+	free(aboveEdges);
 }
 
 static void initTree(KDAccelTree *kdtree)

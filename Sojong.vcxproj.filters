@@ -69,7 +69,10 @@
     <ClCompile Include="shading\shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="kdtree\minmax_build.c">
+    <ClCompile Include="kdtree\exclusion_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="timecheck.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -152,7 +155,10 @@
     <ClInclude Include="include\type.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="kdtree\minmax_build.h">
+    <ClInclude Include="kdtree\exclusion_build.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="timecheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
