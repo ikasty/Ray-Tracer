@@ -7,15 +7,27 @@ int image_read(Data *data, char *image_name, int flags){
  const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
- // - 확장자가 없으면 처리하지 않음
+ 	// - 확장자가 없으면 처리하지 않음
 	if (!ext || ext == image_name)
 	{
 		return -1;
 	}
- // - *.jpg, *.jpeg
+	// 알맞게 처리 함수를 정하기
 	if (strcmp(ext, "jpg") || strcmp(ext, "jpeg"))
 	{
 		func = jpeg_read;
+	}
+	if (strcmp(ext, "png"))
+	{
+		func = png_read;
+	}
+	if (strcmp(ext, "gif"))
+	{
+		func = gif_read;
+	}
+	if (strcmp(ext, "tiff"))
+	{
+		func = tiff_read;
 	}
 
  // 확장자에 따른 방법으로 처리 수행 
