@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "include/jpeglib.h"
 #include "include/type.h"
+#include "image_jpeg.h"
 
 int image_read(Data *data, char *image_name, int flags);
 
