@@ -4,13 +4,13 @@
 int rgb_buffer_calloc(Data *data, int row, int col) {
 	int i;
 
-	data->texture.rgb_buffer = (unsigned char **)calloc(row, sizeof(unsigned char *));
-	if (!data->texture.rgb_buffer)
+	data->texture.color = (RGBA **)calloc(col, sizeof(RGBA *));
+	if (!data->texture.pixels)
 		return -1;
-	for (i = 0; i < row; i++)
+	for (i = 0; i < col; i++)
 	{
-		data->texture.rgb_buffer[i] = (unsigned char *)calloc(col, sizeof(unsigned char));
-		if (!data->texture.rgb_buffer[i])
+		data->texture.pixels[i] = (RGBA *)calloc(row, sizeof(RGBA));
+		if (!data->texture.pixels[i])
 			return -1;
 	}
 }
