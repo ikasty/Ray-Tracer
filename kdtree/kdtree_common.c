@@ -42,7 +42,7 @@ void initLeaf(KDAccelTree *kdtree, int node_idx, int *prim_indexes, int np)
 	);
 }
 
-void initInterior(KDAccelTree *kdtree, int node_idx, int below_child_idx, int above_child_idx, int axis, float s)
+void initInterior(KDAccelTree *kdtree, int node_idx, int above_child_idx, int below_child_idx, int axis, float s)
 {
 	KDAccelNode *node = &kdtree->nodes[node_idx];
 
