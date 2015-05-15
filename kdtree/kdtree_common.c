@@ -10,7 +10,7 @@ int leaf_max_prim_count = 0;
 
 void leaf_info_print()
 {
-	PDEBUG("\n%d leaf created, total %d prims, max %d prims exists\n", leaf_count, leaf_prim_count, leaf_max_prim_count);
+	PDEBUG("kdtree leaf info: %d leaf created, total %d prims, max %d prims exists\n", leaf_count, leaf_prim_count, leaf_max_prim_count);
 }
 
 );
@@ -50,6 +50,7 @@ void initInterior(KDAccelTree *kdtree, int node_idx, int below_child_idx, int ab
 	node->flags = axis;
 	node->above_child_idx = above_child_idx;
 	node->below_child_idx = below_child_idx;
+	node->primitives = NULL;
 }
 
 void allocChild(KDAccelTree *kdtree)

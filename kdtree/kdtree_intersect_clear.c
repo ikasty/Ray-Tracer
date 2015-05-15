@@ -127,7 +127,7 @@ void kdtree_clear_accel(Data *data)
 	for (i = 0; i < kdtree->nextFreeNodes; i++)
 	{
 		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
-		free(node->primitives);
+		if (node->primitives) free(node->primitives);
 	}
 
 	free(kdtree->nodes);
