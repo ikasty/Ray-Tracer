@@ -29,6 +29,10 @@ int image_read(Data *data, char *image_name, int flags){
 	{
 		func = tiff_read;
 	}
+	if (strcmp(ext, "bmp"))
+	{
+		func = bmp_read;
+	}
 
  // 확장자에 따른 방법으로 처리 수행 
  // * flags 미구현

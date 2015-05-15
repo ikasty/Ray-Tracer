@@ -9,6 +9,7 @@
 #include "image_png.h"
 #include "image_gif.h"
 #include "image_tiff.h"
+#include "image_bmp.h"
 
 int image_read(Data *data, char *image_name, int flags);
 
