@@ -2,14 +2,14 @@
 #include "image_jpeg.h"
 
 // jpeg 포맷 읽기
-int jpeg_read(Data *data, char *jpeg_name, int flags){
+int jpeg_read(Data *data, char *filename, int flags){
 	FILE *jpeg_file;
 	unsigned int width, height;
 	struct jpeg_decompress_struct jpeg_info;
 	struct jpeg_error_mgr jerr;
 
 	jpeg_info.err = jpeg_std_error(&jerr);
-	jpeg_file = fopen(jpeg_name, "rb");
+	jpeg_file = fopen(filename, "rb");
 	if (jpeg_file == NULL){
 		data->texture.rgb_buffer = NULL;
 		return -1;
