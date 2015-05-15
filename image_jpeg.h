@@ -4,6 +4,6 @@
 #include "image_buffer.h"
 #include "include/jpeglib.h"
 
-int jpeg_read(Data *data, char *jpeg_name, int flags);
+int jpeg_read(Data *data, char *filename, int flags);
 
 #endif
