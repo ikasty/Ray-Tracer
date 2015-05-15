@@ -52,10 +52,18 @@ typedef struct
 
 } Hit;
 
+// RGB+A 헤헷
+typedef union {
+	DWORD i;
+	BYTE r,g,b,a;
+	BYTE l[4];	
+} RGBA;
+
+// 이미지의 속살을 담은 구조체
 typedef struct {
 	int width;
 	int height;
-	unsigned char **rgb_buffer;
+	RGBA **pixels;
 } Image;
 
 // 전체 데이터를 저장하기 위한 구조체
