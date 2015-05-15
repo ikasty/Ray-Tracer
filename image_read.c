@@ -3,7 +3,7 @@
 
 // 이미지 파일을 읽어서 포맷에 맞게 처리하는 함수
 int image_read(Data *data, char *image_name, int flags){
- int (*func)(Data*, char*, int*) = NULL;
+ int (*func)(Data*, char*, int) = NULL;
  const char *ext = strrchr(image_name, '.');
 	ext = ext + 1;
 	// 파일 이름 문자열 분석
