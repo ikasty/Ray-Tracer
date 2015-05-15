@@ -120,23 +120,21 @@ retry:
 	}
 }
 
-void get_rgb_for_point(unsigned char rgb[3], float point[3], Primitive prim, Data *data){
-	int pos[2], i;
+void get_rgb_for_point(RGBA color, float point[3], Primitive prim, Data *data){
+	int pos[2];
 
 	get_pos_on_texture_for_point(pos, point, prim, &data->texture);
-	for (i = 0; i < 3; i++){
-		rgb[i] = data->texture.rgb_buffer[pos[1]][pos[0] * 3 + i];
-	}	
+	color = data->texture.pixels[pos[0]][pos[1]];
 }
 
 unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 {
-	unsigned int out_color = 0;
 	float hit_point[3];
 	float normal_vector[3], viewer_vector[3];
 	float h[3];
-	int axis, rgb[3], i;
-	unsigned char mat_rgb[3] = { 255, 255, 255 };
+	int axis, i;
+	unsigned int rgb[3];
+	RGBA mat_rgb;
 	float ld, ls, la;
 	Ray ray_point_to_light;
 	Hit shadow_hit;
@@ -145,6 +143,8 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 	USE_TIMECHECK();
 
 	la = 0.1;
+	mat_rgb.i = 0xffffffff;
+	
 
 	if (hit.t > 0)
 	{
@@ -205,27 +205,31 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 
 		if ((shadow_hit.t > 0) && (shadow_hit.prim_id != hit.prim_id))
 		{
-			for (i = 0; i < 3; i++)
-			{
-				rgb[i] = (int)(mat_rgb[i] * la);
+			//COPYTO(rgb, mat_rgb.l+1);
+			//scalar_multi(rgb, la);
+			for (i = 0; i < 3; i++) {
+				rgb[i] = (int)(mat_rgb.l[i+1] * la);
 			}
 		}
 		else
 		{
-			for (i = 0; i < 3; i++)
-			{
-				rgb[i] = (int)(mat_rgb[i] * (ld + ls * 0.5 + la));
-			}			
-		}
-
-		for (i = 0; i < 3; i++)
-		{
-			if (rgb[i]>255)
-			{
-				rgb[i] = 255;
+			//COPYTO(rgb, mat_rgb.l+1);
+			//scalar_multi(rgb, ld + ls * 0.5 + la);
+			for (i = 0; i < 3; i++) {
+				rgb[i] = (int)(mat_rgb.l[i+1] * (ld + ls * 0.5 + la));
 			}
 		}
-		out_color = 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
+
+		for(i = 0; i < 3; i++) {
+			//rgb[i]=(rgb[i]>255)?255:rgb[i];
+			if(rgb[i] > 255) {
+				rgb[i] = 255;
+			}
+			//mat_rgb.l[i+1] = (BYTE)rgb[i];
+		}
+		
+	//	COPYTO(mat_rgb.l+1, rgb);
 	}
-	return out_color;
+	//return (unsigned int)mat_rgb.i;
+	return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
 }
