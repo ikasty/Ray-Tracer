@@ -24,7 +24,9 @@ int jpeg_read(Data *data, char *filename, int flags){
 	
 	
 	// rgb값을 모두 저장할 수 있도록 rgb_buffer에 공간 할당
-	rgb_buffer_calloc(data, height, width * 3);
+	if(rgb_buffer_calloc(data, height, width * 3))
+		return -1;
+
 	while (jpeg_info.output_scanline < height) 
 	{
 		jpeg_read_scanlines(&jpeg_info, &data->texture.rgb_buffer[jpeg_info.output_scanline], 1);

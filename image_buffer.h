@@ -7,6 +7,6 @@
 #include "include/type.h"
 #include "image_flags.h"
 
-void rgb_buffer_calloc(Data *data, int row, int col);
+int rgb_buffer_calloc(Data *data, int row, int col);
 
 #endif
