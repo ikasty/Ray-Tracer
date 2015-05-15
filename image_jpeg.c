@@ -4,7 +4,7 @@
 // jpeg 포맷 읽기
 int jpeg_read(Data *data, char *filename, int flags){
 	FILE *jpeg_file;
-	unsigned int width, height, components, i;
+	unsigned int width, height, components, i, j;
 	struct jpeg_decompress_struct jpeg_info;
 	struct jpeg_error_mgr jerr;
 	JSAMPARRAY buffer;
@@ -12,7 +12,7 @@ int jpeg_read(Data *data, char *filename, int flags){
 	jpeg_info.err = jpeg_std_error(&jerr);
 	jpeg_file = fopen(filename, "rb");
 	if (jpeg_file == NULL){
-		data->texture.rgb_buffer = NULL;
+		data->texture.pixels = NULL;
 		return -1;
 	}
 	jpeg_create_decompress(&jpeg_info);
@@ -46,7 +46,7 @@ int jpeg_read(Data *data, char *filename, int flags){
 	data->texture.height = height;
 	fclose(jpeg_file);
 
-	jpeg_destroy_decompress(*jpeg_info);
+	jpeg_destroy_decompress(&jpeg_info);
 	return 0;
 }
 
