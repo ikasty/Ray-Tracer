@@ -11,9 +11,11 @@ void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type
 	boundedge->axis = axis;
 }
 
-void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
+void initLeaf(KDAccelTree *kdtree, int node_idx, int *prim_indexes, int np)
 {
 	int i;
+	KDAccelNode *node = &kdtree->nodes[node_idx];
+
 	node->flags = 3;
 	node->primitive_count = np;
 	node->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
@@ -23,12 +25,14 @@ void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
 	}
 }
 
-void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s)
+void initInterior(KDAccelTree *kdtree, int node_idx, int below_child_idx, int above_child_idx, int axis, float s)
 {
+	KDAccelNode *node = &kdtree->nodes[node_idx];
+
 	node->split = s;
 	node->flags = axis;
-	node->above_child = ac;
-	node->below_child = bc;
+	node->above_child_idx = above_child_idx;
+	node->below_child_idx = below_child_idx;
 }
 
 void allocChild(KDAccelTree *kdtree)

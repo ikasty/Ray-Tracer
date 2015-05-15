@@ -83,11 +83,11 @@ static void get_prim_nums_for_leaf(int* prims, int nPrimsMax, BoundEdge* edges, 
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
-static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nodeBounds, BBox *prim_bounds, int total_prim_counts, int depth, 
+static void build_tree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBounds, BBox *prim_bounds, int total_prim_counts, int depth, 
 	BoundEdge *edges, int edges_count, int *extreme_indexes[2][3], int extreme_indexes_count[2][3], float extreme_bounds[2][3], int badRefines)
 {	
 	// kdtree의 자식 노드 변수
-	KDAccelNode *below_child, *above_child;
+	int below_child_idx, above_child_idx;
 	// 자식 노드의 boundary box
 	BBox bbox_below, bbox_above;
 
@@ -124,7 +124,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	{
 		primNums = (int*)malloc(total_prim_counts * sizeof(int));
 		get_prim_nums_for_leaf(primNums, kdtree->nPrims, edges, edges_count, extreme_indexes, extreme_indexes_count);
-		initLeaf(kdtree, current_node, primNums, total_prim_counts);
+		initLeaf(kdtree, current_node_idx, primNums, total_prim_counts);
 		free(primNums);
 		return;
 	}
@@ -223,7 +223,7 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	{
 		primNums = (int*)malloc(total_prim_counts * sizeof(int));
 		get_prim_nums_for_leaf(primNums, kdtree->nPrims, edges, edges_count, extreme_indexes, extreme_indexes_count);
-		initLeaf(kdtree, current_node, primNums, total_prim_counts);
+		initLeaf(kdtree, current_node_idx, primNums, total_prim_counts);
 		free(primNums);
 		return;
 	}
@@ -381,15 +381,15 @@ static void build_tree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nod
 	bbox_below.faaBounds[0][bestPlane.axis] = bestPlane.t;
 	bbox_above.faaBounds[1][bestPlane.axis] = bestPlane.t;
 
-	below_child = &kdtree->nodes[kdtree->nextFreeNodes];
-	build_tree(kdtree, below_child, &bbox_below, prim_bounds,
+	below_child_idx = kdtree->nextFreeNodes;
+	build_tree(kdtree, below_child_idx, &bbox_below, prim_bounds,
 		bestNBelow, depth - 1, leftEdges, nLeftEdges, extreme_for_below, extreme_count_for_below, extreme_bounds, badRefines);
 
-	above_child = &kdtree->nodes[kdtree->nextFreeNodes];
-	build_tree(kdtree, above_child, &bbox_above, prim_bounds,
+	above_child_idx = kdtree->nextFreeNodes;
+	build_tree(kdtree, above_child_idx, &bbox_above, prim_bounds,
 		bestNAbove, depth - 1, rightEdges, nRightEdges, extreme_for_above, extreme_count_for_above, extreme_bounds, badRefines);
 
-	initInterior(current_node, above_child, below_child, bestPlane.axis, bestPlane.t);
+	initInterior(kdtree, current_node_idx, above_child_idx, below_child_idx, bestPlane.axis, bestPlane.t);
 
 	free(leftEdges);
 	free(rightEdges);
@@ -493,7 +493,7 @@ static void initTree(KDAccelTree *kdtree, Primitive* p)
 	qsort(edges, edges_count, sizeof(BoundEdge), compare_bound);	
 
 	// kdtree 구축을 위한 재귀문 실행
-	build_tree(kdtree, &kdtree->nodes[0], &kdtree->bounds, prim_bounds, kdtree->nPrims, kdtree->maxDepth, 
+	build_tree(kdtree, 0, &kdtree->bounds, prim_bounds, kdtree->nPrims, kdtree->maxDepth, 
 		edges, edges_count, extreme_indexes, extreme_indexes_count, extreme_bounds, 0);
 
 	// kdtree 구축에 사용한 공간 해제

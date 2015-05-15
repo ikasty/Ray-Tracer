@@ -31,8 +31,7 @@ struct __accelnode
 	int primitive_count;
 	Primitive *primitives;
 
-	KDAccelNode *above_child;
-	KDAccelNode *below_child;
+	int below_child_idx, above_child_idx;
 };
 
 struct __acceltree
