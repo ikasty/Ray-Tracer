@@ -2,8 +2,6 @@
 
 #include "kdtree_common.h"
 
-#define PLANAR_TRY_TWICE
-
 void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type, int axis){
 	boundedge->t = split_t;
 	boundedge->primNum = prim_num;
@@ -50,10 +48,7 @@ void allocChild(KDAccelTree *kdtree)
 float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pBelow, float pAbove, int *side)
 {
 	float cost, eb;
-
-#ifdef	PLANAR_TRY_TWICE
 	float above_cost;
-#endif
 
 	// planar를 below에 두고 코스트 계산
 	nBelow += nPlanar;
@@ -63,11 +58,11 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nBelow -= nPlanar;
-
 	*side = BELOW;
 
+	// 플래너 개수가 0이라면 빠른 리턴
+	if (nPlanar == 0) return cost;
 
-#ifdef	PLANAR_TRY_TWICE
 	// planar를 above에 두고 코스트 계산
 	nAbove += nPlanar;
 
@@ -75,14 +70,12 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	above_cost = (float)kdtree->traversalCost;
 	above_cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
-	nAbove -= nPlanar;
-
+	// above에 두고 계산한 값이 더 작다면 대체
 	if (cost > above_cost)
 	{
 		cost = above_cost;
 		*side = ABOVE;
 	}
-#endif
 
 	return cost;
 }
