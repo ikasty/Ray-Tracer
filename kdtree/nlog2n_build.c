@@ -208,8 +208,8 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
 	bbox_above = *nodeBounds;
-	bbox_below.faaBounds[0][bestAxis] = bestSplit;
-	bbox_above.faaBounds[1][bestAxis] = bestSplit;
+	bbox_below.faaBounds[1][bestAxis] = bestSplit;
+	bbox_above.faaBounds[0][bestAxis] = bestSplit;
 
 	// 아래 노드 탐색
 	below_child_idx = kdtree->nextFreeNodes;
