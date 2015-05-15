@@ -27,14 +27,14 @@
 
 #define length_sq(x1)	(((x1)[0]*(x1)[0]) + ((x1)[1]*(x1)[1]) + ((x1)[2]*(x1)[2]))
 #define scalar_multi(v, sc)\
-	(v)[0] = ((v)[0] * sc);\
-	(v)[1] = ((v)[1] * sc);\
-	(v)[2] = ((v)[2] * sc);
+	(v)[0] = ((v)[0] * (sc));\
+	(v)[1] = ((v)[1] * (sc));\
+	(v)[2] = ((v)[2] * (sc));
 
 #define rgb_multi(v, sc)\
-	(v)[1] = ((v)[1] * sc);\
-	(v)[2] = ((v)[2] * sc);\
-	(v)[3] = ((v)[3] * sc);
+	v.l[1] = (v.l[1] * (sc));\
+	v.l[2] = (v.l[2] * (sc));\
+	v.l[3] = (v.l[3] * (sc));
 
 #define COPYTO(dest, src){\
 	(dest)[0]=(src)[0];\
@@ -42,9 +42,9 @@
 	(dest)[2]=(src)[2];}
 
 #define rgb_copy(dest, src){\
-	(dest)[1]=(src)[1];\
-	(dest)[2]=(src)[2];\
-	(dest)[3]=(src)[3];}
+	dest.l[1]=src.l[1];\
+	dest.l[2]=src.l[2];\
+	dest.l[3]=src.l[3];}
 
 #define is_two_point_equal(p1, p2) ((p1)[0] == (p2)[0] && (p1)[1] == (p2)[1] && (p1)[2] == (p2)[2])
 	
