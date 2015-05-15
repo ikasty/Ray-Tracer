@@ -118,7 +118,7 @@ static void makePrim(int use_norm_data)
 		}
 
 		// normal vector가 지정되 있다면
-		if (1)
+		if (use_norm_data)
 		{
 			// normal vector 정보 복사
 			for (j = 0; j < 3; j++) COPYTO(prim->norm[j], norm[ FACE_NORM(j) ].norm);
