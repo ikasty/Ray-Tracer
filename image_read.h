@@ -11,6 +11,7 @@
 #include "image_tiff.h"
 #include "image_bmp.h"
 
-int image_read(Data *data, char *image_name, int flags);
+int image_read(Image *image, char *filename, int flags);
+int image_write(Image *image, char *filename, int flags); 
 
 #endif

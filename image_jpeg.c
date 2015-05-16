@@ -2,7 +2,7 @@
 #include "image_jpeg.h"
 
 // jpeg 포맷 읽기
-int jpeg_read(Data *data, char *filename, int flags){
+int jpeg_read(Image *image, char *filename, int flags){
 	FILE *jpeg_file;
 	unsigned int width, height, components, i, j;
 	struct jpeg_decompress_struct jpeg_info;
@@ -12,7 +12,7 @@ int jpeg_read(Data *data, char *filename, int flags){
 	jpeg_info.err = jpeg_std_error(&jerr);
 	jpeg_file = fopen(filename, "rb");
 	if (jpeg_file == NULL){
-		data->texture.pixels = NULL;
+		image->pixels = NULL;
 		return -1;
 	}
 	jpeg_create_decompress(&jpeg_info);
@@ -29,7 +29,7 @@ int jpeg_read(Data *data, char *filename, int flags){
 	// rgb값을 모두 저장할 수 있도록 rgb_buffer에 공간 할당
 	buffer = (JSAMPARRAY)malloc(sizeof(JSAMPROW) * 1);
 	buffer[0] = (JSAMPROW)malloc(sizeof(JSAMPLE) * width * components);
-	if(rgb_buffer_calloc(data, height, width))
+	if(rgb_buffer_calloc(image, height, width))
 		return -1;
 
 	while (jpeg_info.output_scanline < height) 
@@ -37,13 +37,14 @@ int jpeg_read(Data *data, char *filename, int flags){
 		jpeg_read_scanlines(&jpeg_info, buffer, 1);
 		for(i = 0; i < width; i++) {
 			for(j = 0; j < components; j++) {
-				data->texture.pixels[i][jpeg_info.output_scanline].l[j] = buffer[0][i*components + j];
+				image->pixels[jpeg_info.output_scanline][i].l[j] = buffer[0][i*components + j];
 			}
 		}
 		// 버그있을듯
 	}
-	data->texture.width = width;
-	data->texture.height = height;
+
+ image->width = width;
+	image->height = height;
 	fclose(jpeg_file);
 
 	jpeg_destroy_decompress(&jpeg_info);

@@ -40,10 +40,12 @@
 extern int __PDEBUG_ENABLED;
 #ifdef DEBUG
 	
-#	define PDEBUG(...) 	{		\
-	  	__PDEBUG_ENABLED = 1;	\
-		printf("DEBUG] ");		\
-		printf(__VA_ARGS__);	\
+#	define PDEBUG(...) 	{			\
+		if (__PDEBUG_ENABLED != 1)	\
+			printf("\n");			\
+	  	__PDEBUG_ENABLED = 1;		\
+		printf("DEBUG] ");			\
+		printf(__VA_ARGS__);		\
 	}
 #	define PAUSE getchar()
 #	define DEBUG_ONLY(...) __VA_ARGS__

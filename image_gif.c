@@ -2,7 +2,7 @@
 #include "image_gif.h"
 
 // gif 포맷 읽기
-int gif_read(Data *data, char *filename, int flags){
+int gif_read(Image *image, char *filename, int flags){
  // 미구현
  return -1;
 }

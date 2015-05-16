@@ -7,6 +7,7 @@
 // naive shading은 항상 필요함
 #include "naive_shading.h"
 
+#include "timecheck.h"
 #include "settings.h"
 #include "include/msl_math.h"
 #include "include/type.h"
@@ -23,14 +24,14 @@ void get_pos_on_texture_for_point(int pos[2], float point[3], Primitive prim, Im
 	int inter_count = 0;
 	int axis, i, j;
 
-	COPYTO(vert_point[0], prim.vert0);
-	COPYTO(vert_point[1], prim.vert1);
-	COPYTO(vert_point[2], prim.vert2);
+	COPYTO(vert_point[0], prim.vert[0]);
+	COPYTO(vert_point[1], prim.vert[1]);
+	COPYTO(vert_point[2], prim.vert[2]);
 	// 텍스쳐 상의 실제 좌표는 소수부에 의해서 결정됨
 	for (i = 0; i < 2; i++){
-		tex[0][i] = prim.tex0[i];
-		tex[1][i] = prim.tex1[i];
-		tex[2][i] = prim.tex2[i];
+		tex[0][i] = prim.text[0][i];
+		tex[1][i] = prim.text[1][i];
+		tex[2][i] = prim.text[2][i];
 	}
 
 	// 텍스쳐 좌표를 찾고자하는 점이 prim의 꼭지점이라면, 
@@ -126,7 +127,7 @@ void get_rgb_for_point(RGBA color, float point[3], Primitive prim, Data *data){
 	color = data->texture.pixels[pos[0]][pos[1]];
 }
 
-unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
+RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 {
 	float hit_point[3];
 	float normal_vector[3], viewer_vector[3];
@@ -139,6 +140,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 	Hit shadow_hit;
 
 	USE_LIGHT(light);
+	USE_TIMECHECK();
 
 	la = 0.1;
 	mat_rgb.i = 0xffffffff;
@@ -197,7 +199,10 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 
 		// 그림자 테스트 및 반짝이는 효과 추가
 		// 자신의 면에 부딫히는건 판단하지 않음
+		TIMECHECK_START();
 		shadow_hit = (*intersect_search)(data, &ray_point_to_light);
+		TIMECHECK_END(shadow_search_clock);
+
 		if ((shadow_hit.t > 0) && (shadow_hit.prim_id != hit.prim_id))
 		{
 			//COPYTO(rgb, mat_rgb.l+1);
@@ -222,9 +227,20 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 			}
 			//mat_rgb.l[i+1] = (BYTE)rgb[i];
 		}
-		
-	//	COPYTO(mat_rgb.l+1, rgb);
-	}
-	//return (unsigned int)mat_rgb.i;
-	return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
+		//COPYTO(mat_rgb+1, rgb);
+	 //mat_rgb.r = (BYTE)rgb[0];
+  //mat_rgb.g = (BYTE)rgb[1];
+  //mat_rgb.b = (BYTE)rgb[2];
+  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+  mat_rgb.i = 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
+  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+ }
+ //mat_rgb.a = 25;
+  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+	return mat_rgb;
+ //return (DWORD)mat_rgb.i;
+	//return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
 }

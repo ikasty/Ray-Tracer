@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 #include "main.h"
 
 // include search and render algorithm
@@ -11,8 +10,9 @@
 // shading algorithm
 #include "shading/shading.h"
 
-#include "bitmap_make.h"
+//#include "bitmap_make.h"
 #include "obj_transform.h"
+#include "timecheck.h"
 #include "settings.h"
 #include "image_read.h"
 
@@ -23,7 +23,7 @@
 PDEBUG_INIT();
 
 // 콘솔 화면에 진행상황을 출력해 줍니다.
-static void print_percent(int frame_number, float percent, double build_clock, double search_clock, double render_clock)
+static void print_percent(int frame_number, float percent)
 {
 	int i;
 	USE_SCREEN(screen);
@@ -33,20 +33,26 @@ static void print_percent(int frame_number, float percent, double build_clock, d
 		if (__PDEBUG_ENABLED) printf("\n");
 		__PDEBUG_ENABLED = 0;
 	});
-	
+
 	printf("\rframe %02d/%02d: [", frame_number, screen->frame_count);
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
 
-	//printf("] %05.2f%% %.3fs build, %.3fs search", percent, build_clock, search_clock);
-	printf("] build %.2fs, search %.2fs, render %.2fs", build_clock, search_clock, render_clock);
+	printf("] %06.3f%%, total %.3fs", percent, get_total_clock());
 	if (percent == 100.0f)
 	{
 		printf("\n");
-		printf("build %.3fs, search %.3fs, render %.3fs, total %.3fs\n",
-			build_clock, search_clock, render_clock,
-			build_clock + search_clock + render_clock);
+		printf(	" acc. object build\t"	"%.3fs\n"
+				" acc. object search\t"	"%.3fs\n"
+				" intersect check\t"	"%.3fs\n"
+				" render\t\t\t"			"%.3fs\n"
+				" total\t\t\t"			"%.3fs\n",
+			get_build_clock(),
+			get_search_clock(),
+			intersect_clock,
+			get_render_clock(),
+			get_total_clock());
 	}
 	fflush(stdout);
 }
@@ -55,19 +61,15 @@ static void do_algorithm(Data *data, char *input_file)
 {
 	char		output_file[100];			// 출력 이미지 파일 이름 버퍼
 
-	int			*screen_buffer;				// bmp파일을 위한 색상정보가 들어가는 배열입니다.
+	Image*	screen_buffer = NULL;				// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 	int			index_x, index_y;			// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
 	int			frame_number;				// 현재 이미지 frame 번호
 
-	clock_t		start_clock, end_clock;		// 수행 시간 계산용 clock_t 변수
-	double		build_clock = 0.0;			// 가속체 구성 시간 누적 변수
-	double		search_clock = 0.0;			// 탐색 시간 누적 변수
-	double		render_clock = 0.0;			// 렌더링 시간 누적 변수
-
 	USE_SCREEN(screen);
-	//USE_CAMERA(camera);
+	USE_TIMECHECK();
 
-	screen_buffer = (int *)malloc(sizeof(int) * screen->xsize * screen->ysize);
+	//screen_buffer = (int*)malloc(sizeof(int) * screen->xsize * screen->ysize);
+ screen_buffer = image_init(screen->xsize, screen->ysize); 
 
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
@@ -77,21 +79,20 @@ static void do_algorithm(Data *data, char *input_file)
 		// 우선 해당 frame_number에 맞게 object를 회전합니다.
 		if (frame_number)
 		{
-			int i;
+			int i, j;
 			for (i = 0; i < data->prim_count; i++)
 			{
-				get_rotated_vector(data->primitives[i].vert0);
-				get_rotated_vector(data->primitives[i].vert1);
-				get_rotated_vector(data->primitives[i].vert2);
-
-				get_rotated_vector(data->primitives[i].norm0);
-				get_rotated_vector(data->primitives[i].norm1);
-				get_rotated_vector(data->primitives[i].norm2);
+				for (j = 0; j < 3; j++)
+				{
+					get_rotated_vector(data->primitives[i].vert[j]);
+					get_rotated_vector(data->primitives[i].norm[j]);
+				}
 			}
 		}
 
 		// 이미지 버퍼를 초기화해 줍니다.
-		memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
+		//memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
+		image_reset(screen_buffer);
 
 	//// -- execute phase --
 	PDEBUG("main.c execute phase\n");
@@ -102,12 +103,11 @@ static void do_algorithm(Data *data, char *input_file)
 			// 기존 구조체 해제
 			if (clear_accel) (*clear_accel)(data);
 
-			start_clock = clock();
+			TIMECHECK_START();
 			(*accel_build)(data);
-			end_clock = clock();
+			TIMECHECK_END(build_clock);
 
 			PDEBUG("accel_build finished\n");
-			build_clock += (double) (end_clock - start_clock) / CLOCKS_PER_SEC;
 		}
 
 		// 각 픽셀별로 교차검사를 수행합니다.
@@ -115,33 +115,30 @@ static void do_algorithm(Data *data, char *input_file)
 		{
 			float percent;
 
-			// 진행 상태 출력
-			percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
-			print_percent(frame_number, percent, build_clock, search_clock, render_clock);
-
 			for (index_x = 0; index_x < screen->xsize; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
 				Hit ist_hit;
 
-				// 현재 광선에서 교차검사를 수행함
-				start_clock = clock();
-				ist_hit = (*intersect_search)(data, &f_ray);
-				end_clock = clock();
+				// 진행 상태 출력
+				percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
+				print_percent(frame_number, percent);
 
-				search_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+				// 현재 광선에서 교차검사를 수행함
+				TIMECHECK_START();
+				ist_hit = (*intersect_search)(data, &f_ray);
+				TIMECHECK_END(search_clock);
 
 				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
 				if (ist_hit.t > 0)
 				{
-					int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
+					//unsigned int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
+     RGBA *pixel = &(screen_buffer->pixels[index_y][index_x]);
 
 					// 교차된 Primitive가 있다면 렌더링함
-					start_clock = clock();
+					TIMECHECK_START();
 					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
-					end_clock = clock();
-
-					render_clock += (double)(end_clock - start_clock) / CLOCKS_PER_SEC;
+					TIMECHECK_END(render_clock);
 				}
 			}
 
@@ -154,10 +151,11 @@ static void do_algorithm(Data *data, char *input_file)
 		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
 		
 		// 실제 bmp 파일을 만들어 줍니다.
-		OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
+		//OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
+		image_write(screen_buffer, output_file, IMAGE_NO_FLAGS);
 	} // index_x
 
-	print_percent(frame_number, 100.0f, build_clock, search_clock, render_clock);
+	print_percent(frame_number, 100.0f);
 
 	free(screen_buffer);
 }
@@ -201,7 +199,7 @@ long_option:
 
 		case 'S':
 			scale = (float)atof(optarg);
-			printf("image scale to %f\n", scale);
+			printf("object scale to %f\n", scale);
 			break;
 
 		case 'f':
@@ -221,7 +219,7 @@ long_option:
 				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
 				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
-				"  -S SCALE\t\t\t\t"					"Set scale factor\n"
+				"  -S SCALE\t\t\t\t"					"Set object scale factor\n"
 				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
 
@@ -247,14 +245,11 @@ long_option:
 	fp = fopen(input_file, "r");
 	PDEBUG("open %s\n", input_file);
 
-	screen->xsize = (int)(screen->xsize * scale);
-	screen->ysize = (int)(screen->ysize * scale);
-
 	// 파일에서 데이터를 불러옵니다
 	memset(&data, 0, sizeof(data));
 	if (file_read(fp, &data, scale) < 0) return -1;
 
-	image_read(&data, DEFAULT_TEXTURE_FILE, IMAGE_NO_FLAGS);
+	//image_read(&(data.texture), DEFAULT_TEXTURE_FILE, IMAGE_NO_FLAGS);
 	
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);
