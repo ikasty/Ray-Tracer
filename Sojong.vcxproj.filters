@@ -138,6 +138,27 @@
     <ClInclude Include="image_read.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="image_gif.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_jpeg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_png.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_tiff.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_buffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_flags.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_bmp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="include\getopt.c">
@@ -201,6 +222,24 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="image_read.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_gif.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_jpeg.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_png.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_tiff.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_buffer.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_bmp.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

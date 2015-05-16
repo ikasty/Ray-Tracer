@@ -1,4 +1,4 @@
-// image_jpeg.c - jpeg 포맷을 위한 함수
+﻿// image_jpeg.c - jpeg 포맷을 위한 함수
 #include "image_jpeg.h"
 
 // jpeg 포맷 읽기
