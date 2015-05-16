@@ -27,10 +27,11 @@
 #define abs_line(x1) ((x1)[0]+(x1)[1]+(x1)[2])
 
 #define length_sq(x1)	(((x1)[0]*(x1)[0]) + ((x1)[1]*(x1)[1]) + ((x1)[2]*(x1)[2]))
+
 #define scalar_multi(v, sc) {\
 	(v)[0] = ((v)[0] * (sc));\
 	(v)[1] = ((v)[1] * (sc));\
-	(v)[2] = ((v)[2] * (sc)) };
+	(v)[2] = ((v)[2] * (sc));}
 
 #define rgb_multi(v, sc)\
 	v.l[1] = (v.l[1] * (sc));\

@@ -74,6 +74,10 @@ Triangle *face = NULL;
 int norm_count = 0, norm_capacity = 0;
 Normal *norm = NULL;
 
+// texture info
+int tex_count = 0, tex_capacity = 0;
+Texture *tex = NULL;
+
 // group info
 int current_group_cnt = 0;
 Primitive *prims = NULL;
@@ -185,21 +189,6 @@ static void makePrim(int use_norm_data)
  */
 int file_read(FILE* fp, Data *data, float scale)
 {
-	// vertex info
-	int vert_count = 0, vert_capacity = 0;
-	Vertex *vert = NULL;
-
-	// face info
-	int face_count = 0, face_capacity = 0;
-	Triangle *face = NULL;
-
-	// normal vector info
-	int norm_count = 0, norm_capacity = 0;
-	Normal *norm = NULL;
-
-	// texture info
-	int tex_count = 0, tex_capacity = 0;
-	Texture *tex = NULL;
 
 	char buf_orig[100];
 	int use_norm_data = 1;
