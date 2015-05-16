@@ -20,6 +20,18 @@ typedef uint32_t DWORD;
 typedef int LONG;
 #endif
 
+//#ifndef INLINE
+# if __GNUC__ && !__GNUC_STDC_INLINE__
+#  define INLINE extern inline
+# else
+#  ifndef _WIN32
+#   define INLINE inline
+#  else
+#   define INLINE __inline
+#  endif
+# endif
+//#endif
+
 typedef struct
 {
 	float x,y,z;

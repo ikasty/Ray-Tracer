@@ -58,5 +58,7 @@
 
 #define next_axis(axis) ((axis + 1) % 3)
 
+#ifndef _WIN32
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif

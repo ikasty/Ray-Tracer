@@ -1,4 +1,4 @@
-// image_bmp.c
+﻿// image_bmp.c
 #include "image_bmp.h"
 
 // bmp 포맷 읽기

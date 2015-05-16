@@ -113,9 +113,9 @@ retry:
 			PDEBUG("phong_shading.c: Unsolved error occured!\n");
 		}
 
-		frac[0] = FRACTION((inter_t[0][X] * temp2_length + inter_t[1][X] * temp_length) / (temp_length + temp2_length));
+		frac[0] = (float)FRACTION((inter_t[0][X] * temp2_length + inter_t[1][X] * temp_length) / (temp_length + temp2_length));
 		pos[0] = max((int)(frac[0] * img->width - 1), 0);
-		frac[1] = FRACTION((inter_t[0][Y] * temp2_length + inter_t[1][Y] * temp_length) / (temp_length + temp2_length));
+		frac[1] = (float)FRACTION((inter_t[0][Y] * temp2_length + inter_t[1][Y] * temp_length) / (temp_length + temp2_length));
 		pos[1] = img->height - max((int)(frac[1] * img->height - 1), 0);
 	}
 }
@@ -142,7 +142,7 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 	USE_LIGHT(light);
 	USE_TIMECHECK();
 
-	la = 0.1;
+	la = 0.1f;
 	mat_rgb.i = 0xffffffff;
 	
 
@@ -221,26 +221,13 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 		}
 
 		for(i = 0; i < 3; i++) {
-			//rgb[i]=(rgb[i]>255)?255:rgb[i];
 			if(rgb[i] > 255) {
 				rgb[i] = 255;
 			}
-			//mat_rgb.l[i+1] = (BYTE)rgb[i];
 		}
-		//COPYTO(mat_rgb+1, rgb);
-	 //mat_rgb.r = (BYTE)rgb[0];
-  //mat_rgb.g = (BYTE)rgb[1];
-  //mat_rgb.b = (BYTE)rgb[2];
-  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
-  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
   mat_rgb.i = 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
-  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
-  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
  }
- //mat_rgb.a = 25;
-  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
-  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+  //PDEBUG("(0, 1, 2, 3) - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+  //PDEBUG("(r, g, b, a) = (%d,%d,%d,%d)\n", mat_rgb.r, mat_rgb.g, mat_rgb.b, mat_rgb.a);
 	return mat_rgb;
- //return (DWORD)mat_rgb.i;
-	//return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
 }
