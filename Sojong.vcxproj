@@ -77,7 +77,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.h" />
-    <ClInclude Include="bitmap_make.h" />
     <ClInclude Include="file_read.h" />
     <ClInclude Include="gen_ray.h" />
     <ClInclude Include="image_bmp.h" />
@@ -94,18 +93,10 @@
     <ClInclude Include="include\msl_math.h" />
     <ClInclude Include="include\queue.h" />
     <ClInclude Include="include\type.h" />
-    <ClInclude Include="jpeglib\cderror.h" />
-    <ClInclude Include="jpeglib\cdjpeg.h" />
     <ClInclude Include="include\jconfig.h" />
-    <ClInclude Include="jpeglib\jdct.h" />
     <ClInclude Include="include\jerror.h" />
-    <ClInclude Include="jpeglib\jinclude.h" />
-    <ClInclude Include="jpeglib\jmemsys.h" />
     <ClInclude Include="include\jmorecfg.h" />
-    <ClInclude Include="jpeglib\jpegint.h" />
     <ClInclude Include="include\jpeglib.h" />
-    <ClInclude Include="jpeglib\jversion.h" />
-    <ClInclude Include="jpeglib\transupp.h" />
     <ClInclude Include="kdtree\bbox.h" />
     <ClInclude Include="kdtree\binning_build.h" />
     <ClInclude Include="kdtree\exclusion_build.h" />
@@ -124,10 +115,10 @@
     <ClInclude Include="shading\naive_shading.h" />
     <ClInclude Include="shading\phong_shading.h" />
     <ClInclude Include="shading\shading.h" />
+    <ClInclude Include="timecheck.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="algorithms.c" />
-    <ClCompile Include="bitmap_make.c" />
     <ClCompile Include="file_read.c" />
     <ClCompile Include="gen_ray.c" />
     <ClCompile Include="image_bmp.c" />
@@ -153,6 +144,7 @@
     <ClCompile Include="shading\naive_shading.c" />
     <ClCompile Include="shading\phong_shading.c" />
     <ClCompile Include="shading\shading.c" />
+    <ClCompile Include="timecheck.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

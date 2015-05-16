@@ -1,4 +1,4 @@
-#ifndef TIMECHECK_H
+﻿#ifndef TIMECHECK_H
 #define TIMECHECK_H
 
 #include <time.h>

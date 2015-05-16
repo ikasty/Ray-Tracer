@@ -72,9 +72,6 @@
     <ClInclude Include="kdtree\nlogn_build.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="bitmap_make.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree\binning_build.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -97,30 +94,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="kdtree\exclusion_build.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\cderror.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\cdjpeg.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\jdct.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\jinclude.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\jmemsys.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\jpegint.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\jversion.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="jpeglib\transupp.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="include\jconfig.h">
@@ -157,6 +130,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="image_bmp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="timecheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -203,9 +179,6 @@
     <ClCompile Include="algorithms.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="bitmap_make.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="gen_ray.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -240,6 +213,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="image_bmp.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="timecheck.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
