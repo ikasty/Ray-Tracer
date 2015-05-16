@@ -372,6 +372,7 @@ int file_read(FILE* fp, Data *data, float scale)
 			// texture coordi가 지정되 있다면
 			if (FACE_TEX(0) >= 0)
 			{
+<<<<<<< HEAD
 				prim->text[0][X] = tex[FACE_TEX(0)].tex[X];
 				prim->text[0][Y] = tex[FACE_TEX(0)].tex[Y];
 				prim->text[0][Z] = tex[FACE_TEX(0)].tex[Z];
@@ -383,6 +384,19 @@ int file_read(FILE* fp, Data *data, float scale)
 				prim->text[2][X] = tex[FACE_TEX(2)].tex[X];
 				prim->text[2][Y] = tex[FACE_TEX(2)].tex[Y];
 				prim->text[2][Z] = tex[FACE_TEX(2)].tex[Z];
+=======
+				prim->tex0[X] = tex[FACE_TEX(0)].tex[X];
+				prim->tex0[Y] = tex[FACE_TEX(0)].tex[Y];
+				prim->tex0[Z] = tex[FACE_TEX(0)].tex[Z];
+
+				prim->tex1[X] = tex[FACE_TEX(1)].tex[X];
+				prim->tex1[Y] = tex[FACE_TEX(1)].tex[Y];
+				prim->tex1[Z] = tex[FACE_TEX(1)].tex[Z];
+
+				prim->tex2[X] = tex[FACE_TEX(2)].tex[X];
+				prim->tex2[Y] = tex[FACE_TEX(2)].tex[Y];
+				prim->tex2[Z] = tex[FACE_TEX(2)].tex[Z];
+>>>>>>> 80758b8bc40484d034e799d679cc812c851df346
 
 				prim->use_texture = 1;
 			}
@@ -418,6 +432,7 @@ int file_read(FILE* fp, Data *data, float scale)
 				{
 					// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
 					float temp[3];
+<<<<<<< HEAD
 					memcpy(temp, prim->vert[1], sizeof(float)*3);
 					memcpy(prim->vert[1], prim->vert[2], sizeof(float)*3);
 					memcpy(prim->vert[2], temp, sizeof(float)*3);
@@ -427,6 +442,17 @@ int file_read(FILE* fp, Data *data, float scale)
 					memcpy(temp, prim->text[1], sizeof(float) * 3);
 					memcpy(prim->text[1], prim->text[2], sizeof(float) * 3);
 					memcpy(prim->text[2], temp, sizeof(float) * 3);
+=======
+					memcpy(temp, prim->vert1, sizeof(float)*3);
+					memcpy(prim->vert1, prim->vert2, sizeof(float)*3);
+					memcpy(prim->vert2, temp, sizeof(float)*3);
+					memcpy(temp, prim->norm1, sizeof(float) * 3);
+					memcpy(prim->norm1, prim->norm2, sizeof(float) * 3);
+					memcpy(prim->norm2, temp, sizeof(float) * 3);
+					memcpy(temp, prim->tex1, sizeof(float) * 3);
+					memcpy(prim->tex1, prim->tex2, sizeof(float) * 3);
+					memcpy(prim->tex2, temp, sizeof(float) * 3);
+>>>>>>> 80758b8bc40484d034e799d679cc812c851df346
 				}
 
 			}
