@@ -127,7 +127,7 @@ void get_rgb_for_point(RGBA color, float point[3], Primitive prim, Data *data){
 	color = data->texture.pixels[pos[0]][pos[1]];
 }
 
-unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
+RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 {
 	float hit_point[3];
 	float normal_vector[3], viewer_vector[3];
@@ -227,9 +227,20 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 			}
 			//mat_rgb.l[i+1] = (BYTE)rgb[i];
 		}
-		
-	//	COPYTO(mat_rgb.l+1, rgb);
-	}
-	//return (unsigned int)mat_rgb.i;
-	return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
+		//COPYTO(mat_rgb+1, rgb);
+	 //mat_rgb.r = (BYTE)rgb[0];
+  //mat_rgb.g = (BYTE)rgb[1];
+  //mat_rgb.b = (BYTE)rgb[2];
+  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#1 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+  mat_rgb.i = 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
+  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#2 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+ }
+ //mat_rgb.a = 25;
+  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.a, mat_rgb.r, mat_rgb.g, mat_rgb.b);
+  PDEBUG("#3 - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
+	return mat_rgb;
+ //return (DWORD)mat_rgb.i;
+	//return 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2]; 
 }

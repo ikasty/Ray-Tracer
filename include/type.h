@@ -54,7 +54,9 @@ typedef struct
 // RGB+A 헤헷
 typedef union {
 	DWORD i;
-	BYTE a,r,g,b;
+	struct {
+  BYTE r,g,b,a;
+ };
 	BYTE l[4];	
 } RGBA;
 

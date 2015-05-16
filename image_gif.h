@@ -4,6 +4,6 @@
 #include "image_buffer.h"
 #include "include/gif_lib.h"
 
-int gif_read(Data *data, char *filename, int flags);
+int gif_read(Image *image, char *filename, int flags);
 
 #endif
