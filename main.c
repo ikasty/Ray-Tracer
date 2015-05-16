@@ -112,14 +112,14 @@ static void do_algorithm(Data *data, char *input_file)
 		{
 			float percent;
 
+			// 진행 상태 출력
+			percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
+			print_percent(frame_number, percent);
+
 			for (index_x = 0; index_x < screen->xsize; index_x++)
 			{
 				Ray f_ray = gen_ray((float)index_x, (float)index_y);
 				Hit ist_hit;
-
-				// 진행 상태 출력
-				percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
-				print_percent(frame_number, percent);
 
 				// 현재 광선에서 교차검사를 수행함
 				TIMECHECK_START();
