@@ -21,7 +21,7 @@ Image* image_init(unsigned int width, unsigned int height) {
 
  Image* image = NULL;
 
- PDEBUG("image init start\n");
+ //PDEBUG("image init start\n");
  image = (Image*)malloc(sizeof(Image));
  image->width = width;
  image->height = height;
@@ -34,7 +34,7 @@ Image* image_init(unsigned int width, unsigned int height) {
   return NULL;
  }
 
- PDEBUG("image init end\n");
+ //PDEBUG("image init end\n");
  return image;
 }
 
@@ -45,10 +45,10 @@ int image_free(Image* image) {
 
 int image_reset(Image* image) {
  int i;
- PDEBUG("image reset start\n");
+ //PDEBUG("image reset start\n");
  for(i = 0; i < image->height; i++)
   memset(image->pixels[i], 0, sizeof(RGBA) * image->width); 
 
- PDEBUG("image reset end\n");
+ //PDEBUG("image reset end\n");
  return 0;
 }

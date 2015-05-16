@@ -44,9 +44,9 @@ int image_write(Image *image, char *filename, int flags){
  int (*func)(Image*, char*, int) = NULL;
  const char *ext = strrchr(filename, '.');
 	ext = ext + 1;
- PDEBUG("image write start\n");
- PDEBUG("%s\n", filename);
- PDEBUG("%s\n", ext);
+ //PDEBUG("image write start\n");
+ //PDEBUG("%s\n", filename);
+ //PDEBUG("%s\n", ext);
 	// 파일 이름 문자열 분석
  	// - 확장자가 없으면 처리하지 않음
 	if (!ext || ext == filename)
@@ -72,7 +72,7 @@ int image_write(Image *image, char *filename, int flags){
 	}*/
 	if (!strcmp(ext, "bmp"))
 	{
-  PDEBUG("select bmp write\n");
+  //PDEBUG("select bmp write\n");
 		func = bmp_write;
 	}
 

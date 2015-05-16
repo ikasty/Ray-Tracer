@@ -15,7 +15,7 @@ int bmp_write(Image *image, char *filename, int flags){
  BITMAPINFOHEADER ImageHeader;
 
  FILE *fp;
- PDEBUG("bmp write start\n");
+ //PDEBUG("bmp write start\n");
  fp = fopen(filename, "wb");
 
 //* FileHeader *******************************************//
@@ -43,14 +43,14 @@ int bmp_write(Image *image, char *filename, int flags){
 //BMP output
  fwrite(&FileHeader, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
  fwrite(&ImageHeader, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
- PDEBUG("DWORD : %d, RGBA : %d\n", sizeof(DWORD), sizeof(RGBA));
+ //PDEBUG("DWORD : %d, RGBA : %d\n", sizeof(DWORD), sizeof(RGBA));
  // fwrite(FB, sizeof(DWORD), res_x * res_y, fp);
  for(i = 0; i < image->height; i++)
   fwrite(image->pixels[i], sizeof(DWORD), image->width, fp);
 
  fclose(fp);
 
- PDEBUG("bmp write end\n");
+ //PDEBUG("bmp write end\n");
  // TODO: 예외처리 추가좀
  return 0;
 }
