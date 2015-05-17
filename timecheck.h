@@ -2,6 +2,7 @@
 #define TIMECHECK_H
 
 #include <time.h>
+#include "include/debug-msg.h"
 
 extern double build_clock, search_clock, render_clock, intersect_clock, shadow_search_clock;
 #define USE_TIMECHECK() clock_t start_clock, end_clock;		// 수행 시간 계산용 clock_t 변수

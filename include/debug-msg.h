@@ -20,7 +20,7 @@
 ////////////////////////////
 // code compatibility
 #ifdef _WIN32
-#	define inline __inline
+#	define inline 
 #else
 
 #endif

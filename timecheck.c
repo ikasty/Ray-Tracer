@@ -1,4 +1,5 @@
 #include "timecheck.h"
+#include "include/debug-msg.h"
 
 // for main.c
 double build_clock = 0.0, search_clock = 0.0, render_clock = 0.0;

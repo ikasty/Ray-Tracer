@@ -40,7 +40,7 @@ static int box_IntersectP(BBox b_box, Ray ray, float *hit_t0, float *hit_t1)
  */
 Hit kdtree_intersect_search(Data *data, Ray *ray)
 {
-	KDAccelTree *accel_tree = (KDAccelTree *)data->accel_struct;
+	KDAccelTree *kdtree = (KDAccelTree *)data->accel_struct;
 	KDAccelNode *node;
 	queue_head(workqueue);
 	
@@ -52,13 +52,13 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	memset(&min_hit, 0, sizeof(min_hit));
 	
 	// tmin과 tmax를 계산하는 것과 동시에, 현재 트리와 광선이 교차하는지 검사
-	if (!box_IntersectP(accel_tree->bounds, *ray, &tmin, &tmax))
+	if (!box_IntersectP(kdtree->bounds, *ray, &tmin, &tmax))
 	{
 		return min_hit;
 	}
 
 	// root 노드를 queue에 넣음
-	queue_add(accel_tree->nodes, workqueue);
+	queue_add(kdtree->nodes, workqueue);
 
 	// queue 탐색
 	while (!is_queue_empty(&workqueue))
@@ -80,8 +80,8 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 		}
 		else
 		{
-			KDAccelNode *first_child = node->above_child;
-			KDAccelNode *second_child = node->below_child;
+			KDAccelNode *first_child = &kdtree->nodes[ node->above_child_idx ];
+			KDAccelNode *second_child = &kdtree->nodes[ node->below_child_idx ];
 			int axis = node->flags;
 
 			int is_below_first =
@@ -90,8 +90,8 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 
 			if (is_below_first)
 			{	// swap first and second child
-				first_child = node->below_child;
-				second_child = node->above_child;
+				first_child = &kdtree->nodes[ node->below_child_idx ];
+				second_child = &kdtree->nodes[ node->above_child_idx ];
 			}
 
 			// 작업 큐에 넣음
@@ -127,7 +127,7 @@ void kdtree_clear_accel(Data *data)
 	for (i = 0; i < kdtree->nextFreeNodes; i++)
 	{
 		KDAccelNode *node = (KDAccelNode *)&kdtree->nodes[i];
-		free(node->primitives);
+		if (node->primitives) free(node->primitives);
 	}
 
 	free(kdtree->nodes);
