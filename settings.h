@@ -4,7 +4,7 @@
 #include "include/type.h"
 
 #define DEFAULT_OBJ_FILE		"teapot.obj"
-#define DEFAULT_TEXTURE_FILE	"tex_0009_1.jpg"
+#define DEFAULT_TEXTURE_FILE	"texture_sample.jpg"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000
