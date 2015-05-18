@@ -370,7 +370,6 @@ static void initTree(KDAccelTree *kdtree)
 	// kdtree 구축에 사용한 공간 해제
 	free(primBounds);
 	free(edge_buffer);
-	free(prim_indexes);
 
 	free(locationsOfPrims);
 	free(below_onlys);
