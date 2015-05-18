@@ -208,7 +208,7 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 			//COPYTO(rgb, mat_rgb.l+1);
 			//scalar_multi(rgb, la);
 			for (i = 0; i < 3; i++) {
-				rgb[i] = (int)(mat_rgb.l[i+1] * la);
+				rgb[i] = (int)(mat_rgb.l[i] * la);
 			}
 		}
 		else
@@ -216,7 +216,7 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 			//COPYTO(rgb, mat_rgb.l+1);
 			//scalar_multi(rgb, ld + ls * 0.5 + la);
 			for (i = 0; i < 3; i++) {
-				rgb[i] = (int)(mat_rgb.l[i+1] * (ld + ls * 0.5 + la));
+				rgb[i] = (int)(mat_rgb.l[i] * (ld + ls * 0.5 + la));
 			}
 		}
 
@@ -225,7 +225,8 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 				rgb[i] = 255;
 			}
 		}
-  mat_rgb.i = 0xff000000 | rgb[0] << 16 | rgb[1] << 8 | rgb[2];
+  mat_rgb.i = 0xff000000 | rgb[2] << 16 | rgb[1] << 8 | rgb[0];
+  //mat_rgb.i = rgb[0] << 24 | rgb[1] << 16 | rgb[2] << 8 | 0xff;
  }
   //PDEBUG("(0, 1, 2, 3) - (%d,%d,%d,%d)\n", mat_rgb.l[0], mat_rgb.l[1], mat_rgb.l[2], mat_rgb.l[3]);
   //PDEBUG("(r, g, b, a) = (%d,%d,%d,%d)\n", mat_rgb.r, mat_rgb.g, mat_rgb.b, mat_rgb.a);

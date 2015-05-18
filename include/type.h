@@ -65,7 +65,7 @@ typedef struct
 
 // RGB+A 헤헷
 typedef union {
-	DWORD i;
+	DWORD i; // i[____] == l[3].l[2].l[1].l[0] on x86
 	struct {
  		BYTE r,g,b,a;
  	};
