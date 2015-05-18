@@ -53,6 +53,7 @@ depend_file
 
 # Debug files
 *.dSYM/
+*.stackdump
 
 ###########################################################
 ## Ignore Visual Studio temporary files, build results, and
