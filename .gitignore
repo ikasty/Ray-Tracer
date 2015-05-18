@@ -17,6 +17,8 @@ depend_file
 !teapot.obj
 *.mtl
 *.jpg
+# 샘플 텍스쳐 파일 추가
+!texture_sample.jpg
 
 ###########################################################
 ## Ignore for C
