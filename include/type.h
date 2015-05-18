@@ -51,7 +51,7 @@ typedef struct
 	int prim_id;
 	float vert[3][3];
 	float norm[3][3];
- int use_normal;
+ 	int use_normal;
 	float text[3][3];
 	int use_texture;
 } Primitive;
@@ -67,8 +67,8 @@ typedef struct
 typedef union {
 	DWORD i;
 	struct {
-  BYTE r,g,b,a;
- };
+ 		BYTE r,g,b,a;
+ 	};
 	BYTE l[4];	
 } RGBA;
 
