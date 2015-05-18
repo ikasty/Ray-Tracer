@@ -32,24 +32,24 @@ int jpeg_read(Image *image, char *filename, int flags){
 	if(rgb_buffer_calloc(image, width, height))
 		return -1;
 
- image_reset(image);
+ 	image_reset(image);
 
 // PDEBUG("jpeg_read phase 2\n");
-	while (jpeg_info.output_scanline < height - 1) 
+	while (jpeg_info.output_scanline < height) 
 	{
 //  PDEBUG("jpeg] scanline start at %d\n", jpeg_info.output_scanline);
 		jpeg_read_scanlines(&jpeg_info, buffer, 1);
 		for(i = 0; i < width; i++) {
 			for(j = 0; j < components; j++) {
 //    PDEBUG("jpeg] scanline : %d, width : %d, height : %d, counter : %d+%d\n", jpeg_info.output_scanline, width, height, i, j);
-				image->pixels[jpeg_info.output_scanline][i].l[j] = buffer[0][i*components + j];
+				image->pixels[height-jpeg_info.output_scanline][i].l[components - j - 1] = buffer[0][i*components + j];
 			}
 		}
 //  PDEBUG("jpeg] scanline end at %d\n", jpeg_info.output_scanline);
 	}
 
 // PDEBUG("jpeg_read phase 3\n");
- image->width = width;
+	 image->width = width;
 	image->height = height;
 	fclose(jpeg_file);
 
