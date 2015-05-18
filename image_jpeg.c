@@ -9,7 +9,6 @@ int jpeg_read(Image *image, char *filename, int flags){
 	struct jpeg_error_mgr jerr;
 	JSAMPARRAY buffer;
 
- PDEBUG("jpeg_read start\n");
 	jpeg_info.err = jpeg_std_error(&jerr);
 	jpeg_file = fopen(filename, "rb");
 	if (jpeg_file == NULL){
