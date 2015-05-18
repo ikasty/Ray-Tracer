@@ -32,16 +32,16 @@ depend_file
 *.pch
 
 # Libraries
-*.lib
-*.a
-*.la
-*.lo
+#*.lib
+#*.a
+#*.la
+#*.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+#*.dll
+#*.so
+#*.so.*
+#*.dylib
 
 # Executables
 *.exe
@@ -263,3 +263,6 @@ FakesAssemblies/
 
 # Gemfile.lock
 Gemfile.lock
+
+# vim swap file
+*.swp

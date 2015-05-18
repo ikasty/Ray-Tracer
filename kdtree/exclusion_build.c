@@ -6,7 +6,7 @@
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#define PERCENT 0.3
+#define PERCENT 0.3f
 
 #include "include/debug-msg.h"
 

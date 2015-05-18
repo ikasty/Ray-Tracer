@@ -15,68 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bitmap_make.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="main.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="gen_ray.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="file_read.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="obj_transform.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\bbox.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="settings.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\nlog2n_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="naive\naive_intersection.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="include\getopt.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="algorithms.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\kdtree_common.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\nlogn_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\binning_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\kdtree_intersect_clear.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="shading\naive_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="shading\phong_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="shading\shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\exclusion_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="timecheck.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="file_read.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -134,9 +72,6 @@
     <ClInclude Include="kdtree\nlogn_build.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="bitmap_make.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree\binning_build.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -161,5 +96,127 @@
     <ClInclude Include="timecheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="kdtree\exclusion_build.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jconfig.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jerror.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jmorecfg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jpeglib.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_read.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_gif.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_jpeg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_png.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_tiff.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_buffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_flags.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="image_bmp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="timecheck.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="include\getopt.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\bbox.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\binning_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\exclusion_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\kdtree_common.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\kdtree_intersect_clear.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\nlog2n_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\nlogn_build.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="naive\naive_intersection.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\naive_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\phong_shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\shading.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="algorithms.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="gen_ray.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="file_read.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="main.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="settings.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="obj_transform.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_read.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_gif.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_jpeg.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_png.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_tiff.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_buffer.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="image_bmp.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="timecheck.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
