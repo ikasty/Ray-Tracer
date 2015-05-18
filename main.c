@@ -249,7 +249,8 @@ long_option:
 	memset(&data, 0, sizeof(data));
 	if (file_read(fp, &data, scale) < 0) return -1;
 
-	image_read(&(data.texture), DEFAULT_TEXTURE_FILE, IMAGE_NO_FLAGS);
+	if(image_read(&(data.texture), DEFAULT_TEXTURE_FILE, IMAGE_NO_FLAGS))
+		PDEBUG("cannot open image file : %s", DEFAULT_TEXTURE_FILE);
 	
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);

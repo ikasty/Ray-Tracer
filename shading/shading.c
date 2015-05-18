@@ -120,11 +120,11 @@ retry:
 	}
 }
 
-void get_rgb_for_point(RGBA color, float point[3], Primitive prim, Data *data){
+void get_rgb_for_point(RGBA *color, float point[3], Primitive prim, Data *data){
 	int pos[2];
 
 	get_pos_on_texture_for_point(pos, point, prim, &data->texture);
-	color = data->texture.pixels[pos[0]][pos[1]];
+	*color = data->texture.pixels[pos[0]][pos[1]];
 }
 
 RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
@@ -161,7 +161,7 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 
 		// texture가 있다면 사용함
 		if (primitive.use_texture == 1){
-			get_rgb_for_point(mat_rgb, hit_point, primitive, data);
+			get_rgb_for_point(&mat_rgb, hit_point, primitive, data);
 		}		
 
 		// 노멀 벡터가 없거나 노멀 벡터 함수가 지정되지 않은 경우
