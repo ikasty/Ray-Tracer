@@ -61,6 +61,9 @@ struct __accelnode
 	// intersection search용 queue
 	queue_item(workqueue);
 
+	// intersection search용 min, max
+	float min_t, max_t;
+
 	// 이 노드가 포함하고 있는 primitive에 관한 정보
 	int primitive_count;
 	Primitive *primitives;

@@ -92,16 +92,25 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 	}
 
 	// root 노드를 queue에 넣음
-	queue_add(kdtree->nodes, workqueue);
+	queue_add(&kdtree->nodes[0], workqueue);
+	kdtree->nodes[0].min_t = ray->min_t = tmin;
+	kdtree->nodes[0].max_t = ray->max_t = tmax;
 
 	// queue 탐색
 	while (!is_queue_empty(&workqueue))
 	{
 		queue_pop(node, workqueue, KDAccelNode);
 
+		tmin = node->min_t;
+		tmax = node->max_t;
+
 		if (node->flags == LEAF)
 		{
 			int i;
+
+			ray->min_t = tmin;
+			ray->max_t = tmax;
+
 			for (i = 0; i < node->primitive_count; i++)
 			{
 				TIMECHECK_START();
@@ -132,13 +141,22 @@ Hit kdtree_intersect_search(Data *data, Ray *ray)
 			if (tplane > tmax || tplane <= 0)
 			{
 				queue_add(first_child, workqueue);
+				first_child->min_t = tmin;
+				first_child->max_t = tmax;
 			}
 			else if (tplane < tmin)
 			{
 				queue_add(second_child, workqueue);
+				second_child->min_t = tmin;
+				second_child->max_t = tmax;
 			}
 			else
 			{
+				first_child->min_t = tmin;
+				first_child->max_t = tplane;
+				second_child->min_t = tplane;
+				second_child->max_t = tmax;
+
 				queue_add(first_child, workqueue);
 				queue_add(second_child, workqueue);
 			}
