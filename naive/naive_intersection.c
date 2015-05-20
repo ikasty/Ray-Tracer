@@ -37,6 +37,7 @@ either expressed or implied, of the FreeBSD Project.
 #include <math.h>
 #include "naive_intersection.h"
 
+#include "timecheck.h"
 #include "obj_transform.h"
 #include "settings.h"
 #include "include/msl_math.h"
@@ -47,6 +48,8 @@ Hit naive_intersect_search(Data *data, Ray *f_ray)
 	Hit min_hit;
 	int prim_id;
 
+	USE_TIMECHECK();
+
 	memset(&min_hit, 0, sizeof(min_hit));
 
 	// 각각의 triangle과 f_ray 광선의 교차 검사를 수행함
@@ -54,7 +57,10 @@ Hit naive_intersect_search(Data *data, Ray *f_ray)
 	for (prim_id = 0; prim_id < prim_count; prim_id++)
 	{
 		Hit ist_hit;
+
+		TIMECHECK_START();
 		ist_hit = intersect_triangle(f_ray, data->primitives[prim_id]);
+		TIMECHECK_END(intersect_clock);
 
 		if (ist_hit.t > 0 && (ist_hit.t<min_hit.t || min_hit.t == 0))
 		{
@@ -74,11 +80,11 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 	Hit ist_hit;
 	memset(&ist_hit, 0, sizeof(ist_hit));
 
-	// ray.orig + t * ray.dir = (1 - u - v) * vert0 + u * vert1 + v * vert2
+	// ray.orig + t * ray.dir = (1 - u - v) * vert[0] + u * vert[1] + v * vert[2]
 
 	// 점 vert0을 공유하고 있는 삼각형의 두 vector를 구한다
-	SUB(edge1, prim.vert1, prim.vert0);
-	SUB(edge2, prim.vert2, prim.vert0);
+	SUB(edge1, prim.vert[1], prim.vert[0]);
+	SUB(edge2, prim.vert[2], prim.vert[0]);
 	
 	CROSS(pvec, ray->dir, edge2);
 
@@ -91,7 +97,7 @@ Hit intersect_triangle(Ray *ray, Primitive prim)
 	inv_det = 1.0f / det;
 
 	// ray의 원점에서 점 vert0까지의 거리를 구한다
-	SUB(tvec, ray->orig, prim.vert0);
+	SUB(tvec, ray->orig, prim.vert[0]);
 
 	u = DOT(tvec, pvec) * inv_det;
 	if (u < 0.0 || u > 1.0)

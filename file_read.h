@@ -43,6 +43,7 @@ typedef struct {
 
 typedef struct {
 	float vect[3];
+	float fake_norm[3];
 } Vertex;
 
 typedef struct {

@@ -63,12 +63,12 @@ static int compare_bound(const void *a, const void *b)
 
 // build tree 함수는 tree node마다 불러와지므로 
 // 인테리어 노드와 리프노드를 구별해야 한다.
-static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *nodeBounds,
+static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBounds,
 			BBox *allPrimBounds, int *prim_indexes, int total_prim_counts, int depth,
 			int *below_prims, int *above_prims, int badRefines)
 {
 	// kdtree의 자식 노드 변수
-	KDAccelNode *below_child, *above_child;
+	int below_child_idx, above_child_idx;
 	// 자식 노드의 boundary box
 	BBox bbox_below, bbox_above;
 
@@ -99,7 +99,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	if (total_prim_counts <= kdtree->maxPrims || depth == 0)
 	{
 		// 단말 노드로 등록
-		initLeaf(kdtree, current_node, prim_indexes, total_prim_counts);
+		initLeaf(kdtree, current_node_idx, prim_indexes, total_prim_counts);
 		return;
 	}
 	// 내부 노드를 초기화 하고 재귀 진행
@@ -208,7 +208,7 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 			   (bestCost > 4.f * oldCost && total_prim_counts < 16))
 			{
 				// 단말 노드로 등록
-				initLeaf(kdtree, current_node, prim_indexes, total_prim_counts);
+				initLeaf(kdtree, current_node_idx, prim_indexes, total_prim_counts);
 				return;
 			}
 			break;
@@ -245,23 +245,23 @@ static void buildTree(KDAccelTree *kdtree, KDAccelNode *current_node, BBox *node
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
 	bbox_above = *nodeBounds;
-	bbox_below.faaBounds[0][bestAxis] = bestSplit;
-	bbox_above.faaBounds[1][bestAxis] = bestSplit;
+	bbox_below.faaBounds[1][bestAxis] = bestSplit;
+	bbox_above.faaBounds[0][bestAxis] = bestSplit;
 
 	// 아래 노드 탐색
-	below_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
-	buildTree(kdtree, below_child, &bbox_below,
+	below_child_idx = kdtree->nextFreeNodes;
+	buildTree(kdtree, below_child_idx, &bbox_below,
 		allPrimBounds, below_prims, below_count, depth - 1,
 		below_prims, above_prims + total_prim_counts, badRefines);
 
 	// 위 노드 탐색
-	above_child = &kdtree->nodes[ kdtree->nextFreeNodes ];
-	buildTree(kdtree, above_child, &bbox_above,
+	above_child_idx = kdtree->nextFreeNodes;
+	buildTree(kdtree, above_child_idx, &bbox_above,
 		allPrimBounds, above_prims, above_count, depth - 1,
 		below_prims, above_prims + total_prim_counts, badRefines);
 
 	// 현재 노드를 부모 노드로 설정
-	initInterior(current_node, above_child, below_child, bestAxis, bestSplit);
+	initInterior(kdtree, current_node_idx, above_child_idx, below_child_idx, bestAxis, bestSplit);
 }
 
 static void initTree(KDAccelTree *kdtree)
@@ -300,7 +300,7 @@ static void initTree(KDAccelTree *kdtree)
 	}
 	
 	// kdtree 구축을 위한 재귀문 실행
-	buildTree(kdtree, &kdtree->nodes[0], &kdtree->bounds, primBounds, prim_indexes, kdtree->nPrims,
+	buildTree(kdtree, 0, &kdtree->bounds, primBounds, prim_indexes, kdtree->nPrims,
 		kdtree->maxDepth, prims0, prims1, 0);
 	
 	// kdtree 구축에 사용한 공간 해제

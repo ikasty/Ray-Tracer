@@ -71,18 +71,11 @@ typedef struct
 typedef struct
 {
 	int prim_id;
-	float vert0[3];
-	float vert1[3];
-	float vert2[3];
+	float vert[3][3];
 
-	float norm0[3];
-	float norm1[3];
-	float norm2[3];
-	int use_normal;
+	float norm[3][3];
 
-	float text0[3];
-	float text1[3];
-	float text2[3];
+	float text[3][3];
 	int use_texture;
 } Primitive;
 

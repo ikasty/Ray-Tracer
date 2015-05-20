@@ -44,7 +44,7 @@ either expressed or implied, of the FreeBSD Project.
 ////////////////////////////
 // code compatibility
 #ifdef _WIN32
-#	define inline __inline
+#	define inline 
 #else
 
 #endif
@@ -64,10 +64,12 @@ either expressed or implied, of the FreeBSD Project.
 extern int __PDEBUG_ENABLED;
 #ifdef DEBUG
 	
-#	define PDEBUG(...) 	{		\
-	  	__PDEBUG_ENABLED = 1;	\
-		printf("DEBUG] ");		\
-		printf(__VA_ARGS__);	\
+#	define PDEBUG(...) 	{			\
+		if (__PDEBUG_ENABLED != 1)	\
+			printf("\n");			\
+	  	__PDEBUG_ENABLED = 1;		\
+		printf("DEBUG] ");			\
+		printf(__VA_ARGS__);		\
 	}
 #	define PAUSE getchar()
 #	define DEBUG_ONLY(...) __VA_ARGS__

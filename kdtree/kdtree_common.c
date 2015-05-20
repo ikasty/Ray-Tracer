@@ -38,8 +38,19 @@ either expressed or implied, of the FreeBSD Project.
 #include <stdlib.h>
 
 #include "kdtree_common.h"
+#include "include/debug-msg.h"
 
-#define PLANAR_TRY_TWICE
+DEBUG_ONLY(
+int leaf_count = 0;
+int leaf_prim_count = 0;
+int leaf_max_prim_count = 0;
+
+void leaf_info_print()
+{
+	PDEBUG("kdtree leaf info: %d leaf created, total %d prims, max %d prims exists\n", leaf_count, leaf_prim_count, leaf_max_prim_count);
+}
+
+);
 
 void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type, int axis){
 	boundedge->t = split_t;
@@ -48,9 +59,11 @@ void init_bound_edge(BoundEdge* boundedge, float split_t, int prim_num, int type
 	boundedge->axis = axis;
 }
 
-void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
+void initLeaf(KDAccelTree *kdtree, int node_idx, int *prim_indexes, int np)
 {
 	int i;
+	KDAccelNode *node = &kdtree->nodes[node_idx];
+
 	node->flags = 3;
 	node->primitive_count = np;
 	node->primitives = (Primitive *)malloc(sizeof(Primitive) * np);
@@ -58,14 +71,23 @@ void initLeaf(KDAccelTree *kdtree, KDAccelNode *node, int *prim_indexes, int np)
 	{
 		node->primitives[i] = kdtree->primitives[prim_indexes[i]];
 	}
+
+	DEBUG_ONLY(
+		leaf_count++;
+		leaf_prim_count += np;
+		if (leaf_max_prim_count < np) leaf_max_prim_count = np;
+	);
 }
 
-void initInterior(KDAccelNode *node, KDAccelNode *ac, KDAccelNode *bc, int axis, float s)
+void initInterior(KDAccelTree *kdtree, int node_idx, int above_child_idx, int below_child_idx, int axis, float s)
 {
+	KDAccelNode *node = &kdtree->nodes[node_idx];
+
 	node->split = s;
 	node->flags = axis;
-	node->above_child = ac;
-	node->below_child = bc;
+	node->above_child_idx = above_child_idx;
+	node->below_child_idx = below_child_idx;
+	node->primitives = NULL;
 }
 
 void allocChild(KDAccelTree *kdtree)
@@ -83,10 +105,7 @@ void allocChild(KDAccelTree *kdtree)
 float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pBelow, float pAbove, int *side)
 {
 	float cost, eb;
-
-#ifdef	PLANAR_TRY_TWICE
 	float above_cost;
-#endif
 
 	// planar를 below에 두고 코스트 계산
 	nBelow += nPlanar;
@@ -96,11 +115,11 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
 	nBelow -= nPlanar;
-
 	*side = BELOW;
 
+	// 플래너 개수가 0이라면 빠른 리턴
+	if (nPlanar == 0) return cost;
 
-#ifdef	PLANAR_TRY_TWICE
 	// planar를 above에 두고 코스트 계산
 	nAbove += nPlanar;
 
@@ -108,14 +127,12 @@ float getCost(KDAccelTree *kdtree, int nBelow, int nPlanar, int nAbove, float pB
 	above_cost = (float)kdtree->traversalCost;
 	above_cost += kdtree->isectCost * (1.f - eb) * (pBelow * nBelow + pAbove * nAbove);
 
-	nAbove -= nPlanar;
-
+	// above에 두고 계산한 값이 더 작다면 대체
 	if (cost > above_cost)
 	{
 		cost = above_cost;
 		*side = ABOVE;
 	}
-#endif
 
 	return cost;
 }

@@ -41,6 +41,7 @@ either expressed or implied, of the FreeBSD Project.
 // naive shading은 항상 필요함
 #include "naive_shading.h"
 
+#include "timecheck.h"
 #include "settings.h"
 #include "include/msl_math.h"
 #include "include/type.h"
@@ -58,6 +59,7 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 	Hit shadow_hit;
 
 	USE_LIGHT(light);
+	USE_TIMECHECK();
 
 	la = 25;
 
@@ -74,8 +76,8 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 		ray_point_to_light.min_t = 0;
 		ray_point_to_light.max_t = MAX_RENDER_DISTANCE;
 
-		// 노멀 벡터가 없거나 노멀 벡터 함수가 지정되지 않은 경우
-		if (primitive.use_normal == 0 || normal_shade == NULL)
+		// 노멀 벡터 함수가 지정되지 않은 경우
+		if (normal_shade == NULL)
 		{
 			naive_shading(normal_vector, hit_point, primitive);
 		}
@@ -109,7 +111,10 @@ unsigned int shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data
 
 		// 그림자 테스트 및 반짝이는 효과 추가
 		// 자신의 면에 부딫히는건 판단하지 않음
+		TIMECHECK_START();
 		shadow_hit = (*intersect_search)(data, &ray_point_to_light);
+		TIMECHECK_END(shadow_search_clock);
+
 		if ((shadow_hit.t > 0) && (shadow_hit.prim_id != hit.prim_id))
 		{
 			result_of_color = 0;

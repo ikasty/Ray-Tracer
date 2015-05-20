@@ -53,31 +53,28 @@ void phong_shading(float dest[3], float target_point[3], Primitive prim)
 
 	int i, j;
 
-	COPYTO(vert_point[0], prim.vert0);
-	COPYTO(vert_point[1], prim.vert1);
-	COPYTO(vert_point[2], prim.vert2);
-
 	// 꼭지점 위에 위치했다면 그냥 해당 꼭지점의 normal 반환
 	for (i = 0; i < 3; i++)
 	{
-		if (is_two_point_equal(target_point, vert_point[i]))
+		if (is_two_point_equal(target_point, prim.vert[i]))
 		{
-			COPYTO(dest, vert_point[i]);
+			COPYTO(dest, prim.vert[i]);
 			return ;
 		}
-	}
 
-	COPYTO(norm[0], prim.norm0);
-	COPYTO(norm[1], prim.norm1);
-	COPYTO(norm[2], prim.norm2);
+		COPYTO(vert_point[i], prim.vert[i]);
+	}
 
 	for (i = 0; i < 3; i++)
 	{
-		// 노말 벡터 초기화
+		// 결과 벡터 초기화
 		dest[i] = 0;
-		// 방향 계산
+
+		// primitive의 가장자리 벡터 계산
 		SUB(prim_edge[i], vert_point[next_axis(i)], vert_point[i]);
+
 		// normalize
+		COPYTO(norm[i], prim.norm[i]);
 		VECTOR_NORMALIZE(norm[i]);
 	}
 
