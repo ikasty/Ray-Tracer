@@ -2,7 +2,7 @@
 #define IMAGE_PNG_H
 
 #include "image_buffer.h"
-#include "include/png.h"
+#include "include/images/png.h"
 
 int png_read(Image *image, char *filename, int flags);
 

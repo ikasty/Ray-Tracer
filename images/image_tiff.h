@@ -2,7 +2,7 @@
 #define IMAGE_TIFF_H
 
 #include "image_buffer.h"
-#include "include/tiffio.h"
+#include "include/images/tiffio.h"
 
 int tiff_read(Image *image, char *filename, int flags);
 

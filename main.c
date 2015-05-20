@@ -14,7 +14,7 @@
 #include "obj_transform.h"
 #include "timecheck.h"
 #include "settings.h"
-#include "image_read.h"
+#include "images/image_read.h"
 
 #include "include/getopt.h"
 #include "include/debug-msg.h"
