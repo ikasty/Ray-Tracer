@@ -57,19 +57,19 @@ either expressed or implied, of the FreeBSD Project.
 	(x1)[0]=(x2)[0]*(x2)[0];	\
 	(x1)[1]=(x2)[1]*(x2)[1];	\
 	(x1)[2]=(x2)[2]*(x2)[2];	}
- 
+
 #define abs_line(x1) ((x1)[0]+(x1)[1]+(x1)[2])
 
 #define length_sq(x1)	(((x1)[0]*(x1)[0]) + ((x1)[1]*(x1)[1]) + ((x1)[2]*(x1)[2]))
-#define scalar_multi(v, sc) {\
-	(v)[0] = ((v)[0] * sc); \
-	(v)[1] = ((v)[1] * sc); \
-	(v)[2] = ((v)[2] * sc); }
+#define scalar_multi(v, sc) {	\
+	(v)[0] = ((v)[0] * sc);		\
+	(v)[1] = ((v)[1] * sc); 	\
+	(v)[2] = ((v)[2] * sc); 	}
 
-#define COPYTO(dest, src){\
-	(dest)[0]=(src)[0];\
-	(dest)[1]=(src)[1];\
-	(dest)[2]=(src)[2];}
+#define COPYTO(dest, src) {	\
+	(dest)[0]=(src)[0];		\
+	(dest)[1]=(src)[1];		\
+	(dest)[2]=(src)[2];		}
 
 #define is_two_point_equal(p1, p2) ((p1)[0] == (p2)[0] && (p1)[1] == (p2)[1] && (p1)[2] == (p2)[2])
 	

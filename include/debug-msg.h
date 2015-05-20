@@ -39,12 +39,12 @@ either expressed or implied, of the FreeBSD Project.
 
 ////////////////////////////
 // safer array count macro
-#define countof(x) ((sizeof(x)/sizeof(0[x]))) / ((size_t)(!(sizeof(x)%(sizeof(0[x])))))
+#define countof(x) ( sizeof(0[x]) == 0 ? 0 : ((sizeof(x)/sizeof(0[x]))) / ((size_t)(!(sizeof(x)%(sizeof(0[x]))))) )
 
 ////////////////////////////
 // code compatibility
 #ifdef _WIN32
-#	define inline 
+#	define inline
 #else
 
 #endif
@@ -67,7 +67,7 @@ extern int __PDEBUG_ENABLED;
 #	define PDEBUG(...) 	{			\
 		if (__PDEBUG_ENABLED != 1)	\
 			printf("\n");			\
-	  	__PDEBUG_ENABLED = 1;		\
+		__PDEBUG_ENABLED = 1;		\
 		printf("DEBUG] ");			\
 		printf(__VA_ARGS__);		\
 	}

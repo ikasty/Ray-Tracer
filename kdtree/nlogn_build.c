@@ -288,6 +288,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 				both_for_below[nBB++] = edge_buffer[i];
 				both_for_above[nBA++] = edge_buffer[i];
 
+				// 우선은 both 상황 시 split point 고려하지 않고 무조건 둘 다 넣는 것으로 함
 /*				if(edge_buffer[i].axis != bestPlane.axis)
 				{
 					both_for_below[nBB++] = edge_buffer[i];
