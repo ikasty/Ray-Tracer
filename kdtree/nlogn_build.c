@@ -386,8 +386,8 @@ void nlogn_accel_build(Data *data)
 	kdtree->isectCost = 80;
 	kdtree->traversalCost = 1;
 	kdtree->emptyBonus = 0.5f;
-	kdtree->maxPrims = 1;
-	kdtree->maxDepth = 50;
+	kdtree->maxPrims = 16;
+	kdtree->maxDepth = 30;
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);

@@ -6,9 +6,12 @@
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#define PERCENT 0.3f
+#define PERCENT 0.15
 
 #include "include/debug-msg.h"
+
+static BoundEdge *below_onlys, *above_onlys, *both_for_below, *both_for_above;
+static int *locationsOfPrims;
 
 static int compare_bound(const void *a, const void *b)
 {
@@ -51,7 +54,8 @@ static void get_prim_nums_from_edges(int* prims, int nPrimsMax, BoundEdge* edges
 	int i, nPrims = 0;
 	int *checked_prims = (int *)calloc(nPrimsMax, sizeof(int));
 
-	for (i = 0; i < nEdges; i++){
+	for (i = 0; i < nEdges; i++)
+	{
 		if (!checked_prims[edges[i].primNum])
 		{
 			prims[nPrims++] = edges[i].primNum;
@@ -94,8 +98,8 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 	int bestNAbove = 0, bestNBelow = 0, bestSide = BELOW;
 	int nBelow[3], nPlanar[3], nAbove[3];
 	BoundEdge bestPlane = {0};
-	BoundEdge *leftEdges, *rightEdges;
-	int nLeftEdges, nRightEdges;
+	BoundEdge *belowEdges, *aboveEdges;
+	int nBelowEdges = 0, nAboveEdges = 0;
 	int *primNums;
 
 	int i;
@@ -112,7 +116,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 		free(primNums);
 		return;
 	}
-	
+
 	// bestPlane 초기화
 	bestPlane.axis = -1;
 
@@ -134,7 +138,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 		int nEndOfCurPlane = 0, nPlanarOfCurPlane = 0, nStartOfCurPlane = 0;
 
 		// 현재 평면에 닿아 있는 edge들을 분류함
-		while (i < nEdges && edge_buffer[i].axis == curPlane.axis && edge_buffer[i].t == curPlane.t)
+		while ( (i < nEdges) && (edge_buffer[i].axis == curPlane.axis) && (edge_buffer[i].t == curPlane.t) )
 		{
 			switch (edge_buffer[i++].e_type)
 			{
@@ -179,7 +183,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 				if (side == BELOW)	bestNBelow += nCurP;
 				else				bestNAbove += nCurP;
 
-				DEBUG_ONLY(if (bestCost < 0)
+				DEBUG_ONLY(if (bestCost < 0 || nBelow < 0 || nAbove < 0)
 				{
 					PDEBUG("WARN: cost %f, nBelow %d, pBelow %.2f, nAbove %d, pAbove %.2f\n",
 						bestCost, nCurB, pBelow, nCurA, pAbove);
@@ -207,19 +211,11 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 
 	// bestPlane을 바탕으로 edges를 left, right 두 그룹으로 나누는 과정
 	{
-		BoundEdge *leftOnlys, *rightOnlys, *bothLefts, *bothRights;
-		int *locationsOfPrims;
-		int nLO = 0, nRO = 0, nBL = 0, nBR = 0;
+		int nB = 0, nA = 0, nBB = 0, nBA = 0;
 
-		leftOnlys 		= (BoundEdge *)malloc(nEdges * sizeof(BoundEdge));
-		rightOnlys	 	= (BoundEdge *)malloc(nEdges * sizeof(BoundEdge));
-		bothLefts 		= (BoundEdge *)malloc(nEdges * sizeof(BoundEdge));
-		bothRights 		= (BoundEdge *)malloc(nEdges * sizeof(BoundEdge));
-		locationsOfPrims	= (int *)malloc(kdtree->nPrims * sizeof(int));
-
-		// edge에 따라 primitive가 어느 쪽에 속하는지 결정		
-		for (i = 0; i < kdtree->nPrims; i++)
-			locationsOfPrims[i] = BOTH;
+		// edge에 따라 primitive가 어느 쪽에 속하는지 결정
+		for (i = 0; i < nEdges; i++)
+			locationsOfPrims[edge_buffer[i].primNum] = BOTH;
 		for (i = 0; i < nEdges; i++)
 		{
 			if (edge_buffer[i].axis == bestPlane.axis)
@@ -227,78 +223,83 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 				switch (edge_buffer[i].e_type)
 				{
 				case END:
-					if (edge_buffer[i].t <= bestPlane.t) 
+					if		(edge_buffer[i].t <= bestPlane.t)
 						locationsOfPrims[edge_buffer[i].primNum] = BELOW;
 					break;
+
 				case START:
-					if (edge_buffer[i].t >= bestPlane.t) 
+					if		(edge_buffer[i].t >= bestPlane.t)
 						locationsOfPrims[edge_buffer[i].primNum] = ABOVE;
 					break;
+
 				case PLANAR:
-					if (edge_buffer[i].t < bestPlane.t || (edge_buffer[i].t == bestPlane.t && bestSide == BELOW))
+					if		(edge_buffer[i].t < bestPlane.t)
 						locationsOfPrims[edge_buffer[i].primNum] = BELOW;
-					if (edge_buffer[i].t > bestPlane.t || (edge_buffer[i].t == bestPlane.t && bestSide == ABOVE))
+					else if (edge_buffer[i].t > bestPlane.t)
 						locationsOfPrims[edge_buffer[i].primNum] = ABOVE;
+					else if (edge_buffer[i].t == bestPlane.t)
+						locationsOfPrims[edge_buffer[i].primNum] = bestSide;
 					break;
 				}
-			}			
+			}
 		}
 
 		// 중간 배열에 분류한 edge를 담음
 		for (i = 0; i < nEdges; i++)
 		{
-			switch(locationsOfPrims[edge_buffer[i].primNum])
+			switch (locationsOfPrims[edge_buffer[i].primNum])
 			{
 			case BELOW:	
-				leftOnlys[nLO++] = edge_buffer[i]; 
+				below_onlys[nB++] = edge_buffer[i];
 				break;
 			case ABOVE:
-				rightOnlys[nRO++] = edge_buffer[i];
+				above_onlys[nA++] = edge_buffer[i];
 				break;
 			case BOTH:
-				if(edge_buffer[i].axis != bestPlane.axis)
+				both_for_below[nBB++] = edge_buffer[i];
+				both_for_above[nBA++] = edge_buffer[i];
+
+				// 우선은 both 상황 시 split point 고려하지 않고 무조건 둘 다 넣는 것으로 함
+/*				if(edge_buffer[i].axis != bestPlane.axis)
 				{
-					bothLefts[nBL++] = edge_buffer[i];
-					bothRights[nBR++] = edge_buffer[i];
+					both_for_below[nBB++] = edge_buffer[i];
+					both_for_above[nBA++] = edge_buffer[i];
 				}
 				else if(edge_buffer[i].e_type == START)
 				{
 					BoundEdge newEnd;
 					init_bound_edge(&newEnd, bestPlane.t, edge_buffer[i].primNum, END, bestPlane.axis);
 					
-					bothLefts[nBL++] = edge_buffer[i];
-					bothLefts[nBL++] = newEnd;
+					both_for_below[nBB++] = edge_buffer[i];
+					both_for_below[nBB++] = newEnd;
 				} 
 				else if(edge_buffer[i].e_type == END)
 				{
 					BoundEdge newStart;
 					init_bound_edge(&newStart, bestPlane.t, edge_buffer[i].primNum, START, bestPlane.axis);
 
-					bothRights[nBR++] = newStart;
-					bothRights[nBR++] = edge_buffer[i];
-				} 
+					both_for_above[nBA++] = newStart;
+					both_for_above[nBA++] = edge_buffer[i];
+				}
+*/
 				break;
 			}
 		}
 
 		// both left, right 배열 정렬함 O(√n(log√n))
-		qsort(bothLefts, nBL, sizeof(BoundEdge), compare_bound);
-		qsort(bothRights, nBR, sizeof(BoundEdge), compare_bound);
+		qsort(both_for_below, nBB, sizeof(BoundEdge), compare_bound);
+		qsort(both_for_above, nBA, sizeof(BoundEdge), compare_bound);
+
+		// below와 above의 edge candidate 개수 계산
+		nBelowEdges = nB + nBB;
+		nAboveEdges = nA + nBA;
 
 		// 배열들을 합함
-		nLeftEdges	= nLO + nBL;
-		nRightEdges	= nRO + nBR;
-		leftEdges	= (BoundEdge*)malloc(nLeftEdges * sizeof(BoundEdge));
-		rightEdges	= (BoundEdge*)malloc(nRightEdges * sizeof(BoundEdge));		
-		merge_bound(leftEdges, leftOnlys, bothLefts, nLO, nBL);
-		merge_bound(rightEdges, rightOnlys, bothRights, nRO, nBR);
-		
-		free(leftOnlys);
-		free(rightOnlys);
-		free(bothLefts);
-		free(bothRights);
-		free(locationsOfPrims);
-	}
+		belowEdges = (BoundEdge *)malloc(sizeof(BoundEdge) * nBelowEdges);
+		aboveEdges = (BoundEdge *)malloc(sizeof(BoundEdge) * nAboveEdges);
+		merge_bound(belowEdges, below_onlys, both_for_below, nB, nBB);
+		merge_bound(aboveEdges, above_onlys, both_for_above, nA, nBA);
+	};
 
 	PDEBUG("exclusion buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
 
@@ -309,17 +310,15 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 	bbox_above.faaBounds[0][bestPlane.axis] = bestPlane.t;
 
 	below_child_idx = kdtree->nextFreeNodes;
-	buildTree(kdtree, below_child_idx, &bbox_below,
-		bestNBelow, depth-1, leftEdges, nLeftEdges, badRefines);
+	buildTree(kdtree, below_child_idx, &bbox_below, bestNBelow, depth - 1, belowEdges, nBelowEdges, badRefines);
 
 	above_child_idx = kdtree->nextFreeNodes;
-	buildTree(kdtree, above_child_idx, &bbox_above,
-		bestNAbove, depth-1, rightEdges, nRightEdges, badRefines);
+	buildTree(kdtree, above_child_idx, &bbox_above, bestNAbove, depth - 1, aboveEdges, nAboveEdges, badRefines);
 
 	initInterior(kdtree, current_node_idx, above_child_idx, below_child_idx, bestPlane.axis, bestPlane.t);
-	
-	free(leftEdges);
-	free(rightEdges);
+
+	free(belowEdges);
+	free(aboveEdges);
 }
 
 static void initTree(KDAccelTree *kdtree)
@@ -349,6 +348,13 @@ static void initTree(KDAccelTree *kdtree)
 
 	// edge_buffer 공간 할당
 	edge_buffer = (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
+
+	// primitive 분류용 공간 할당
+	locationsOfPrims	= (int *)malloc(sizeof(int) * prims_count);
+	below_onlys 		= (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
+	above_onlys	 		= (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
+	both_for_below 		= (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
+	both_for_above 		= (BoundEdge *)malloc(sizeof(BoundEdge) * prims_count * 2 * 3);
 
 	// edge buffer 초기화
 	nEdges = 0;
@@ -382,6 +388,12 @@ static void initTree(KDAccelTree *kdtree)
 	free(primBounds);
 	free(edge_buffer);
 	free(prim_indexes);
+
+	free(locationsOfPrims);
+	free(below_onlys);
+	free(above_onlys);
+	free(both_for_below);
+	free(both_for_above);
 }
 
 void exclusion_accel_build(Data *data)
@@ -392,8 +404,8 @@ void exclusion_accel_build(Data *data)
 	kdtree->isectCost = 80;
 	kdtree->traversalCost = 1;
 	kdtree->emptyBonus = 0.5f;
-	kdtree->maxPrims = 1;
-	kdtree->maxDepth = 10;
+	kdtree->maxPrims = 16;
+	kdtree->maxDepth = 30;
 	kdtree->nPrims = data->prim_count;
 
 	kdtree->primitives = (Primitive *)malloc(sizeof(data->primitives[0]) * data->prim_count);
@@ -405,4 +417,6 @@ void exclusion_accel_build(Data *data)
 	kdtree->nodes = (KDAccelNode *)mzalloc(sizeof(KDAccelNode) * 512);
 	
 	initTree(kdtree);
+
+	DEBUG_ONLY(leaf_info_print());
 }
