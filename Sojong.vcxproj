@@ -40,7 +40,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);C:\cygwin64\home\PHK\Projects\image_read\Sojong\include</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);C:\cygwin64\home\PHK\Projects\image_read\Sojong\lib\i386\windows</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
@@ -120,12 +120,13 @@
     <ClCompile Include="algorithms.c" />
     <ClCompile Include="file_read.c" />
     <ClCompile Include="gen_ray.c" />
-    <ClCompile Include="image_bmp.c" />
-    <ClCompile Include="image_buffer.c" />
-    <ClCompile Include="image_gif.c" />
-    <ClCompile Include="image_jpeg.c" />
-    <ClCompile Include="image_png.c" />
-    <ClCompile Include="image_tiff.c" />
+    <ClCompile Include="images\image_bmp.c" />
+    <ClCompile Include="images\image_buffer.c" />
+    <ClCompile Include="images\image_gif.c" />
+    <ClCompile Include="images\image_jpeg.c" />
+    <ClCompile Include="images\image_png.c" />
+    <ClCompile Include="images\image_read.c" />
+    <ClCompile Include="images\image_tiff.c" />
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
     <ClCompile Include="kdtree\binning_build.c" />
@@ -137,7 +138,6 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="naive\naive_intersection.c" />
     <ClCompile Include="obj_transform.c" />
-    <ClCompile Include="image_read.c" />
     <ClCompile Include="settings.c" />
     <ClCompile Include="shading\naive_shading.c" />
     <ClCompile Include="shading\phong_shading.c" />

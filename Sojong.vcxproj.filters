@@ -194,28 +194,28 @@
     <ClCompile Include="obj_transform.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="image_read.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_gif.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_jpeg.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_png.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_tiff.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_buffer.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="image_bmp.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="timecheck.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_bmp.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_buffer.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_gif.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_jpeg.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_png.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_read.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="images\image_tiff.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
