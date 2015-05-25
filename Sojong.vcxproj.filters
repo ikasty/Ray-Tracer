@@ -111,31 +111,31 @@
     <ClInclude Include="include\jpeglib.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="image_read.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_gif.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_jpeg.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_png.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_tiff.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_buffer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_flags.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="image_bmp.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="timecheck.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_bmp.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_buffer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_flags.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_gif.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_jpeg.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_png.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_read.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="images\image_tiff.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

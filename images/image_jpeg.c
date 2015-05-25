@@ -1,4 +1,5 @@
 ﻿// image_jpeg.c - jpeg 포맷을 위한 함수
+#define _CRT_SECURE_NO_WARNINGS
 #include "image_jpeg.h"
 
 // jpeg 포맷 읽기
