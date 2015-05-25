@@ -338,7 +338,7 @@ static void buildTree(KDAccelTree *kdtree, int current_node_idx, BBox *nodeBound
 		merge_bound(aboveEdges, above_onlys, both_for_above, nA, nBA);
 	};
 
-	PDEBUG("exclusion buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nLeftEdges, nRightEdges);
+	PDEBUG("exclusion buildTree depth %d, cost %f, below %d, above %d\n", 10 - depth, bestCost, nBelowEdges, nAboveEdges);
 
 	// 재귀적으로 자식 노드 초기화
 	bbox_below = *nodeBounds;
