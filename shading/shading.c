@@ -160,7 +160,7 @@ RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
 		ray_point_to_light.max_t = MAX_RENDER_DISTANCE;
 
 		// texture가 있다면 사용함
-		if (primitive.use_texture == 1){
+		if (primitive.use_texture == 1 && data->texture.pixels != NULL){
 			get_rgb_for_point(&mat_rgb, hit_point, primitive, data);
 		}		
 
