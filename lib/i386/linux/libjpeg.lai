@@ -5,10 +5,10 @@
 # It is necessary for linking the library.
 
 # The name that we can dlopen(3).
-dlname='libjpeg.so.9'
+dlname='../bin/cygjpeg-9.dll'
 
 # Names of this library.
-library_names='libjpeg.so.9.1.0 libjpeg.so.9 libjpeg.so'
+library_names='libjpeg.dll.a'
 
 # The name of the static archive.
 old_library='libjpeg.a'
@@ -28,7 +28,7 @@ age=1
 revision=0
 
 # Is this an already installed library?
-installed=no
+installed=yes
 
 # Should we warn about portability when linking against -modules?
 shouldnotlink=no

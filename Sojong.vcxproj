@@ -40,10 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);C:\cygwin64\home\PHK\Projects\image_read\Sojong\include</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);C:\cygwin64\home\PHK\Projects\image_read\Sojong\lib\i386\windows</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)/Sojong;</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\i386\windows;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -59,6 +60,7 @@
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);libjpeg.a</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -73,19 +75,22 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>libjpeg.a;%(AdditionalDependencies)</AdditionalDependencies>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.h" />
     <ClInclude Include="file_read.h" />
     <ClInclude Include="gen_ray.h" />
-    <ClInclude Include="image_bmp.h" />
-    <ClInclude Include="image_buffer.h" />
-    <ClInclude Include="image_flags.h" />
-    <ClInclude Include="image_gif.h" />
-    <ClInclude Include="image_jpeg.h" />
-    <ClInclude Include="image_png.h" />
-    <ClInclude Include="image_tiff.h" />
+    <ClInclude Include="images\image_bmp.h" />
+    <ClInclude Include="images\image_buffer.h" />
+    <ClInclude Include="images\image_flags.h" />
+    <ClInclude Include="images\image_gif.h" />
+    <ClInclude Include="images\image_jpeg.h" />
+    <ClInclude Include="images\image_png.h" />
+    <ClInclude Include="images\image_read.h" />
+    <ClInclude Include="images\image_tiff.h" />
     <ClInclude Include="include\bitmap.h" />
     <ClInclude Include="include\debug-msg.h" />
     <ClInclude Include="include\getopt.h" />
@@ -109,7 +114,6 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />
     <ClInclude Include="obj_transform.h" />
-    <ClInclude Include="image_read.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="shading\naive_shading.h" />
     <ClInclude Include="shading\phong_shading.h" />
@@ -120,12 +124,13 @@
     <ClCompile Include="algorithms.c" />
     <ClCompile Include="file_read.c" />
     <ClCompile Include="gen_ray.c" />
-    <ClCompile Include="image_bmp.c" />
-    <ClCompile Include="image_buffer.c" />
-    <ClCompile Include="image_gif.c" />
-    <ClCompile Include="image_jpeg.c" />
-    <ClCompile Include="image_png.c" />
-    <ClCompile Include="image_tiff.c" />
+    <ClCompile Include="images\image_bmp.c" />
+    <ClCompile Include="images\image_buffer.c" />
+    <ClCompile Include="images\image_gif.c" />
+    <ClCompile Include="images\image_jpeg.c" />
+    <ClCompile Include="images\image_png.c" />
+    <ClCompile Include="images\image_read.c" />
+    <ClCompile Include="images\image_tiff.c" />
     <ClCompile Include="include\getopt.c" />
     <ClCompile Include="kdtree\bbox.c" />
     <ClCompile Include="kdtree\binning_build.c" />
@@ -137,7 +142,6 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="naive\naive_intersection.c" />
     <ClCompile Include="obj_transform.c" />
-    <ClCompile Include="image_read.c" />
     <ClCompile Include="settings.c" />
     <ClCompile Include="shading\naive_shading.c" />
     <ClCompile Include="shading\phong_shading.c" />

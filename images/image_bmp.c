@@ -1,4 +1,5 @@
 ﻿// image_bmp.c
+#define _CRT_SECURE_NO_WARNINGS
 #include "image_bmp.h"
 
 // bmp 포맷 읽기

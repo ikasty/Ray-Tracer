@@ -54,11 +54,11 @@ int image_write(Image *image, char *filename, int flags){
 		return -1;
 	}
 	// 알맞게 처리 함수를 정하기
-/*	if (strcmp(ext, "jpg") || strcmp(ext, "jpeg"))
+	if (strcmp(ext, "jpg") || strcmp(ext, "jpeg"))
 	{
-		func = jpeg_read;
+		func = jpeg_write;
 	}
-	if (strcmp(ext, "png"))
+/*	if (strcmp(ext, "png"))
 	{
 		func = png_read;
 	}

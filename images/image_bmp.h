@@ -2,7 +2,7 @@
 #define IMAGE_BMP_H
 
 #include "image_buffer.h"
-#include "include/bitmap.h"
+#include "include/images/bitmap.h"
 
 #define SWAP16(x) (((((x) & 0xFF) << 8 | (((x) >> 8) & 0xff))))
 
