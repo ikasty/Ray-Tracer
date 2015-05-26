@@ -148,7 +148,7 @@ static void do_algorithm(Data *data, char *input_file)
 	PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(output_file, "%s.%04d.bmp", input_file, frame_number + 1);
+		sprintf(output_file, "%s.%04d.jpg", input_file, frame_number + 1);
 		
 		// 실제 bmp 파일을 만들어 줍니다.
 		//OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
@@ -251,10 +251,13 @@ long_option:
 
 	// 이미지 읽기 테스트
 	if(image_read(&(data.texture), DEFAULT_TEXTURE_FILE, IMAGE_NO_FLAGS))
-		PDEBUG("cannot open image file : %s", DEFAULT_TEXTURE_FILE);
+		PDEBUG("cannot open image file : %s\n", DEFAULT_TEXTURE_FILE);
 	// 이미지 쓰기 테스트
 	if(image_write(&(data.texture), "texture_save_test.bmp", IMAGE_NO_FLAGS))
-		PDEBUG("cannot save image file : %s", "texture_save_test.bmp");
+		PDEBUG("cannot save image file : %s\n", "texture_save_test.bmp");
+	// 이미지 쓰기 테스트
+	if(image_write(&(data.texture), "texture_save_test.jpg", IMAGE_NO_FLAGS))
+		PDEBUG("cannot save image file : %s\n", "texture_save_test.jpg");
 
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);
