@@ -17,6 +17,8 @@ depend_file
 !teapot.obj
 *.mtl
 *.jpg
+# 샘플 텍스쳐 파일 추가
+!texture_sample.jpg
 
 ###########################################################
 ## Ignore for C
@@ -32,16 +34,16 @@ depend_file
 *.pch
 
 # Libraries
-*.lib
-*.a
-*.la
-*.lo
+#*.lib
+#*.a
+#*.la
+#*.lo
 
 # Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+#*.dll
+#*.so
+#*.so.*
+#*.dylib
 
 # Executables
 *.exe
@@ -53,6 +55,7 @@ depend_file
 
 # Debug files
 *.dSYM/
+*.stackdump
 
 ###########################################################
 ## Ignore Visual Studio temporary files, build results, and
@@ -263,3 +266,6 @@ FakesAssemblies/
 
 # Gemfile.lock
 Gemfile.lock
+
+# vim swap file
+*.swp

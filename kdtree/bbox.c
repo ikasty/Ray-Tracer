@@ -3,7 +3,7 @@
 BBox make_bbox_by_triangle(Primitive tri)
 {
 	return union_bbox_and_point(
-		make_bbox_by_points(tri.vert0, tri.vert1), tri.vert2
+		make_bbox_by_points(tri.vert[0], tri.vert[1]), tri.vert[2]
 	);
 }
 
