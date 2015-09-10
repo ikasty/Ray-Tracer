@@ -38,6 +38,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "include/type.h"
 
 #define DEFAULT_OBJ_FILE		"teapot.obj"
+#define DEFAULT_TEXTURE_FILE	"texture_sample.jpg"
 
 #define MIN_RENDER_DISTANCE		0
 #define MAX_RENDER_DISTANCE		1000000

@@ -34,7 +34,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #ifndef BITMAP_H
 #define BITMAP_H
-#include "type.h"
+#include "include/type.h"
 
 #ifdef _WIN32
 #pragma pack(push,2)

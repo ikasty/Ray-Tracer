@@ -71,6 +71,11 @@ either expressed or implied, of the FreeBSD Project.
 	(dest)[1]=(src)[1];		\
 	(dest)[2]=(src)[2];		}
 
+#define rgb_copy(dest, src){\
+	dest.l[1]=src.l[1];\
+	dest.l[2]=src.l[2];\
+	dest.l[3]=src.l[3];}
+
 #define is_two_point_equal(p1, p2) ((p1)[0] == (p2)[0] && (p1)[1] == (p2)[1] && (p1)[2] == (p2)[2])
 	
 #define VECTOR_NORMALIZE(vector) {								\
@@ -80,3 +85,8 @@ either expressed or implied, of the FreeBSD Project.
 #define PI 3.14159265f
 
 #define next_axis(axis) ((axis + 1) % 3)
+
+#ifndef _WIN32
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif

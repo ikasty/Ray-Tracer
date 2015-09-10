@@ -43,7 +43,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "kdtree_type.h"
 #include "bbox.h"
 
-#define PERCENT 0.15
+#define PERCENT (float)0.15
 
 #include "include/debug-msg.h"
 

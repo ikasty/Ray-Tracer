@@ -32,8 +32,6 @@ of the authors and should not be interpreted as representing official policies,
 either expressed or implied, of the FreeBSD Project.
 */
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,6 +105,10 @@ Triangle *face = NULL;
 // normal vector info
 int norm_count = 0, norm_capacity = 0;
 Normal *norm = NULL;
+
+// texture info
+int tex_count = 0, tex_capacity = 0;
+Texture *tex = NULL;
 
 // group info
 int current_group_cnt = 0;
@@ -219,6 +221,7 @@ static void makePrim(int use_norm_data)
  */
 int file_read(FILE* fp, Data *data, float scale)
 {
+
 	char buf_orig[100];
 	int use_norm_data = 1;
 
@@ -274,6 +277,21 @@ int file_read(FILE* fp, Data *data, float scale)
 
 			continue;
 		}
+		// 텍스쳐 정보
+		else if (strcmp(op, "vt") == 0){
+			float i, j, k;
+
+			resize_if_full((void**)&tex, tex_count, &tex_capacity, sizeof(tex[0]));
+
+			sscanf(buf, "%f %f %f", &i, &j, &k);
+
+			tex[tex_count].tex[X] = i;
+			tex[tex_count].tex[Y] = j;
+			tex[tex_count].tex[Z] = k;
+			tex_count++;
+
+			continue;
+		}
 		// 면에 대한 정보를 읽어서 면을 구성하는 꼭지점의 ID를 저장합니다.
 		// 꼭지점의 ID는 위에서부터 1입니다.
 		else if (strcmp(op, "f") == 0)
@@ -297,6 +315,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 				// relative accessing 지원
 				if (v < 0) v += vert_count + 1;
+				if (vt < 0) vt += tex_count + 1;
 				if (vn < 0) vn += norm_count + 1;
 
 				// normal data 사용 여부 체크
@@ -318,6 +337,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 					// 삼각형 데이터 넣기
 					memcpy(face[face_count].v,  result[0], sizeof(result[0]));
+					memcpy(face[face_count].vt, result[1], sizeof(result[1]));
 					memcpy(face[face_count].vn, result[2], sizeof(result[2]));
 					face_count++;
 
@@ -345,6 +365,94 @@ int file_read(FILE* fp, Data *data, float scale)
 
 	data->primitives = prims;
 	data->prim_count = face_count;
+	{
+		int i;
+		for (i = 0; i < data->prim_count; i++)
+		{
+			Primitive *prim = &data->primitives[i];
+
+			#define FACE_VERT(pnt) (face[i].v[pnt] - 1)
+			#define FACE_NORM(pnt) (face[i].vn[pnt] - 1)
+			#define FACE_TEX(pnt) (face[i].vt[pnt] - 1)
+
+			prim->vert[0][X] = vert[ FACE_VERT(0) ].vect[X];
+			prim->vert[0][Y] = vert[ FACE_VERT(0) ].vect[Y];
+			prim->vert[0][Z] = vert[ FACE_VERT(0) ].vect[Z];
+
+			prim->vert[1][X] = vert[ FACE_VERT(1) ].vect[X];
+			prim->vert[1][Y] = vert[ FACE_VERT(1) ].vect[Y];
+			prim->vert[1][Z] = vert[ FACE_VERT(1) ].vect[Z];
+			
+			prim->vert[2][X] = vert[ FACE_VERT(2) ].vect[X];
+			prim->vert[2][Y] = vert[ FACE_VERT(2) ].vect[Y];
+			prim->vert[2][Z] = vert[ FACE_VERT(2) ].vect[Z];
+
+			prim->prim_id = i;
+
+
+			// texture coordi가 지정되 있다면
+			if (FACE_TEX(0) >= 0)
+			{
+				prim->text[0][X] = tex[FACE_TEX(0)].tex[X];
+				prim->text[0][Y] = tex[FACE_TEX(0)].tex[Y];
+				prim->text[0][Z] = tex[FACE_TEX(0)].tex[Z];
+
+				prim->text[1][X] = tex[FACE_TEX(1)].tex[X];
+				prim->text[1][Y] = tex[FACE_TEX(1)].tex[Y];
+				prim->text[1][Z] = tex[FACE_TEX(1)].tex[Z];
+
+				prim->text[2][X] = tex[FACE_TEX(2)].tex[X];
+				prim->text[2][Y] = tex[FACE_TEX(2)].tex[Y];
+				prim->text[2][Z] = tex[FACE_TEX(2)].tex[Z];
+
+				prim->use_texture = 1;
+			}
+
+			// normal vector가 지정되 있다면
+			if (FACE_NORM(0) >= 0)
+			{
+				float temp0[3], temp1[3];
+				float prim_normal[3];
+
+				prim->norm[0][X] = norm[ FACE_NORM(0) ].norm[X];
+				prim->norm[0][Y] = norm[ FACE_NORM(0) ].norm[Y];
+				prim->norm[0][Z] = norm[ FACE_NORM(0) ].norm[Z];
+
+				prim->norm[1][X] = norm[ FACE_NORM(1) ].norm[X];
+				prim->norm[1][Y] = norm[ FACE_NORM(1) ].norm[Y];
+				prim->norm[1][Z] = norm[ FACE_NORM(1) ].norm[Z];
+				
+				prim->norm[2][X] = norm[ FACE_NORM(2) ].norm[X];
+				prim->norm[2][Y] = norm[ FACE_NORM(2) ].norm[Y];
+				prim->norm[2][Z] = norm[ FACE_NORM(2) ].norm[Z];
+
+				prim->use_normal = 1;
+
+				// primitive의 시계방향-반시계방향 체크
+				// 1. primitive의 normal vector를 구하고
+				SUB(temp0, prim->vert[1], prim->vert[0]);
+				SUB(temp1, prim->vert[2], prim->vert[0]);
+				CROSS(prim_normal, temp0, temp1);
+
+				// 2. 삼각형의 노말 벡터와 꼭지점의 노말 벡터 사이의 각도가 90를 넘어가면 
+				if (DOT(norm[ FACE_NORM(0) ].norm, prim_normal) <= 0)
+				{
+					// 3. 두 번째와 세 번째 꼭지점의 순서를 바꾸어 방향을 바꾼다
+					float temp[3];
+					memcpy(temp, prim->vert[1], sizeof(float)*3);
+					memcpy(prim->vert[1], prim->vert[2], sizeof(float)*3);
+					memcpy(prim->vert[2], temp, sizeof(float)*3);
+					memcpy(temp, prim->norm[1], sizeof(float) * 3);
+					memcpy(prim->norm[1], prim->norm[2], sizeof(float) * 3);
+					memcpy(prim->norm[2], temp, sizeof(float) * 3);
+					memcpy(temp, prim->text[1], sizeof(float) * 3);
+					memcpy(prim->text[1], prim->text[2], sizeof(float) * 3);
+					memcpy(prim->text[2], temp, sizeof(float) * 3);
+				}
+
+			}
+		}
+	}
 
 	PDEBUG("file_read.c: %d primitives created\n", data->prim_count);
 

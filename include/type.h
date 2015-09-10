@@ -54,6 +54,18 @@ typedef uint32_t DWORD;
 typedef int LONG;
 #endif
 
+//#ifndef INLINE
+# if __GNUC__ && !__GNUC_STDC_INLINE__
+#  define INLINE extern inline
+# else
+#  ifndef _WIN32
+#   define INLINE inline
+#  else
+#   define INLINE __inline
+#  endif
+# endif
+//#endif
+
 typedef struct
 {
 	float x,y,z;
@@ -72,9 +84,8 @@ typedef struct
 {
 	int prim_id;
 	float vert[3][3];
-
 	float norm[3][3];
-
+ 	int use_normal;
 	float text[3][3];
 	int use_texture;
 } Primitive;
@@ -86,6 +97,22 @@ typedef struct
 
 } Hit;
 
+// RGB+A 헤헷
+typedef union {
+	DWORD i; // i[____] == l[3].l[2].l[1].l[0] on x86
+	struct {
+ 		BYTE r,g,b,a;
+ 	};
+	BYTE l[4];	
+} RGBA;
+
+// 이미지의 속살을 담은 구조체
+typedef struct {
+	int width;
+	int height;
+	RGBA **pixels;
+} Image;
+
 // 전체 데이터를 저장하기 위한 구조체
 typedef struct {
 	Primitive *primitives;
@@ -93,7 +120,6 @@ typedef struct {
 	int prim_count;
 
 	void *accel_struct;
-
+	Image texture;
 } Data;
-
 #endif
