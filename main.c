@@ -34,6 +34,7 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "main.h"
 
 // include search and render algorithm
@@ -180,7 +181,7 @@ static void do_algorithm(Data *data, char *input_file)
 	PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(output_file, "%s.%04d.jpg", input_file, frame_number + 1);
+		sprintf(output_file, "Result/%s.%04d.jpg", input_file, frame_number + 1);
 		
 		// 실제 bmp 파일을 만들어 줍니다.
 		//OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
@@ -294,6 +295,9 @@ long_option:
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);
 
+	// 결과 출력 폴더를 체크합니다.
+	mkdir("Result", NULL);
+	
 	// 알고리즘을 수행합니다.
 	do_algorithm(&data, input_file);
 

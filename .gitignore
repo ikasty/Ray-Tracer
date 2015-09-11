@@ -3,6 +3,7 @@
 *.bmp
 *.jpg
 *.jpeg
+Result
 
 ## Windows explorer ignore
 thumbs.db
