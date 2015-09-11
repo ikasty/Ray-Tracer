@@ -13,6 +13,39 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="소스 파일\images">
+      <UniqueIdentifier>{494fd9c4-322a-4c4c-9d11-be7fad6a238f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\include">
+      <UniqueIdentifier>{f007c77a-afc0-469a-8de3-04157a4b72bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\kdtree">
+      <UniqueIdentifier>{852dbf84-3390-4838-a603-bf7d86f0e913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\naive">
+      <UniqueIdentifier>{ce801867-a63c-46c1-9cfa-674dee3500fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\shading">
+      <UniqueIdentifier>{fbaab0a3-d7f6-41b9-a003-c632951f78b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\images">
+      <UniqueIdentifier>{1f4e8d70-023f-4b3a-a552-2777255c6127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\include">
+      <UniqueIdentifier>{97f85df6-2c20-48f3-96ee-efe0637c3371}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\include\images">
+      <UniqueIdentifier>{0c6d220b-6aba-46d2-8eba-4b7c5cf6c840}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\kdtree">
+      <UniqueIdentifier>{03389b3b-dca1-45d0-b98e-0f64a2d96ffa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\naive">
+      <UniqueIdentifier>{ae7f2552-77b9-4233-b885-9a3343802645}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\shading">
+      <UniqueIdentifier>{47b24a68-b024-469f-a64e-790bab77c36c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_read.h">
@@ -30,149 +63,116 @@
     <ClInclude Include="gen_ray.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitmap.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\debug-msg.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\msl_math.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\bbox.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\kdtree_queue.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\kdtree_type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\nlog2n_build.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="naive\naive_intersection.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="algorithms.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="include\getopt.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\list.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\queue.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\kdtree_common.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\nlogn_build.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\binning_build.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\kdtree_intersect_clear.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="shading\naive_shading.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="shading\phong_shading.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="shading\shading.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\type.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="kdtree\exclusion_build.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="timecheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="kdtree\exclusion_build.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jconfig.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jerror.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jmorecfg.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jpeglib.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="timecheck.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="images\image_bmp.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_buffer.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_flags.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_gif.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_jpeg.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_png.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_read.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
     </ClInclude>
     <ClInclude Include="images\image_tiff.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\debug-msg.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\getopt.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\list.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msl_math.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\queue.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\type.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\bitmap.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jconfig.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jerror.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jmorecfg.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\jpeglib.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\bbox.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\binning_build.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\exclusion_build.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\kdtree_common.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\kdtree_intersect_clear.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\kdtree_queue.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\kdtree_type.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\nlog2n_build.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="kdtree\nlogn_build.h">
+      <Filter>헤더 파일\kdtree</Filter>
+    </ClInclude>
+    <ClInclude Include="naive\naive_intersection.h">
+      <Filter>헤더 파일\naive</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\naive_shading.h">
+      <Filter>헤더 파일\shading</Filter>
+    </ClInclude>
+    <ClInclude Include="shading\phong_shading.h">
+      <Filter>헤더 파일\shading</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="include\getopt.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\bbox.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\binning_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\exclusion_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\kdtree_common.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\kdtree_intersect_clear.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\nlog2n_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="kdtree\nlogn_build.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="naive\naive_intersection.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="shading\naive_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="shading\phong_shading.c">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="shading\shading.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -198,25 +198,58 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="images\image_bmp.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_buffer.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_gif.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_jpeg.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_png.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_read.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
     </ClCompile>
     <ClCompile Include="images\image_tiff.c">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\images</Filter>
+    </ClCompile>
+    <ClCompile Include="include\getopt.c">
+      <Filter>소스 파일\include</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\bbox.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\kdtree_common.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\kdtree_intersect_clear.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\exclusion_build.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\binning_build.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\nlog2n_build.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="kdtree\nlogn_build.c">
+      <Filter>소스 파일\kdtree</Filter>
+    </ClCompile>
+    <ClCompile Include="naive\naive_intersection.c">
+      <Filter>소스 파일\naive</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\naive_shading.c">
+      <Filter>소스 파일\shading</Filter>
+    </ClCompile>
+    <ClCompile Include="shading\phong_shading.c">
+      <Filter>소스 파일\shading</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
