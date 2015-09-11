@@ -120,21 +120,6 @@
     <ClInclude Include="include\type.h">
       <Filter>헤더 파일\include</Filter>
     </ClInclude>
-    <ClInclude Include="include\bitmap.h">
-      <Filter>헤더 파일\include\images</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jconfig.h">
-      <Filter>헤더 파일\include\images</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jerror.h">
-      <Filter>헤더 파일\include\images</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jmorecfg.h">
-      <Filter>헤더 파일\include\images</Filter>
-    </ClInclude>
-    <ClInclude Include="include\jpeglib.h">
-      <Filter>헤더 파일\include\images</Filter>
-    </ClInclude>
     <ClInclude Include="kdtree\bbox.h">
       <Filter>헤더 파일\kdtree</Filter>
     </ClInclude>
@@ -170,6 +155,60 @@
     </ClInclude>
     <ClInclude Include="shading\phong_shading.h">
       <Filter>헤더 파일\shading</Filter>
+    </ClInclude>
+    <ClInclude Include="include\pstdint.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\zconf.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\zlib.h">
+      <Filter>헤더 파일\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\jpeglib.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\jpegint.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\jmorecfg.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\jerror.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\jconfig.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\bitmap.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\gif_lib.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\png.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\pngconf.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\pnglibconf.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\tiff.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\tiffconf.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\tiffconf.vc.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\tiffio.h">
+      <Filter>헤더 파일\include\images</Filter>
+    </ClInclude>
+    <ClInclude Include="include\images\tiffvers.h">
+      <Filter>헤더 파일\include\images</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
