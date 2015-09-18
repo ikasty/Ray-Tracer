@@ -94,7 +94,7 @@ static void do_algorithm(Data *data, char *input_file)
 {
 	char		output_file[100];			// 출력 이미지 파일 이름 버퍼
 
-	Image*	screen_buffer = NULL;				// bmp파일을 위한 색상정보가 들어가는 배열입니다.
+	Image*	screen_buffer = NULL;			// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 	int			index_x, index_y;			// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
 	int			frame_number;				// 현재 이미지 frame 번호
 
@@ -102,7 +102,7 @@ static void do_algorithm(Data *data, char *input_file)
 	USE_TIMECHECK();
 
 	//screen_buffer = (int*)malloc(sizeof(int) * screen->xsize * screen->ysize);
- screen_buffer = image_init(screen->xsize, screen->ysize); 
+	screen_buffer = image_init(screen->xsize, screen->ysize); 
 
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
@@ -166,7 +166,7 @@ static void do_algorithm(Data *data, char *input_file)
 				if (ist_hit.t > 0)
 				{
 					//unsigned int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
-     RGBA *pixel = &(screen_buffer->pixels[index_y][index_x]);
+					RGBA *pixel = &(screen_buffer->pixels[index_y][index_x]);
 
 					// 교차된 Primitive가 있다면 렌더링함
 					TIMECHECK_START();
@@ -204,19 +204,15 @@ int main(int argc, char *argv[])
 
 	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:s:S:")) != -1)
+	while ((c = getopt(argc, argv, "Xhc:a:f:s:S:")) != -1)
 	{
-long_option:
+		if ( LONG_OPTION(longopt, "frame-count") )	c = 'c';
+		if ( LONG_OPTION(longopt, "help") )			c = 'h';
+		if ( LONG_OPTION(longopt, "file") )			c = 'f';
+		if ( LONG_OPTION(longopt, "no-opengl") )	c = 'X';
+
 		switch (c)
 		{
-		case '-':
-			if (strncmp(optarg, "count", 5) == 0)		c = 'c', optarg += 5;
-			else if (strncmp(optarg, "help", 4) == 0)	c = 'h', optarg += 4;
-			else if (strncmp(optarg, "file", 4) == 0)	c = 'f', optarg += 4;
-
-			if (*optarg == '=') optarg++;
-			goto long_option;
-
 		case 'c':
 			screen->frame_count = atoi(optarg);
 			printf("set frame count = %d\n", screen->frame_count);
@@ -235,6 +231,10 @@ long_option:
 			printf("object scale to %f\n", scale);
 			break;
 
+		case 'X':
+			// TODO: OpenGL 사용하지 않을 경우 기존 방식으로 하도록 flag 넣을 것
+			break;
+
 		case 'f':
 			if (input_file[0] != '\0') break;
 			printf("set filename %s\n", optarg);
@@ -249,7 +249,7 @@ long_option:
 			printf(
 				"Usage: ./RayTracing.exe [options] [filename]\n"
 				"Options:\n"
-				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
+				"  -c COUNT, --frame-count=COUNT\t"		"Set frame count.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
 				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
 				"  -S SCALE\t\t\t\t"					"Set object scale factor\n"
