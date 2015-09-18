@@ -70,6 +70,7 @@ either expressed or implied, of the FreeBSD Project.
 struct __screen_info {
 	int xsize, ysize;
 	int distance, frame_count;
+	int frame_number;
 };
 extern struct __screen_info __screen__;
 
