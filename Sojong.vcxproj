@@ -92,6 +92,7 @@ xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I<
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="algorithms.h" />
+    <ClInclude Include="do_algorithm.h" />
     <ClInclude Include="file_read.h" />
     <ClInclude Include="gen_ray.h" />
     <ClInclude Include="images\image_bmp.h" />
@@ -146,6 +147,7 @@ xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I<
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="algorithms.c" />
+    <ClCompile Include="do_algorithm.c" />
     <ClCompile Include="file_read.c" />
     <ClCompile Include="gen_ray.c" />
     <ClCompile Include="images\image_bmp.c" />
