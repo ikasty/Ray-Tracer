@@ -45,6 +45,8 @@ either expressed or implied, of the FreeBSD Project.
 // code compatibility
 #ifdef _WIN32
 #	define inline
+#	include <windows.h>
+#	define mkdir CreateDirectory
 #else
 
 #endif

@@ -2,17 +2,9 @@
 #include "image_buffer.h"
 
 int rgb_buffer_calloc(Image *image, int col, int row) {
-	int i;
-
-	image->pixels = (RGBA **)calloc(row, sizeof(RGBA *));
+	image->pixels = (RGBA *)calloc(row * col, sizeof(RGBA));
 	if (!image->pixels)
 		return -1;
-	for (i = 0; i < row; i++)
-	{
-		image->pixels[i] = (RGBA *)calloc(col, sizeof(RGBA));
-		if (!image->pixels[i])
-			return -1;
-	}
 	
 	return 0;
 }
@@ -44,10 +36,8 @@ int image_free(Image* image) {
 }
 
 int image_reset(Image* image) {
- int i;
  //PDEBUG("image reset start\n");
- for(i = 0; i < image->height; i++)
-  memset(image->pixels[i], 0, sizeof(RGBA) * image->width); 
+ memset(image->pixels, 0, sizeof(RGBA) * image->width * image->height);
 
  //PDEBUG("image reset end\n");
  return 0;

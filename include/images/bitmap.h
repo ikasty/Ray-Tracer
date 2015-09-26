@@ -48,24 +48,19 @@ either expressed or implied, of the FreeBSD Project.
 #pragma ms_struct off
 #endif
 
-#ifdef _WIN32
-struct tagBITMAPFILEHEADER {
-#else
+#ifndef _WIN32
 struct __attribute__ ((aligned (2), packed, ms_struct)) tagBITMAPFILEHEADER {
-#endif
 	WORD    bfType;
 	DWORD   bfSize;
 	WORD    bfReserved1;
 	WORD    bfReserved2;
 	DWORD   bfOffBits;
 };
+#endif
 typedef struct tagBITMAPFILEHEADER BITMAPFILEHEADER;
 
-#ifdef _WIN32
-struct tagBITMAPINFOHEADER{
-#else
+#ifndef _WIN32
 struct __attribute__((aligned(1), packed, ms_struct)) tagBITMAPINFOHEADER{
-#endif
 	DWORD      biSize;
 	LONG       biWidth;
 	LONG       biHeight;
@@ -78,6 +73,7 @@ struct __attribute__((aligned(1), packed, ms_struct)) tagBITMAPINFOHEADER{
 	DWORD      biClrUsed;
 	DWORD      biClrImportant;
 };
+#endif
 typedef struct tagBITMAPINFOHEADER BITMAPINFOHEADER;
 
 #ifdef _WIN32

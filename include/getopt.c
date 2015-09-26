@@ -8,6 +8,7 @@
 
 int optind = 0;
 char *optarg;
+char *longopt;
 
 int getopt(int argc, char *argv[], char *optstring)
 {
@@ -15,6 +16,7 @@ int getopt(int argc, char *argv[], char *optstring)
 	char c, *cp;
 
 	optarg = NULL;
+	longopt = NULL;
 
 	if (next == NULL || *next == '\0')
 	{
@@ -37,9 +39,24 @@ int getopt(int argc, char *argv[], char *optstring)
 
 	if (c == '-')
 	{
-		optarg = next;
+		// long option
+		longopt = next++;
+
+		// search value (if exist)
+		for (; *next && (*next) != '='; next++);
+		if (*next)
+		{
+			optarg = next;
+			next = NULL;
+		}
+		else if (optind < argc)
+		{
+			optarg = argv[optind];
+			optind++;
+		}
 		return '-';
 	}
+
 	if (cp == NULL || c == ':')
 		return '?';
 	

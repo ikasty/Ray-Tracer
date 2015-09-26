@@ -34,15 +34,19 @@ either expressed or implied, of the FreeBSD Project.
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "main.h"
 
 // include search and render algorithm
 #include "algorithms.h"
 
-// shading algorithm
-#include "shading/shading.h"
+// do algorithm
+#include "do_algorithm.h"
 
-//#include "bitmap_make.h"
+// glut system
+#include "glut/glut.h"
+#include "interface/opengl.h"
+
 #include "obj_transform.h"
 #include "timecheck.h"
 #include "settings.h"
@@ -54,8 +58,11 @@ either expressed or implied, of the FreeBSD Project.
 // PDEBUG() 디버그 메시지 함수 선언
 PDEBUG_INIT();
 
+// opengl 사용 여부 flag
+static int use_opengl = true;
+
 // 콘솔 화면에 진행상황을 출력해 줍니다.
-static void print_percent(int frame_number, float percent)
+static void print_percent(float percent)
 {
 	int i;
 	USE_SCREEN(screen);
@@ -66,7 +73,10 @@ static void print_percent(int frame_number, float percent)
 		__PDEBUG_ENABLED = 0;
 	});
 
-	printf("\rframe %02d/%02d: [", frame_number, screen->frame_count);
+	printf("\rframe %02d/%02d: [", screen->frame_number, screen->frame_count);
+
+	// frame 개수를 고려한 percent 계산
+	percent = (percent + screen->frame_number * 100) / screen->frame_count;
 
 	for (i = 0; i <= (int)(percent / 5); i++) printf("=");
 	for (i = (int)(percent / 5); i < 20; i++) printf(" ");
@@ -89,24 +99,20 @@ static void print_percent(int frame_number, float percent)
 	fflush(stdout);
 }
 
-static void do_algorithm(Data *data, char *input_file)
+static void do_console(Data *data, char *input_file)
 {
 	char		output_file[100];			// 출력 이미지 파일 이름 버퍼
-
-	Image*	screen_buffer = NULL;				// bmp파일을 위한 색상정보가 들어가는 배열입니다.
-	int			index_x, index_y;			// 스크린의 픽셀별로 통과하는 광선의 x, y축 좌표 인덱스
 	int			frame_number;				// 현재 이미지 frame 번호
+	Image*		screen_buffer = NULL;		// bmp파일을 위한 색상정보가 들어가는 배열입니다.
 
 	USE_SCREEN(screen);
-	USE_TIMECHECK();
 
-	//screen_buffer = (int*)malloc(sizeof(int) * screen->xsize * screen->ysize);
- screen_buffer = image_init(screen->xsize, screen->ysize); 
+	screen_buffer = image_init(screen->xsize, screen->ysize);
 
 	for (frame_number = 0; frame_number < screen->frame_count; frame_number++)
 	{
-	//// -- pre-step phase --
-	PDEBUG("main.c pre-step phase\n");
+		//// -- pre-step phase --
+		PDEBUG("main.c pre-step phase\n");
 
 		// 우선 해당 frame_number에 맞게 object를 회전합니다.
 		if (frame_number)
@@ -122,72 +128,24 @@ static void do_algorithm(Data *data, char *input_file)
 			}
 		}
 
-		// 이미지 버퍼를 초기화해 줍니다.
-		//memset(screen_buffer, 0, sizeof(int) * screen->xsize * screen->ysize);
-		image_reset(screen_buffer);
+		//// -- execute phase --
+		PDEBUG("main.c execute phase\n");
+		screen->frame_number = frame_number;
+		do_algorithm(data, screen_buffer, &print_percent);
 
-	//// -- execute phase --
-	PDEBUG("main.c execute phase\n");
-
-		// 만약 가속구조체를 사용한다면 빌드함
-		if (accel_build)
-		{
-			// 기존 구조체 해제
-			if (clear_accel) (*clear_accel)(data);
-
-			TIMECHECK_START();
-			(*accel_build)(data);
-			TIMECHECK_END(build_clock);
-
-			PDEBUG("accel_build finished\n");
-		}
-
-		// 각 픽셀별로 교차검사를 수행합니다.
-		for (index_y = 0; index_y < screen->ysize; index_y++)
-		{
-			float percent;
-
-			// 진행 상태 출력
-			percent = ((float)index_y / screen->ysize + frame_number) / screen->frame_count * 100.0f;
-			print_percent(frame_number, percent);
-
-			for (index_x = 0; index_x < screen->xsize; index_x++)
-			{
-				Ray f_ray = gen_ray((float)index_x, (float)index_y);
-				Hit ist_hit;
-
-				// 현재 광선에서 교차검사를 수행함
-				TIMECHECK_START();
-				ist_hit = (*intersect_search)(data, &f_ray);
-				TIMECHECK_END(search_clock);
-
-				// bmp파일을 작성에 필요한 색상정보를 입력합니다.
-				if (ist_hit.t > 0)
-				{
-					//unsigned int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
-     RGBA *pixel = &(screen_buffer->pixels[index_y][index_x]);
-
-					// 교차된 Primitive가 있다면 렌더링함
-					TIMECHECK_START();
-					*pixel = shading(f_ray, data->primitives[ist_hit.prim_id], ist_hit, data);
-					TIMECHECK_END(render_clock);
-				}
-			}
-
-		} // index_y
-	
-	//// -- post-step phase --
-	PDEBUG("main.c post-step phase\n");
+		//// -- post-step phase --
+		PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(output_file, "%s.%04d.jpg", input_file, frame_number + 1);
-		
+		sprintf(output_file, "Result/%s.%04d.bmp", input_file, frame_number + 1);
+
 		// 실제 bmp 파일을 만들어 줍니다.
 		//OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
 		image_write(screen_buffer, output_file, IMAGE_NO_FLAGS);
 	} // index_x
 
-	print_percent(frame_number, 100.0f);
+	screen->frame_number = screen->frame_count;
+	print_percent(100.0f);
 
 	free(screen_buffer);
 }
@@ -203,19 +161,15 @@ int main(int argc, char *argv[])
 
 	// -- 명령줄 옵션 처리
 	char c;
-	while ((c = getopt(argc, argv, "hc:a:f:s:S:")) != -1)
+	while ((c = getopt(argc, argv, "Xhc:a:f:s:S:")) != -1)
 	{
-long_option:
+		if ( LONG_OPTION(longopt, "frame-count") )	c = 'c';
+		if ( LONG_OPTION(longopt, "help") )			c = 'h';
+		if ( LONG_OPTION(longopt, "file") )			c = 'f';
+		if ( LONG_OPTION(longopt, "no-opengl") )	c = 'X';
+
 		switch (c)
 		{
-		case '-':
-			if (strncmp(optarg, "count", 5) == 0)		c = 'c', optarg += 5;
-			else if (strncmp(optarg, "help", 4) == 0)	c = 'h', optarg += 4;
-			else if (strncmp(optarg, "file", 4) == 0)	c = 'f', optarg += 4;
-
-			if (*optarg == '=') optarg++;
-			goto long_option;
-
 		case 'c':
 			screen->frame_count = atoi(optarg);
 			printf("set frame count = %d\n", screen->frame_count);
@@ -234,6 +188,10 @@ long_option:
 			printf("object scale to %f\n", scale);
 			break;
 
+		case 'X':
+			use_opengl = false;
+			break;
+
 		case 'f':
 			if (input_file[0] != '\0') break;
 			printf("set filename %s\n", optarg);
@@ -243,17 +201,19 @@ long_option:
 		// program will terminated!
 		case '?':
 		default:
-			printf("unknown command %s\n!", argv[optind - 1]);
+			printf("unknown command\n!");
 		case 'h':
 			printf(
 				"Usage: ./RayTracing.exe [options] [filename]\n"
 				"Options:\n"
-				"  -c COUNT, --count=COUNT\t\t"			"Set frame count.\n"
+				"  -h, --help\t\t\t\t"					"Print this message and exit.\n"
+				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
 				"  -a (naive|nlog2n|nlongn)\t\t"		"Set search algorithm.\n"
 				"  -s (naive|advanced)\t\t\t"			"Set shading algorithm.\n"
 				"  -S SCALE\t\t\t\t"					"Set object scale factor\n"
-				"  -f FILENAME, --file=FILENAME\t\t"	"Set obj filename.\n"
-				"  -h, --help\t\t\t\t"					"Print this message and exit.\n");
+				"  -X\t\t\t\t\t"						"Not use opengl(only for console)\n"
+				"  -c COUNT, --frame-count=COUNT\t\t"	"Set frame count(only for console)\n"
+				);
 
 			return (c == 'h') ? 0 : -1;
 		}
@@ -294,8 +254,19 @@ long_option:
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
 	set_rotate(screen->frame_count);
 
+	// 결과 출력 폴더를 체크합니다.
+	mkdir("Result", NULL);
+
 	// 알고리즘을 수행합니다.
-	do_algorithm(&data, input_file);
+	if (use_opengl)
+	{
+		glutInit(&argc, argv);
+		do_opengl(&data);
+	}
+	else
+	{
+		do_console(&data, input_file);
+	}
 
 	return 0;
 }

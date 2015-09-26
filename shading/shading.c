@@ -158,7 +158,7 @@ void get_rgb_for_point(RGBA *color, float point[3], Primitive prim, Data *data){
 	int pos[2];
 
 	get_pos_on_texture_for_point(pos, point, prim, &data->texture);
-	*color = data->texture.pixels[pos[0]][pos[1]];
+	*color = data->texture.pixels[pos[0] + pos[1] * data->texture.width];
 }
 
 RGBA shading(Ray ray_screen_to_point, Primitive primitive, Hit hit, Data *data)
