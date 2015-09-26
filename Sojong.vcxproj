@@ -40,11 +40,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)glut;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows\vs2015;$(SolutionDir)glut;</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);$(SolutionDir)glut</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)glut;</IncludePath>
-    <LibraryPath>$(SolutionDir)lib\i386\windows\vs2015;$(LibraryPath);$(SolutionDir)glut;</LibraryPath>
+    <LibraryPath>$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);$(LibraryPath);$(SolutionDir)glut</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -65,7 +65,7 @@
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
-xcopy "$(SolutionDir)lib\i386\windows\vs2015\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
+xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -88,7 +88,7 @@ xcopy "$(SolutionDir)lib\i386\windows\vs2015\libjpeg-9.dll" "$(OutDir)" /F /R /Y
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
-xcopy "$(SolutionDir)lib\i386\windows\vs2015\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
+xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

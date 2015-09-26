@@ -13,13 +13,14 @@ desktop.ini
 depend_file
 
 ## 3D Object files
+*/*.obj
 *.obj
-# 표준 teapot.obj 파일은 추가함
-!teapot.obj
+## 표준 teapot.obj 파일은 추가함
+!/teapot.obj
 *.mtl
 *.jpg
 # 샘플 텍스쳐 파일 추가
-!texture_sample.jpg
+!/texture_sample.jpg
 
 ###########################################################
 ## Ignore for C
