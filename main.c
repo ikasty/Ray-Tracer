@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 	set_rotate(screen->frame_count);
 
 	// 결과 출력 폴더를 체크합니다.
-	mkdir("Result", NULL);
+	mkdir("Result", 0);
 
 	// 알고리즘을 수행합니다.
 	if (use_opengl)

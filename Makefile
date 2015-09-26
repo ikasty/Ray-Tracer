@@ -2,7 +2,7 @@ CC = gcc
 ARCH := $(shell getconf LONG_BIT)
 LIBPATH32 = ./lib/i386/linux/
 LIBPATH64 = ./lib/amd64/linux/
-CCLIB := -lm -msse2 -mfpmath=sse -L $(LIBPATH$(ARCH)) -ljpeg
+CCLIB := -lm -msse2 -mfpmath=sse -L $(LIBPATH$(ARCH)) -ljpeg -lglut -lGLU -lGL
 TARGET = RayTracing.exe
 
 ### include current folder (for headers)
@@ -33,6 +33,10 @@ DIR_CHECK += shading
 ### images folder add
 SRCS += $(addprefix images/, $(shell ls images | grep c$$))
 DIR_CHECK += images
+
+### interface folder add
+SRCS += $(addprefix interface/, $(shell ls interface | grep c$$))
+DIR_CHECK += interface
 
 RELEASE_DIR = gcc_release
 DEBUG_DIR = gcc_debug

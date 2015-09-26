@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -89,7 +89,8 @@ xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" 
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
 xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
-      <Command>xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
+      <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
+xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
