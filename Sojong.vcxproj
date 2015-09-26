@@ -139,6 +139,7 @@ xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I<
     <ClInclude Include="main.h" />
     <ClInclude Include="naive\naive_intersection.h" />
     <ClInclude Include="obj_transform.h" />
+    <ClInclude Include="interface\opengl.h" />
     <ClInclude Include="settings.h" />
     <ClInclude Include="shading\naive_shading.h" />
     <ClInclude Include="shading\phong_shading.h" />
@@ -168,6 +169,7 @@ xcopy "$(SolutionDir)lib\i386\windows\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I<
     <ClCompile Include="main.c" />
     <ClCompile Include="naive\naive_intersection.c" />
     <ClCompile Include="obj_transform.c" />
+    <ClCompile Include="interface\opengl.c" />
     <ClCompile Include="settings.c" />
     <ClCompile Include="shading\naive_shading.c" />
     <ClCompile Include="shading\phong_shading.c" />

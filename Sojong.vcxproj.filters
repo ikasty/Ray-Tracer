@@ -46,6 +46,12 @@
     <Filter Include="헤더 파일\shading">
       <UniqueIdentifier>{47b24a68-b024-469f-a64e-790bab77c36c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\interface">
+      <UniqueIdentifier>{1de82fa2-38d6-4d55-9558-de30f839907c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\interface">
+      <UniqueIdentifier>{00027902-c58e-4a1d-b487-05d0f0297255}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="file_read.h">
@@ -213,6 +219,9 @@
     <ClInclude Include="do_algorithm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="interface\opengl.h">
+      <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shading\shading.c">
@@ -295,6 +304,9 @@
     </ClCompile>
     <ClCompile Include="do_algorithm.c">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\opengl.c">
+      <Filter>소스 파일\interface</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

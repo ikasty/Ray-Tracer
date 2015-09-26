@@ -43,6 +43,10 @@ either expressed or implied, of the FreeBSD Project.
 // do algorithm
 #include "do_algorithm.h"
 
+// glut system
+#include "glut/glut.h"
+#include "interface/opengl.h"
+
 #include "obj_transform.h"
 #include "timecheck.h"
 #include "settings.h"
@@ -133,7 +137,7 @@ static void do_console(Data *data, char *input_file)
 		PDEBUG("main.c post-step phase\n");
 
 		// output_file 변수에 파일 이름을 집어넣어 줍니다.
-		sprintf(output_file, "Result/%s.%04d.jpg", input_file, frame_number + 1);
+		sprintf(output_file, "Result/%s.%04d.bmp", input_file, frame_number + 1);
 
 		// 실제 bmp 파일을 만들어 줍니다.
 		//OutputFrameBuffer(screen->xsize, screen->ysize, screen_buffer, output_file);
@@ -256,7 +260,8 @@ int main(int argc, char *argv[])
 	// 알고리즘을 수행합니다.
 	if (use_opengl)
 	{
-		// TODO: Opengl 사용하는 함수 넣기
+		glutInit(&argc, argv);
+		do_opengl(&data);
 	}
 	else
 	{
