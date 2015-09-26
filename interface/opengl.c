@@ -21,6 +21,9 @@ static void draw(void)
 
 	do_algorithm(_data, screen_buffer, NULL);
 
+	// RGBA´Â unsigned byte Å¸ÀÔÀÓ
+	glDrawPixels(screen->xsize, screen->ysize, GL_RGBA, GL_UNSIGNED_BYTE, screen_buffer->pixels);
+
 	glFlush();
 }
 

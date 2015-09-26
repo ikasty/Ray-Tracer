@@ -58,7 +58,7 @@ void do_algorithm(Data *data, Image *screen_buffer, void (*print_percent)(float 
 			if (ist_hit.t > 0)
 			{
 				//unsigned int *pixel = &screen_buffer[screen->xsize * index_y + index_x];
-				RGBA *pixel = &(screen_buffer->pixels[index_y][index_x]);
+				RGBA *pixel = &(screen_buffer->pixels[index_y * screen->xsize + index_x]);
 
 				// 교차된 Primitive가 있다면 렌더링함
 				TIMECHECK_START();

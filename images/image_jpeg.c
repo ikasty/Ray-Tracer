@@ -42,7 +42,8 @@ int jpeg_read(Image *image, char *filename, int flags){
 		for(i = 0; i < width; i++) {
 			for(j = 0; j < components; j++) {
 //    PDEBUG("jpeg] scanline : %d, width : %d, height : %d, counter : %d+%d\n", jpeg_info.output_scanline, width, height, i, j);
-				image->pixels[height-jpeg_info.output_scanline][i].l[components - j - 1] = buffer[0][i*components + j];
+				//image->pixels[height-jpeg_info.output_scanline][i].l[components - j - 1] = buffer[0][i*components + j];
+				image->pixels[(height - jpeg_info.output_scanline) * width + i].l[components - j - 1] = buffer[0][i*components + j];
 			}
 		}
 //  PDEBUG("jpeg] scanline end at %d\n", jpeg_info.output_scanline);
@@ -103,7 +104,8 @@ int jpeg_write(Image *image, char *filename, int flags) {
   for(i = 0; i < (signed)cinfo.image_width; i++) {
    for(j = 0; j < cinfo.input_components; j++) {
     //PDEBUG("jpeg] scanline : %d, width : %d, height : %d, counter : %d+%d\n", cinfo.next_scanline, cinfo.image_width, cinfo.image_height, i, j);
-    row_pointer[0][i*cinfo.input_components + j] = image->pixels[cinfo.image_height - cinfo.next_scanline-1][i].l[cinfo.input_components - j - 1];
+    //row_pointer[0][i*cinfo.input_components + j] = image->pixels[cinfo.image_height - cinfo.next_scanline-1][i].l[cinfo.input_components - j - 1];
+	row_pointer[0][i*cinfo.input_components + j] = image->pixels[(cinfo.image_height - cinfo.next_scanline - 1)*cinfo.image_width + i].l[cinfo.input_components - j - 1];
    }
   }
   jpeg_write_scanlines(&cinfo, row_pointer, 1);

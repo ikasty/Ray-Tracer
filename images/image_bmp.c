@@ -9,8 +9,6 @@ int bmp_read(Image *image, char *filename, int flags){
 
 // bmp 포맷 쓰기
 int bmp_write(Image *image, char *filename, int flags){
-
- int i;
  BITMAPFILEHEADER FileHeader;
  BITMAPINFOHEADER ImageHeader;
 
@@ -44,9 +42,11 @@ int bmp_write(Image *image, char *filename, int flags){
  fwrite(&FileHeader, sizeof(BYTE), sizeof(BITMAPFILEHEADER), fp);
  fwrite(&ImageHeader, sizeof(BYTE), sizeof(BITMAPINFOHEADER), fp);
  //PDEBUG("DWORD : %d, RGBA : %d\n", sizeof(DWORD), sizeof(RGBA));
- // fwrite(FB, sizeof(DWORD), res_x * res_y, fp);
+ fwrite(image->pixels, sizeof(DWORD), image->width * image->height, fp);
+ /*
  for(i = 0; i < image->height; i++)
   fwrite(image->pixels[i], sizeof(DWORD), image->width, fp);
+  */
 
  fclose(fp);
 
