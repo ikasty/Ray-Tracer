@@ -45,20 +45,15 @@ either expressed or implied, of the FreeBSD Project.
 
 // 삼각형 로테이트 시키기
 // 님들 선대시간에 회전 transformation할때 쓰는 행렬 배웠죠? 이게 그겁니다. 으아아앙!
-static float transformation[3][3];
+static float transformation[6][3][3]; // direction, x, y
 
 /* 
 set_rotate: 받은 frame 번호를 바탕으로 로테이션에 필요한 기본 정보를 채우는 함수입니다.
 */
-void set_rotate(int num_frame)
+void set_rotate(float degree)
 {
-	float degree, radian;
+	float radian;
 	float r_cos, r_sin;
-
-	USE_SCREEN(screen);
-
-	// frame 개수만큼 돌아갈 각도를 계산합니다.
-	degree = 360.f / screen->frame_count;
 
 	// 각도 표현을 라디안 표현법으로 고치기
 	radian = degree * (float)PI / 180; 
@@ -70,38 +65,67 @@ void set_rotate(int num_frame)
 	memset(transformation, 0, sizeof(transformation));
 
 	// transformation 수행에 필요한 행렬에 값을 집어넣습니다.
-	transformation[0][0] =  r_cos;
-	transformation[0][2] =  r_sin;
-	transformation[1][1] =  1;
-	transformation[2][0] = -r_sin;
-	transformation[2][2] =  r_cos;
 
 	// x축 회전
-	/*
-	transformation[0][0] =  1;
-	transformation[1][1] =  r_cos;
-	transformation[1][2] = -r_sin;
-	transformation[2][1] =  r_sin;
-	transformation[2][2] =  r_cos;
-	*/
+	transformation[X][0][0] = 1;
+	transformation[X][1][1] = r_cos;
+	transformation[X][1][2] = -r_sin;
+	transformation[X][2][1] = r_sin;
+	transformation[X][2][2] = r_cos;
+
+	// y축 회전
+	transformation[Y][0][0] =  r_cos;
+	transformation[Y][0][2] =  r_sin;
+	transformation[Y][1][1] =  1;
+	transformation[Y][2][0] = -r_sin;
+	transformation[Y][2][2] =  r_cos;
+
 	// z축 회전
-	/*
-	transformation[0][0] =  r_cos;
-	transformation[0][1] = -r_sin;
-	transformation[1][0] =  r_sin;
-	transformation[1][1] =  r_cos;
-	transformation[2][2] =  1;
-	*/
+	transformation[Z][0][0] =  r_cos;
+	transformation[Z][0][1] = -r_sin;
+	transformation[Z][1][0] =  r_sin;
+	transformation[Z][1][1] =  r_cos;
+	transformation[Z][2][2] =  1;
+
+	// x축 회전 (반대방향)
+	transformation[RX][0][0] = 1;
+	transformation[RX][1][1] = r_cos;
+	transformation[RX][1][2] = r_sin;
+	transformation[RX][2][1] = -r_sin;
+	transformation[RX][2][2] = r_cos;
+
+	// y축 회전 (반대방향)
+	transformation[RY][0][0] = r_cos;
+	transformation[RY][0][2] = -r_sin;
+	transformation[RY][1][1] = 1;
+	transformation[RY][2][0] = r_sin;
+	transformation[RY][2][2] = r_cos;
+
+	// z축 회전 (반대방향)
+	transformation[RZ][0][0] = r_cos;
+	transformation[RZ][0][1] = r_sin;
+	transformation[RZ][1][0] = -r_sin;
+	transformation[RZ][1][1] = r_cos;
+	transformation[RZ][2][2] = 1;
 }
 
 /* 
 get_rotated_vector: vector를 회전시키는 함수입니다. 
 - rotated_vector: 회전 결과가 들어갈 vector입니다.
 */
-void get_rotated_vector(float *rotated_vector)
+void get_rotated_vector(float *rotated_vector, int direction)
 {
 	int i, j;
 	float original_vector[3];
+	
+	if (direction < -3 || direction > 3) return;
+	if (!direction) return;
+
+	if (direction < 0)
+	{
+		direction = 3 - direction;
+	}
+	direction--;
 
 	memcpy(original_vector, rotated_vector, sizeof(original_vector));
 
@@ -111,7 +135,7 @@ void get_rotated_vector(float *rotated_vector)
 		rotated_vector[i] = 0;
 		for (j = 0; j < 3; j++)
 		{
-			rotated_vector[i] += transformation[i][j] * original_vector[j];
+			rotated_vector[i] += transformation[direction][i][j] * original_vector[j];
 		}
 	}
 

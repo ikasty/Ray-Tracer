@@ -38,7 +38,9 @@ either expressed or implied, of the FreeBSD Project.
 #include "include/type.h"
 
 //Primitive getTriangle(Vertex v[500], Triangle t[500], int id);
-void set_rotate(int num_frame);
-void get_rotated_vector(float *rotated_vector);
+void set_rotate(float degeree);
+void get_rotated_vector(float *rotated_vector, int direction);
+
+enum direction { X, Y, Z, RX, RY, RZ };
 
 #endif

@@ -122,8 +122,9 @@ static void do_console(Data *data, char *input_file)
 			{
 				for (j = 0; j < 3; j++)
 				{
-					get_rotated_vector(data->primitives[i].vert[j]);
-					get_rotated_vector(data->primitives[i].norm[j]);
+					// 2 == Y축 회전
+					get_rotated_vector(data->primitives[i].vert[j], 2);
+					get_rotated_vector(data->primitives[i].norm[j], 2);
 				}
 			}
 		}
@@ -252,7 +253,7 @@ int main(int argc, char *argv[])
 		PDEBUG("cannot save image file : %s\n", "texture_save_test.jpg");
 
 	// 화면 로테이션에 필요한 기본 정보를 집어넣습니다.
-	set_rotate(screen->frame_count);
+	set_rotate(360.0f / screen->frame_count);
 
 	// 결과 출력 폴더를 체크합니다.
 	mkdir("Result", NULL);
