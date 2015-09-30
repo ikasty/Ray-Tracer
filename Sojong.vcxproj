@@ -39,12 +39,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)glut;</IncludePath>
-    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);$(SolutionDir)glut</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)GL;</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)glut;</IncludePath>
-    <LibraryPath>$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);$(LibraryPath);$(SolutionDir)glut</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir);$(SolutionDir)GL;</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion);$(LibraryPath);</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -57,14 +57,13 @@
     <Link>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);libjpeg-9.debug.lib;opengl32.lib;glut32.lib;glu32.lib;</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);libjpeg-9.debug.lib;glew32.lib;freeglutd.lib;</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
-xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
+      <Command>xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\*.dll" "$(OutDir)" /F /R /Y /C /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,12 +81,11 @@ xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" 
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;glut32.lib;glu32.lib;libjpeg-9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libjpeg-9.lib;glew32.lib;freeglut.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SolutionDir)glut\glut*.dll" "$(OutDir)" /F /R /Y /C /I
-xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\libjpeg-9.dll" "$(OutDir)" /F /R /Y /C /I</Command>
+      <Command>xcopy "$(SolutionDir)lib\i386\windows\vs-v$(VisualStudioVersion)\*.dll" "$(OutDir)" /F /R /Y /C /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

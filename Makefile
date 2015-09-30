@@ -2,7 +2,7 @@ CC = gcc
 ARCH := $(shell getconf LONG_BIT)
 LIBPATH32 = ./lib/i386/linux/
 LIBPATH64 = ./lib/amd64/linux/
-CCLIB := -lm -msse2 -mfpmath=sse -L $(LIBPATH$(ARCH)) -ljpeg
+CCLIB := -lm -msse2 -mfpmath=sse -L $(LIBPATH$(ARCH)) -ljpeg -lGL -lGLU -lGLEW -lglut
 TARGET = RayTracing.exe
 
 ### include current folder (for headers)

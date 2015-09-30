@@ -1,5 +1,5 @@
 ﻿#include <stdlib.h>
-#include "glut/glut.h"
+#include "GL/glut.h"
 
 #include "images/image_read.h"
 #include "do_algorithm.h"

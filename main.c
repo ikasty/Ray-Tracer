@@ -44,7 +44,7 @@ either expressed or implied, of the FreeBSD Project.
 #include "do_algorithm.h"
 
 // glut system
-#include "glut/glut.h"
+#include "GL/glut.h"
 #include "interface/opengl.h"
 
 #include "obj_transform.h"
