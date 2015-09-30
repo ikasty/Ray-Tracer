@@ -84,6 +84,23 @@ static void keyboard(unsigned char key, int x, int y)
 	}
 }
 
+static void specialKeyboard(int key, int x, int y)
+{
+	unsigned char map_key;
+
+	switch (key)
+	{
+	case GLUT_KEY_UP:		map_key = 'w'; break;
+	case GLUT_KEY_LEFT:		map_key = 'a'; break;
+	case GLUT_KEY_DOWN:		map_key = 's'; break;
+	case GLUT_KEY_RIGHT:	map_key = 'd'; break;
+	default:
+		map_key = 0;
+	}
+
+	keyboard(map_key, x, y);
+}
+
 static void resize(int width, int height)
 {
 	window_width = width;
@@ -110,6 +127,7 @@ void do_opengl(Data *data)
 	image_window = glutCreateWindow("Sojong");
 	glutDisplayFunc(draw);
 	glutKeyboardFunc(keyboard);
+	glutSpecialFunc(specialKeyboard);
 	glutReshapeFunc(resize);
 
 	// gl initialize
