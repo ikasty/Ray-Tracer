@@ -131,6 +131,7 @@ static void do_console(Data *data, char *input_file)
 
 		//// -- execute phase --
 		PDEBUG("main.c execute phase\n");
+		image_reset(screen_buffer);
 		screen->frame_number = frame_number;
 		do_algorithm(data, screen_buffer, &print_percent);
 
