@@ -125,6 +125,8 @@
     <ClInclude Include="include\type.h" />
     <ClInclude Include="include\zconf.h" />
     <ClInclude Include="include\zlib.h" />
+    <ClInclude Include="interface\opengl_menu.h" />
+    <ClInclude Include="interface\opengl_menu_data.h" />
     <ClInclude Include="kdtree\bbox.h" />
     <ClInclude Include="kdtree\binning_build.h" />
     <ClInclude Include="kdtree\exclusion_build.h" />
@@ -157,6 +159,7 @@
     <ClCompile Include="images\image_read.c" />
     <ClCompile Include="images\image_tiff.c" />
     <ClCompile Include="include\getopt.c" />
+    <ClCompile Include="interface\opengl_menu.c" />
     <ClCompile Include="kdtree\bbox.c" />
     <ClCompile Include="kdtree\binning_build.c" />
     <ClCompile Include="kdtree\exclusion_build.c" />

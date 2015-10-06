@@ -222,6 +222,12 @@
     <ClInclude Include="interface\opengl.h">
       <Filter>헤더 파일\interface</Filter>
     </ClInclude>
+    <ClInclude Include="interface\opengl_menu.h">
+      <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="interface\opengl_menu_data.h">
+      <Filter>헤더 파일\interface</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="shading\shading.c">
@@ -306,6 +312,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="interface\opengl.c">
+      <Filter>소스 파일\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="interface\opengl_menu.c">
       <Filter>소스 파일\interface</Filter>
     </ClCompile>
   </ItemGroup>
