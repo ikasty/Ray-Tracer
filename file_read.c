@@ -260,7 +260,7 @@ int file_read(FILE* fp, Data *data, float scale)
 
 			continue;
 		}
-		else if (strcmp(op, "vn") == 0){
+		else if (strcmp(op, "vn") == 0 || strcmp(op, "n") == 0 ){
 			float i, j, k;
 
 			resize_if_full( (void**)&norm, norm_count, &norm_capacity, sizeof(norm[0]) );

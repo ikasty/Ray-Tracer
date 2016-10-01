@@ -266,7 +266,7 @@ long_option:
 	}
 
 	// 기본 알고리즘 선택
-	init_search_algo("");
+	init_search_algo("nlogn");
 	init_shading_algo("");
 	// -- 명령줄 옵션 처리 끝
 	
@@ -283,6 +283,6 @@ long_option:
 
 	// 알고리즘을 수행합니다.
 	do_algorithm(&data, input_file);
-
+	system("pause");
 	return 0;
 }
